@@ -1,0 +1,8 @@
+#!/bin/sh
+JAVALIB=/segfs/tango/lib/java;
+JAVABIN=/segfs/tango/bin/java;
+CLASSPATH=$JAVALIB/TangORB.jar:$JAVABIN/atkpanel.jar:$JAVALIB/ATKCore.jar:$JAVALIB/ATKWidget.jar:/segfs/dserver/lib/java/Taco.jar:.
+export CLASSPATH
+echo $CLASSPATH
+echo   Starting...
+java   -DTANGO_HOST=$TANGO_HOST -DNETHOST=$NETHOST jive.ExecDev $@

@@ -1,0 +1,3 @@
+#!/bin/sh
+rm /segfs/tango/bin/java/Jive.jar
+jar cvf /segfs/tango/bin/java/Jive.jar jive/*.class
