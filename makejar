@@ -1,12 +1,3 @@
 #!/bin/sh
-VERSION=`grep "String appVersion" jive3/MainPanel.java | awk '{print $8}'`
-echo "Building Jive v$VERSION"
-TARGET_DIR=/segfs/tango/release/java/appli
-
-jar cvf $TARGET_DIR/Jive-$VERSION.jar jive/*.class jive/*.gif jive/*.jpg jive3/*.class
-
-cd $TARGET_DIR
-rm -f Jive.jar
-ln -s Jive-$VERSION.jar Jive.jar
-chmod g+w Jive-$VERSION.jar
-ls -l Jive*.jar
+rm /segfs/tango/bin/java/Jive.jar
+jar cvf /segfs/tango/bin/java/Jive.jar jive/*.class

@@ -10,7 +10,7 @@ package jive;
  */
 
 import javax.swing.*;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.table.*;
 import java.awt.*;
 
 public class MultiLineCellRenderer extends JTextArea implements TableCellRenderer {

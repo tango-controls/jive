@@ -1,9 +1,9 @@
 package jive;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /**
  *
@@ -32,12 +32,12 @@ public class RenameDlg extends JDialog {
        
 	 if( e.getKeyCode() == KeyEvent.VK_ENTER ) {
 	   ret_code=true;
-	   hideDlg();
+	   closeDlg();
 	 }
 	 
 	 if( e.getKeyCode() == KeyEvent.VK_ESCAPE ) {
 	   ret_code=false;
-	   hideDlg();
+	   closeDlg();
 	 }
 	 	 
        }
@@ -78,12 +78,12 @@ public class RenameDlg extends JDialog {
        
 	 if( e.getKeyCode() == KeyEvent.VK_ENTER ) {
 	   ret_code=true;
-	   hideDlg();
+	   closeDlg();
 	 }
 	 
 	 if( e.getKeyCode() == KeyEvent.VK_ESCAPE ) {
 	   ret_code=false;
-	   hideDlg();
+	   closeDlg();
 	 }
 	 	 
        }
@@ -98,7 +98,6 @@ public class RenameDlg extends JDialog {
      
      getContentPane().add(theCombo);
      theCombo.setBounds(0,0,(int)bounds.getWidth(),(int)bounds.getHeight());     
-     theCombo.setSelectedIndex(-1);
      theText.setText(value);
      theText.selectAll();
      //theCombo.setBorder( BorderFactory.createLoweredBevelBorder() );
@@ -107,13 +106,13 @@ public class RenameDlg extends JDialog {
      ret_code = false;
   }
   
-  public void hideDlg() {
+  public void closeDlg() {
     value = theText.getText();
-    setVisible(false);
+    hide();
   }  
   
   public boolean showDlg() {
-    setVisible(true);
+    show();
     return ret_code;
   }
   

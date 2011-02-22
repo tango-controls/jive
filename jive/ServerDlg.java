@@ -1,162 +1,160 @@
 package jive;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
 /**
  *
  * @author  pons
  */
-
+ 
 public class ServerDlg extends JDialog {
 
-  private JTextField serverText;
-  private JTextField classText;
-  private JTextArea deviceText;
+  private JTextField  serverText;
+  private JTextField  classText;
+  private JTextArea   deviceText;
   private JScrollPane deviceView;
-  private JButton ok;
-  private JButton cancel;
-
-  private JPanel jp;
-
+  private JButton     ok;
+  private JButton     cancel;
+  
+  private JPanel     jp;
+  
   boolean ret_value = false;
-  private final static Color backColor = new Color(240,240,240);
-
+  
   // Construction without predefined values
   public ServerDlg(Frame parent) {
-    super(parent, true);
-    getContentPane().setLayout(null);
+     super(parent,true);
+     getContentPane().setLayout(null);
 
-    addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent evt) {
-        ret_value = false;
-        setVisible(false);
-        dispose();
-      }
-    });
+     addWindowListener(new WindowAdapter() {
+          public void windowClosing(WindowEvent evt) {
+            ret_value = false;
+	    hide();
+	    dispose();
+          }
+     });
 
-    setTitle("Create/Edit a server");
+     setTitle("Create/Edit a server");
+     
+     jp = new JPanel();
+     jp.setBackground( Color.white );
+     jp.setOpaque(false);
+     jp.setBorder( BorderFactory.createLoweredBevelBorder() );
+     getContentPane().add(jp);
 
-    jp = new JPanel(null);
-    jp.setBackground(backColor);
-    jp.setBorder(BorderFactory.createLoweredBevelBorder());
-    getContentPane().add(jp);
+     serverText = new JTextField();
+     serverText.setEditable(true);
+     serverText.setBorder( BorderFactory.createTitledBorder("Server  (ServerName/Instane)") );
+     getContentPane().add(serverText);
+     
+     classText = new JTextField();
+     classText.setEditable(true);
+     classText.setBorder( BorderFactory.createTitledBorder("Class") );
+     getContentPane().add(classText);
+     
+     deviceText = new JTextArea();
+     deviceText.setEditable(true);
+     deviceView = new JScrollPane(deviceText);
+     deviceView.setBorder( BorderFactory.createTitledBorder("Devices") );
+     deviceView.setBackground( Color.white );
+     getContentPane().add(deviceView);
 
-    serverText = new JTextField();
-    serverText.setEditable(true);
-    serverText.setBackground(backColor);
-    serverText.setBorder(BorderFactory.createTitledBorder("Server  (ServerName/Instance)"));
-
-    classText = new JTextField();
-    classText.setEditable(true);
-    classText.setBackground(backColor);
-    classText.setBorder(BorderFactory.createTitledBorder("Class"));
-
-    deviceText = new JTextArea();
-    deviceText.setEditable(true);
-    deviceText.setBackground(backColor);
-    deviceView = new JScrollPane(deviceText);
-    deviceView.setBorder(BorderFactory.createTitledBorder("Devices"));
-    deviceView.setBackground(backColor);
-
-    ok = new JButton();
-    ok.setText("Register server");
-    getContentPane().add(ok);
-
-    cancel = new JButton();
-    cancel.setText("Cancel");
-    getContentPane().add(cancel);
-
-    jp.add(serverText);
-    jp.add(classText);
-    jp.add(deviceView);
-    serverText.setBounds(5, 5, 380, 40);
-    classText.setBounds(5, 45, 380, 40);
-    deviceView.setBounds(5, 85, 380, 145);
-    jp.setBounds(5, 8, 389, 234);
-
-    ok.setBounds(5, 248, 150, 27);
-    cancel.setBounds(315, 248, 80, 27);
-
-    cancel.addMouseListener(new MouseAdapter() {
-      public void mouseClicked(MouseEvent evt) {
-        ret_value = false;
-        setVisible(false);
-        dispose();
-      }
-    });
-
-    ok.addMouseListener(new MouseAdapter() {
-      public void mouseClicked(MouseEvent evt) {
-        // Check if server name has a correct format
-        String s = serverText.getText();
-        if (s.indexOf('/') == -1) {
-          JiveUtils.showJiveError("Server name must be entered as Name/Instance");
-          ret_value = false;
-        } else if (s.indexOf('/') != s.lastIndexOf('/')) {
-          JiveUtils.showJiveError("Server name must be entered as Name/Instance");
-          ret_value = false;
-        } else {
-          ret_value = true;
-        }
-
-        setVisible(false);
-        dispose();
-      }
-    });
-
+     ok = new JButton();
+     ok.setText("Register server");
+     getContentPane().add(ok);
+     
+     cancel = new JButton();
+     cancel.setText("Cancel");
+     getContentPane().add(cancel);
+               
+     serverText.setBounds( 5,10,390,40 );
+     classText.setBounds( 5,50,390,40 );
+     deviceView.setBounds( 5,90,390,150 );
+     jp.setBounds( 3,8,394,234 );
+     
+     ok.setBounds( 5,245,150,30 );
+     cancel.setBounds( 315,245,80,30 );
+     
+     cancel.addMouseListener(new MouseAdapter() {
+       public void mouseClicked(MouseEvent evt) {
+         ret_value = false;
+	 hide();
+         dispose();
+       }
+     });
+          
+     ok.addMouseListener(new MouseAdapter() {
+       public void mouseClicked(MouseEvent evt) {
+         // Check if server name has a correct format
+	 String s = serverText.getText();
+	 if( s.indexOf('/') == -1 ) {
+	   TangoTreeNode.showJiveError("Server name must be entered as Name/Instance");
+	   ret_value = false;	   
+	 } else if( s.indexOf('/') != s.lastIndexOf('/') ) {
+	   TangoTreeNode.showJiveError("Server name must be entered as Name/Instance");
+	   ret_value = false;
+	 } else {
+           ret_value = true;
+	 }	 
+	 
+	 hide();
+	 dispose();
+       }
+     });     
+	
+     Rectangle r = parent.getBounds();
+     int x = r.x + (r.width-410)/2;
+     int y = r.y + (r.height-310)/2;
+     setBounds(x,y,410,310);     
   }
-
-  public void setValidFields(boolean s, boolean c) {
-    serverText.setEditable(s);
-    classText.setEditable(c);
+  
+  public void setValidFields(boolean s,boolean c) {
+    serverText.setEnabled(s);
+    classText.setEnabled(c);
   }
-
-  public void setDefaults(String s, String c) {
+   
+  public void setDefaults(String s,String c) {
     serverText.setText(s);
     classText.setText(c);
   }
-
+    
   public boolean showDlg() {
-    JiveUtils.centerDialog(this,400,280);
-    setVisible(true);
+    show();    
     return ret_value;
   }
-
+  
   public String getServerName() {
-    return serverText.getText();
+    return serverText.getText();    
   }
-
+  
   public String getClassName() {
-    return classText.getText();
+    return classText.getText();    
   }
-
-  public String[] getDeviceNames() {
-
+  
+  public String[] getDeviceNames() { 
+    
     String value = deviceText.getText();
     String[] splitted = value.split("\n");
     String[] ret = new String[1];
     int i,j;
-
-    for (i = 0, j = 0; i < splitted.length; i++) {
-      if (splitted[i].length() > 0) j++;
+    
+    for(i=0,j=0;i<splitted.length;i++) {
+      if( splitted[i].length() > 0 ) j++;
     }
-
+    
     ret = new String[j];
-
-    for (i = 0, j = 0; i < splitted.length; i++) {
-      if (splitted[i].length() > 0) {
+    
+    for(i=0,j=0;i<splitted.length;i++) {
+      if( splitted[i].length() > 0 ) {
         ret[j] = splitted[i];
-        j++;
+	j++;
       }
     }
-
+    
     return ret;
-
+    
   }
-
+      
 }
