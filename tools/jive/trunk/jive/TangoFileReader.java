@@ -275,17 +275,6 @@ public class TangoFileReader {
     return ret;
   }
 
-  private String makeString(String[] arr) {
-
-    StringBuffer str = new StringBuffer();
-    for (int i = 0; i < arr.length; i++) {
-      str.append(arr[i]);
-      if (i < arr.length - 1) str.append("\n");
-    }
-
-    return str.toString();
-  }
-
   // ****************************************************
   // Put a attribute property in the database     */
   // ****************************************************
@@ -295,7 +284,13 @@ public class TangoFileReader {
 
     checkAttDatum(arr);
     DbAttribute att = new DbAttribute(att_name);
-    att.add(prop_name, makeString(arr));
+    if(arr.length==0) {
+      throw new IllegalStateException("Unexpected empty value");
+    } else if( arr.length==1 ) {
+      att.add(prop_name, arr[0]);
+    } else {
+      att.add(prop_name, arr);
+    }
 
     if (DELETE_ENTRY)
       db.delete_device_attribute_property(devname, att);
@@ -313,7 +308,13 @@ public class TangoFileReader {
 
     checkAttDatum(arr);
     DbAttribute att = new DbAttribute(att_name);
-    att.add(prop_name, makeString(arr));
+    if(arr.length==0) {
+      throw new IllegalStateException("Unexpected empty value");
+    } else if( arr.length==1 ) {
+      att.add(prop_name, arr[0]);
+    } else {
+      att.add(prop_name, arr);
+    }
 
     if (DELETE_ENTRY) {
       //db.delete_class_attribute_property( classname , att );
