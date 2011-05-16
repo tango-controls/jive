@@ -96,10 +96,10 @@ public class ServerDlg extends JDialog {
         String s = serverText.getText();
         if (s.indexOf('/') == -1) {
           JiveUtils.showJiveError("Server name must be entered as Name/Instance");
-          ret_value = false;
+          return;
         } else if (s.indexOf('/') != s.lastIndexOf('/')) {
           JiveUtils.showJiveError("Server name must be entered as Name/Instance");
-          ret_value = false;
+          return;
         } else {
           ret_value = true;
         }
@@ -160,3 +160,4 @@ public class ServerDlg extends JDialog {
   }
 
 }
+
