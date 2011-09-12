@@ -2060,8 +2060,8 @@ public class JiveUtils {
       if (str.length() == 0)
         value[j] = new String("\"\"");
 
-      // Quote resource with space
-      if (str.indexOf(' ') != -1 || str.indexOf('/') != -1)
+      // Quote resource with space or special char
+      if (str.indexOf(' ') != -1 || str.indexOf('/') != -1 || str.indexOf(',') != -1)
         value[j] = new String("\"" + value[j] + "\"");
 
       // Justify
