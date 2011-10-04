@@ -490,7 +490,7 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
           }
           plotData.reset();
           plotData.setName(att);
-          for (int i = 0; i < values.length; i++) plotData.add(i, values[i]);
+          for (int i = 0; i < values.length; i++) plotData.add(i+common.getAnswerLimitMin(), values[i]);
           chart.repaint(); // Commit change
           if (!chartDlg.isVisible()) {
             ATKGraphicsUtils.centerFrameOnScreen(chartDlg);
@@ -583,7 +583,7 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
   }
 
 
-  private int getLimitMax(StringBuffer retStr,int length,boolean writable) {
+  private int getLimitMax(boolean checkLimit,StringBuffer retStr,int length,boolean writable) {
 
     if (length > 1) {
       if (writable)
@@ -592,8 +592,37 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
         retStr.append("Read length: " + length + "\n");
     }
 
+    if( checkLimit ) {
+      if(length>common.getAnswerLimitMax()) {
+        retStr.append("Array cannot be fully displayed. (You may change the AnswerLimitMax)\n");
+        return common.getAnswerLimitMax();
+      } else {
+        return length;
+      }
+    } else {
+      return length;
+    }
+    
+  }
+
+  private int getLimitMin(boolean checkLimit,StringBuffer retStr,int length) {
+
+    if( checkLimit ) {
+      if(length<=common.getAnswerLimitMin()) {
+        retStr.append("Array cannot be displayed. (You may change the AnswerLimitMin)\n");
+        return length;
+      } else {
+        return common.getAnswerLimitMin();
+      }
+    } else {
+      return 0;
+    }
+
+  }
+
+  private int getLimitMaxForPlot(int length) {
+
     if(length>common.getAnswerLimitMax()) {
-      retStr.append("Array cannot be fully displayed. (You may change the AnswerLimitMax)\n");
       return common.getAnswerLimitMax();
     } else {
       return length;
@@ -601,14 +630,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
 
   }
 
-  private int getLimitMin(StringBuffer retStr,int length) {
+  private int getLimitMinForPlot(int length) {
 
-    if(length<=common.getAnswerLimitMin()) {
-      retStr.append("Array cannot be displayed. (You may change the AnswerLimitMin)\n");
-      return length;
-    } else {
-      return common.getAnswerLimitMin();
-    }
+   if(length<=common.getAnswerLimitMin()) {
+     return length;
+   } else {
+     return common.getAnswerLimitMin();
+   }
 
   }
 
@@ -835,9 +863,11 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
 
       // Add dimension of the attribute but only if having a meaning
       boolean printIndex = true;
+      boolean checkLimit = true;
       switch (ai.data_format.value()) {
         case AttrDataFormat._SCALAR:
           printIndex = false;
+          checkLimit = false;
           break;
         case AttrDataFormat._SPECTRUM:
           ret_string.append("dim x: " + data.getDimX() + "\n");
@@ -858,13 +888,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
             DevState[] dummy = data.extractDevStateArray();
             int nbRead = data.getNbRead();
             int nbWritten = dummy.length - nbRead;
-            int start = getLimitMin(ret_string,nbRead);
-            int end = getLimitMax(ret_string,nbRead,false);
+            int start = getLimitMin(checkLimit,ret_string,nbRead);
+            int end = getLimitMax(checkLimit,ret_string,nbRead,false);
             for (int i = start; i < end; i++)
               printArrayItem(ret_string,i,printIndex,Tango_DevStateName[dummy[i].value()],false);
             if( isWritable(ai) ) {
-              start = getLimitMin(ret_string,nbWritten);
-              end = getLimitMax(ret_string,nbWritten,true);
+              start = getLimitMin(checkLimit,ret_string,nbWritten);
+              end = getLimitMax(checkLimit,ret_string,nbWritten,true);
               for (int i = start; i < end; i++)
                 printArrayItem(ret_string,i,printIndex,Tango_DevStateName[dummy[i+nbRead].value()],true);
             }
@@ -876,13 +906,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
             short[] dummy = data.extractUCharArray();
             int nbRead = data.getNbRead();
             int nbWritten = dummy.length - nbRead;
-            int start = getLimitMin(ret_string,nbRead);
-            int end = getLimitMax(ret_string,nbRead,false);
+            int start = getLimitMin(checkLimit,ret_string,nbRead);
+            int end = getLimitMax(checkLimit,ret_string,nbRead,false);
             for (int i = start; i < end; i++)
               printArrayItem(ret_string,i,printIndex,Short.toString(dummy[i]),false);
             if( isWritable(ai) ) {
-              start = getLimitMin(ret_string,nbWritten);
-              end = getLimitMax(ret_string,nbWritten,true);
+              start = getLimitMin(checkLimit,ret_string,nbWritten);
+              end = getLimitMax(checkLimit,ret_string,nbWritten,true);
               for (int i = start; i < end; i++)
                 printArrayItem(ret_string,i,printIndex,Short.toString(dummy[i+nbRead]),true);
             }
@@ -894,13 +924,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
             short[] dummy = data.extractShortArray();
             int nbRead = data.getNbRead();
             int nbWritten = dummy.length - nbRead;
-            int start = getLimitMin(ret_string,nbRead);
-            int end = getLimitMax(ret_string,nbRead,false);
+            int start = getLimitMin(checkLimit,ret_string,nbRead);
+            int end = getLimitMax(checkLimit,ret_string,nbRead,false);
             for (int i = start; i < end; i++)
               printArrayItem(ret_string,i,printIndex,Short.toString(dummy[i]),false);
             if( isWritable(ai) ) {
-              start = getLimitMin(ret_string,nbWritten);
-              end = getLimitMax(ret_string,nbWritten,true);
+              start = getLimitMin(checkLimit,ret_string,nbWritten);
+              end = getLimitMax(checkLimit,ret_string,nbWritten,true);
               for (int i = start; i < end; i++)
                 printArrayItem(ret_string,i,printIndex,Short.toString(dummy[i+nbRead]),true);
             }
@@ -912,13 +942,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
             boolean[] dummy = data.extractBooleanArray();
             int nbRead = data.getNbRead();
             int nbWritten = dummy.length - nbRead;
-            int start = getLimitMin(ret_string,nbRead);
-            int end = getLimitMax(ret_string,nbRead,false);
+            int start = getLimitMin(checkLimit,ret_string,nbRead);
+            int end = getLimitMax(checkLimit,ret_string,nbRead,false);
             for (int i = start; i < end; i++)
               printArrayItem(ret_string,i,printIndex,Boolean.toString(dummy[i]),false);
             if( isWritable(ai) ) {
-              start = getLimitMin(ret_string,nbWritten);
-              end = getLimitMax(ret_string,nbWritten,true);
+              start = getLimitMin(checkLimit,ret_string,nbWritten);
+              end = getLimitMax(checkLimit,ret_string,nbWritten,true);
               for (int i = start; i < end; i++)
                 printArrayItem(ret_string,i,printIndex,Boolean.toString(dummy[i+nbRead]),true);
             }
@@ -930,13 +960,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
             int[] dummy = data.extractUShortArray();
             int nbRead = data.getNbRead();
             int nbWritten = dummy.length - nbRead;
-            int start = getLimitMin(ret_string,nbRead);
-            int end = getLimitMax(ret_string,nbRead,false);
+            int start = getLimitMin(checkLimit,ret_string,nbRead);
+            int end = getLimitMax(checkLimit,ret_string,nbRead,false);
             for (int i = start; i < end; i++)
               printArrayItem(ret_string,i,printIndex,Integer.toString(dummy[i]),false);
             if( isWritable(ai) ) {
-              start = getLimitMin(ret_string,nbWritten);
-              end = getLimitMax(ret_string,nbWritten,true);
+              start = getLimitMin(checkLimit,ret_string,nbWritten);
+              end = getLimitMax(checkLimit,ret_string,nbWritten,true);
               for (int i = start; i < end; i++)
                 printArrayItem(ret_string,i,printIndex,Integer.toString(dummy[i+nbRead]),true);
             }
@@ -948,13 +978,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
             int[] dummy = data.extractLongArray();
             int nbRead = data.getNbRead();
             int nbWritten = dummy.length - nbRead;
-            int start = getLimitMin(ret_string,nbRead);
-            int end = getLimitMax(ret_string,nbRead,false);
+            int start = getLimitMin(checkLimit,ret_string,nbRead);
+            int end = getLimitMax(checkLimit,ret_string,nbRead,false);
             for (int i = start; i < end; i++)
               printArrayItem(ret_string,i,printIndex,Integer.toString(dummy[i]),false);
             if( isWritable(ai) ) {
-              start = getLimitMin(ret_string,nbWritten);
-              end = getLimitMax(ret_string,nbWritten,true);
+              start = getLimitMin(checkLimit,ret_string,nbWritten);
+              end = getLimitMax(checkLimit,ret_string,nbWritten,true);
               for (int i = start; i < end; i++)
                 printArrayItem(ret_string,i,printIndex,Integer.toString(dummy[i+nbRead]),true);
             }
@@ -966,13 +996,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
             long[] dummy = data.extractULongArray();
             int nbRead = data.getNbRead();
             int nbWritten = dummy.length - nbRead;
-            int start = getLimitMin(ret_string,nbRead);
-            int end = getLimitMax(ret_string,nbRead,false);
+            int start = getLimitMin(checkLimit,ret_string,nbRead);
+            int end = getLimitMax(checkLimit,ret_string,nbRead,false);
             for (int i = start; i < end; i++)
               printArrayItem(ret_string,i,printIndex,Long.toString(dummy[i]),false);
             if( isWritable(ai) ) {
-              start = getLimitMin(ret_string,nbWritten);
-              end = getLimitMax(ret_string,nbWritten,true);
+              start = getLimitMin(checkLimit,ret_string,nbWritten);
+              end = getLimitMax(checkLimit,ret_string,nbWritten,true);
               for (int i = start; i < end; i++)
                 printArrayItem(ret_string,i,printIndex,Long.toString(dummy[i+nbRead]),true);
             }
@@ -984,13 +1014,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
             long[] dummy = data.extractLong64Array();
             int nbRead = data.getNbRead();
             int nbWritten = dummy.length - nbRead;
-            int start = getLimitMin(ret_string,nbRead);
-            int end = getLimitMax(ret_string,nbRead,false);
+            int start = getLimitMin(checkLimit,ret_string,nbRead);
+            int end = getLimitMax(checkLimit,ret_string,nbRead,false);
             for (int i = start; i < end; i++)
               printArrayItem(ret_string,i,printIndex,Long.toString(dummy[i]),false);
             if( isWritable(ai) ) {
-              start = getLimitMin(ret_string,nbWritten);
-              end = getLimitMax(ret_string,nbWritten,true);
+              start = getLimitMin(checkLimit,ret_string,nbWritten);
+              end = getLimitMax(checkLimit,ret_string,nbWritten,true);
               for (int i = start; i < end; i++)
                 printArrayItem(ret_string,i,printIndex,Long.toString(dummy[i+nbRead]),true);
             }
@@ -1002,13 +1032,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
             long[] dummy = data.extractULong64Array();
             int nbRead = data.getNbRead();
             int nbWritten = dummy.length - nbRead;
-            int start = getLimitMin(ret_string,nbRead);
-            int end = getLimitMax(ret_string,nbRead,false);
+            int start = getLimitMin(checkLimit,ret_string,nbRead);
+            int end = getLimitMax(checkLimit,ret_string,nbRead,false);
             for (int i = start; i < end; i++)
               printArrayItem(ret_string,i,printIndex,Long.toString(dummy[i]),false);
             if( isWritable(ai) ) {
-              start = getLimitMin(ret_string,nbWritten);
-              end = getLimitMax(ret_string,nbWritten,true);
+              start = getLimitMin(checkLimit,ret_string,nbWritten);
+              end = getLimitMax(checkLimit,ret_string,nbWritten,true);
               for (int i = start; i < end; i++)
                 printArrayItem(ret_string,i,printIndex,Long.toString(dummy[i+nbRead]),true);
             }
@@ -1020,13 +1050,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
             double[] dummy = data.extractDoubleArray();
             int nbRead = data.getNbRead();
             int nbWritten = dummy.length - nbRead;
-            int start = getLimitMin(ret_string,nbRead);
-            int end = getLimitMax(ret_string,nbRead,false);
+            int start = getLimitMin(checkLimit,ret_string,nbRead);
+            int end = getLimitMax(checkLimit,ret_string,nbRead,false);
             for (int i = start; i < end; i++)
               printArrayItem(ret_string,i,printIndex,Double.toString(dummy[i]),false);
             if( isWritable(ai) ) {
-              start = getLimitMin(ret_string,nbWritten);
-              end = getLimitMax(ret_string,nbWritten,true);
+              start = getLimitMin(checkLimit,ret_string,nbWritten);
+              end = getLimitMax(checkLimit,ret_string,nbWritten,true);
               for (int i = start; i < end; i++)
                 printArrayItem(ret_string,i,printIndex,Double.toString(dummy[i+nbRead]),true);
             }
@@ -1038,13 +1068,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
             float[] dummy = data.extractFloatArray();
             int nbRead = data.getNbRead();
             int nbWritten = dummy.length - nbRead;
-            int start = getLimitMin(ret_string,nbRead);
-            int end = getLimitMax(ret_string,nbRead,false);
+            int start = getLimitMin(checkLimit,ret_string,nbRead);
+            int end = getLimitMax(checkLimit,ret_string,nbRead,false);
             for (int i = start; i < end; i++)
               printArrayItem(ret_string,i,printIndex,Float.toString(dummy[i]),false);
             if( isWritable(ai) ) {
-              start = getLimitMin(ret_string,nbWritten);
-              end = getLimitMax(ret_string,nbWritten,true);
+              start = getLimitMin(checkLimit,ret_string,nbWritten);
+              end = getLimitMax(checkLimit,ret_string,nbWritten,true);
               for (int i = start; i < end; i++)
                 printArrayItem(ret_string,i,printIndex,Float.toString(dummy[i+nbRead]),true);
             }
@@ -1056,13 +1086,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
             String[] dummy = data.extractStringArray();
             int nbRead = data.getNbRead();
             int nbWritten = dummy.length - nbRead;
-            int start = getLimitMin(ret_string,nbRead);
-            int end = getLimitMax(ret_string,nbRead,false);
+            int start = getLimitMin(checkLimit,ret_string,nbRead);
+            int end = getLimitMax(checkLimit,ret_string,nbRead,false);
             for (int i = start; i < end; i++)
               printArrayItem(ret_string,i,printIndex,dummy[i],false);
             if( isWritable(ai) ) {
-              start = getLimitMin(ret_string,nbWritten);
-              end = getLimitMax(ret_string,nbWritten,true);
+              start = getLimitMin(checkLimit,ret_string,nbWritten);
+              end = getLimitMax(checkLimit,ret_string,nbWritten,true);
               for (int i = start; i < end; i++)
                 printArrayItem(ret_string,i,printIndex,dummy[i+nbRead],true);
             }
@@ -1075,8 +1105,8 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
             DevEncoded e = data.extractDevEncoded();
             ret_string.append("Format: " + e.encoded_format + "\n");
             int nbRead = e.encoded_data.length;
-            int start = getLimitMin(ret_string,nbRead);
-            int end = getLimitMax(ret_string,nbRead,false);
+            int start = getLimitMin(checkLimit,ret_string,nbRead);
+            int end = getLimitMax(checkLimit,ret_string,nbRead,false);
             for (int i = start; i < end; i++) {
               short vs = (short)e.encoded_data[i];
               vs = (short)(vs & 0xFF);
@@ -1107,59 +1137,62 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
 
     try {
 
+      int start = getLimitMinForPlot(data.getNbRead());
+      int end = getLimitMaxForPlot(data.getNbRead());
+
       switch (ai.data_type) {
 
         case Tango_DEV_UCHAR:
           {
             short[] dummy = data.extractUCharArray();
-            ret = new double[data.getNbRead()];
-            for(i=0;i<data.getNbRead();i++)
-              ret[i] = (double)dummy[i];
+            ret = new double[end-start];
+            for(i=start;i<end;i++)
+              ret[i-start] = (double)dummy[i];
           }
           break;
 
         case Tango_DEV_SHORT:
           {
             short[] dummy = data.extractShortArray();
-            ret = new double[data.getNbRead()];
-            for(i=0;i<data.getNbRead();i++)
-              ret[i] = (double)dummy[i];
+            ret = new double[end-start];
+            for(i=start;i<end;i++)
+              ret[i-start] = (double)dummy[i];
           }
           break;
 
         case Tango_DEV_USHORT:
           {
             int[] dummy = data.extractUShortArray();
-            ret = new double[data.getNbRead()];
-            for(i=0;i<data.getNbRead();i++)
-              ret[i] = (double)dummy[i];
+            ret = new double[end-start];
+            for(i=start;i<end;i++)
+              ret[i-start] = (double)dummy[i];
           }
           break;
 
         case Tango_DEV_LONG:
           {
             int[] dummy = data.extractLongArray();
-            ret = new double[data.getNbRead()];
-            for(i=0;i<data.getNbRead();i++)
-              ret[i] = (double)dummy[i];
+            ret = new double[end-start];
+            for(i=start;i<end;i++)
+              ret[i-start] = (double)dummy[i];
           }
           break;
 
         case Tango_DEV_DOUBLE:
           {
             double[] dummy = data.extractDoubleArray();
-            ret = new double[data.getNbRead()];
-            for(i=0;i<data.getNbRead();i++)
-              ret[i] = dummy[i];
+            ret = new double[end-start];
+            for(i=start;i<end;i++)
+              ret[i-start] = dummy[i];
           }
           break;
 
         case Tango_DEV_FLOAT:
           {
             float[] dummy = data.extractFloatArray();
-            ret = new double[data.getNbRead()];
-            for(i=0;i<data.getNbRead();i++)
-              ret[i] = (double)dummy[i];
+            ret = new double[end-start];
+            for(i=start;i<end;i++)
+              ret[i-start] = (double)dummy[i];
           }
           break;
 

@@ -34,8 +34,8 @@ class CommonPanel extends JPanel implements ActionListener {
   private JTextField  blackBoxText;
   private JLabel      limitMinLabel;
   private JTextField  limitMinText;
-  private JLabel      limitMaxLabel;
-  private JTextField  limitMaxText;
+  private JLabel limitLengthLabel;
+  private JTextField limitLengthText;
 
   // Generic commands
   private JButton     restartBtn;
@@ -45,7 +45,7 @@ class CommonPanel extends JPanel implements ActionListener {
   private JButton     setTimeoutBtn;
   private JButton     blackBoxBtn;
   private JButton     limitMinBtn;
-  private JButton     limitMaxBtn;
+  private JButton     limitLengthBtn;
 
   /**
    * Construct the common panel
@@ -115,20 +115,20 @@ class CommonPanel extends JPanel implements ActionListener {
     limitMinBtn.addActionListener(this);
     add(limitMinBtn);
 
-    limitMaxLabel = new JLabel("Answer limit (max)");
-    limitMaxLabel.setFont(ATKConstant.labelFont);
-    add(limitMaxLabel);
+    limitLengthLabel = new JLabel("Answer limit (length)");
+    limitLengthLabel.setFont(ATKConstant.labelFont);
+    add(limitLengthLabel);
 
-    limitMaxText = new JTextField();
-    limitMaxText.setText("1024");
-    limitMaxText.setFont(ATKConstant.labelFont);
-    limitMaxText.setMargin(JiveUtils.noMargin);
-    add(limitMaxText);
+    limitLengthText = new JTextField();
+    limitLengthText.setText("1024");
+    limitLengthText.setFont(ATKConstant.labelFont);
+    limitLengthText.setMargin(JiveUtils.noMargin);
+    add(limitLengthText);
 
-    limitMaxBtn = new JButton("Apply");
-    limitMaxBtn.setFont(ATKConstant.labelFont);
-    limitMaxBtn.addActionListener(this);
-    add(limitMaxBtn);
+    limitLengthBtn = new JButton("Apply");
+    limitLengthBtn.setFont(ATKConstant.labelFont);
+    limitLengthBtn.addActionListener(this);
+    add(limitLengthBtn);
 
     infoBtn = new JButton("Device Info");
     infoBtn.addActionListener(this);
@@ -193,9 +193,9 @@ class CommonPanel extends JPanel implements ActionListener {
     limitMinText.setBounds(130,100,60,25);
     limitMinBtn.setBounds(190,100,90,25);
 
-    limitMaxLabel.setBounds(10,130,120,25);
-    limitMaxText.setBounds(130,130,60,25);
-    limitMaxBtn.setBounds(190,130,90,25);
+    limitLengthLabel.setBounds(10,130,120,25);
+    limitLengthText.setBounds(130,130,60,25);
+    limitLengthBtn.setBounds(190,130,90,25);
 
     infoBtn.setBounds(300,10,110,25);
     pingBtn.setBounds(300,40,110,25);
@@ -214,11 +214,11 @@ class CommonPanel extends JPanel implements ActionListener {
       } catch(NumberFormatException ex) {
         JOptionPane.showMessageDialog(this,"Invalid answer limit\n"+ex.getMessage());
       }
-    } else if( src == limitMaxBtn ) {
+    } else if( src == limitLengthBtn) {
       try {
-        answerLimitMax = Integer.parseInt(limitMaxText.getText());
+        answerLimitMax = Integer.parseInt(limitLengthText.getText()) + answerLimitMin;
       } catch(NumberFormatException ex) {
-        JOptionPane.showMessageDialog(this,"Invalid answer limit\n"+ex.getMessage());
+        JOptionPane.showMessageDialog(this,"Invalid answer lenght\n"+ex.getMessage());
       }
     } else if ( src == blackBoxBtn ) {
       try {
@@ -335,3 +335,4 @@ class CommonPanel extends JPanel implements ActionListener {
 
 
 }
+
