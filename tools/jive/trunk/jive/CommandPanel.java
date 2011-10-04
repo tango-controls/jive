@@ -555,6 +555,26 @@ class CommandPanel extends JPanel implements ActionListener,ListSelectionListene
 
   }
 
+  private int getLimitMaxForPlot(int length) {
+
+    if(length>common.getAnswerLimitMax()) {
+      return common.getAnswerLimitMax();
+    } else {
+      return length;
+    }
+
+  }
+
+  private int getLimitMinForPlot(int length) {
+
+   if(length<=common.getAnswerLimitMin()) {
+     return length;
+   } else {
+     return common.getAnswerLimitMin();
+   }
+
+  }
+
   private void insertData(String argin,DeviceData send,int outType) throws NumberFormatException {
 
     if(outType==Tango_DEV_VOID) return;
@@ -802,48 +822,64 @@ class CommandPanel extends JPanel implements ActionListener,ListSelectionListene
       case Tango_DEVVAR_CHARARRAY:
         {
           byte[] dummy = data.extractByteArray();
-          ret = new double[dummy.length];
-          for(i=0;i<dummy.length;i++) ret[i] = (double)dummy[i];
+          int start = this.getLimitMinForPlot(dummy.length);
+          int end   = this.getLimitMaxForPlot(dummy.length);
+          ret = new double[end-start];
+          for(i=start;i<end;i++) ret[i-start] = (double)dummy[i];
         }
         break;
       case Tango_DEVVAR_USHORTARRAY:
         {
           int[] dummy = data.extractUShortArray();
-          ret = new double[dummy.length];
-          for(i=0;i<dummy.length;i++) ret[i] = (double)dummy[i];
+          int start = this.getLimitMinForPlot(dummy.length);
+          int end   = this.getLimitMaxForPlot(dummy.length);
+          ret = new double[end-start];
+          for(i=start;i<end;i++) ret[i-start] = (double)dummy[i];
         }
         break;
       case Tango_DEVVAR_SHORTARRAY:
         {
           short[] dummy = data.extractShortArray();
-          ret = new double[dummy.length];
-          for(i=0;i<dummy.length;i++) ret[i] = (double)dummy[i];
+          int start = this.getLimitMinForPlot(dummy.length);
+          int end   = this.getLimitMaxForPlot(dummy.length);
+          ret = new double[end-start];
+          for(i=start;i<end;i++) ret[i-start] = (double)dummy[i];
         }
         break;
       case Tango_DEVVAR_ULONGARRAY:
         {
           long[] dummy = data.extractULongArray();
-          ret = new double[dummy.length];
-          for(i=0;i<dummy.length;i++) ret[i] = (double)dummy[i];
+          int start = this.getLimitMinForPlot(dummy.length);
+          int end   = this.getLimitMaxForPlot(dummy.length);
+          ret = new double[end-start];
+          for(i=start;i<end;i++) ret[i-start] = (double)dummy[i];
         }
         break;
       case Tango_DEVVAR_LONGARRAY:
         {
           int[] dummy = data.extractLongArray();
-          ret = new double[dummy.length];
-          for(i=0;i<dummy.length;i++) ret[i] = (double)dummy[i];
+          int start = this.getLimitMinForPlot(dummy.length);
+          int end   = this.getLimitMaxForPlot(dummy.length);
+          ret = new double[end-start];
+          for(i=start;i<end;i++) ret[i-start] = (double)dummy[i];
         }
         break;
       case Tango_DEVVAR_FLOATARRAY:
         {
           float[] dummy = data.extractFloatArray();
-          ret = new double[dummy.length];
-          for(i=0;i<dummy.length;i++) ret[i] = (double)dummy[i];
+          int start = this.getLimitMinForPlot(dummy.length);
+          int end   = this.getLimitMaxForPlot(dummy.length);
+          ret = new double[end-start];
+          for(i=start;i<end;i++) ret[i-start] = (double)dummy[i];
         }
         break;
       case Tango_DEVVAR_DOUBLEARRAY:
         {
-          ret = data.extractDoubleArray();
+          double dummy[] = data.extractDoubleArray();
+          int start = this.getLimitMinForPlot(dummy.length);
+          int end   = this.getLimitMaxForPlot(dummy.length);
+          ret = new double[end-start];
+          for(i=start;i<end;i++) ret[i-start] = dummy[i];
         }
         break;
 
