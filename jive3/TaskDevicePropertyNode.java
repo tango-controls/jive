@@ -42,6 +42,13 @@ class TaskDevicePropertyNode extends PropertyNode {
 
   }
 
+  public void viewHistory() {
+
+    parentPanel.invoker.historyDlg.viewDevicePropertyHistory(devName,"*");
+    parentPanel.invoker.showHistory();
+
+  }
+
   ImageIcon getIcon() {
     return TangoNodeRenderer.leaficon;
   }

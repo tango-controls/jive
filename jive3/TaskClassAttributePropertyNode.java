@@ -50,6 +50,13 @@ class TaskClassAttributePropertyNode extends PropertyNode {
     return true;
   }
 
+  public void viewHistory() {
+
+    parentPanel.invoker.historyDlg.viewClassAttPropertyHistory(className,attributeName,"*");
+    parentPanel.invoker.showHistory();
+    
+  }
+
   String[][] getProperties() {
 
     String[][] ret = new String[0][0];
@@ -111,6 +118,10 @@ class TaskClassAttributePropertyNode extends PropertyNode {
           setProperty(JiveUtils.the_clipboard.getAttPropertyName(i),
                       JiveUtils.the_clipboard.getAttPropertyValue(i));
         parentPanel.refreshValues();
+        break;
+
+      case TreePanel.ACTION_VIEW_HISTORY:
+        viewHistory();
         break;
 
     }

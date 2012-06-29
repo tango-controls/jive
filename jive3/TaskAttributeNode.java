@@ -205,6 +205,69 @@ public class TaskAttributeNode extends TangoNode {
 
   }
 
+  void resetLAlarms(int idx) {
+
+    // Restore library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      if(ai.alarms!=null) {
+        ai.alarms.min_alarm = "Not specified";
+        ai.alarms.max_alarm = "Not specified";
+        ai.alarms.min_warning = "Not specified";
+        ai.alarms.max_warning = "Not specified";
+        ai.alarms.delta_t = "Not specified";
+        ai.alarms.delta_val = "Not specified";
+      }
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetULAlarms(int idx) {
+
+    // Restore user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      if(ai.alarms!=null) {
+        ai.alarms.min_alarm = "";
+        ai.alarms.max_alarm = "";
+        ai.alarms.min_warning = "";
+        ai.alarms.max_warning = "";
+        ai.alarms.delta_t = "";
+        ai.alarms.delta_val = "";
+      }
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetCULAlarms(int idx) {
+
+    // Restore class/user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      if(ai.alarms!=null) {
+        ai.alarms.min_alarm = "NaN";
+        ai.alarms.max_alarm = "NaN";
+        ai.alarms.min_warning = "NaN";
+        ai.alarms.max_warning = "NaN";
+        ai.alarms.delta_t = "NaN";
+        ai.alarms.delta_val = "NaN";
+      }
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
   // -- Units ----------------------------------------------------
 
   String getUnit(int idx) {
@@ -275,6 +338,54 @@ public class TaskAttributeNode extends TangoNode {
 
   }
 
+  void resetLUnit(int idx) {
+
+    // Restore library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.unit = "Not specified";
+      ai.display_unit = "Not specified";
+      ai.standard_unit = "Not specified";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetULUnit(int idx) {
+
+    // Restore user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.unit = "";
+      ai.display_unit = "";
+      ai.standard_unit = "";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetCULUnit(int idx) {
+
+    // Restore class/user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.unit = "NaN";
+      ai.display_unit = "NaN";
+      ai.standard_unit = "NaN";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
   // -- Range ----------------------------------------------------
 
   String getMin(int idx) {
@@ -321,6 +432,51 @@ public class TaskAttributeNode extends TangoNode {
       String[] pNames = {"min_value","max_value"};
       db.delete_device_attribute_property(devName,getAttName(idx),pNames);
 
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetLRange(int idx) {
+
+    // Restore library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.min_value = "Not specified";
+      ai.max_value = "Not specified";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetULRange(int idx) {
+
+    // Restore user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.min_value = "";
+      ai.max_value = "";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetCULRange(int idx) {
+
+    // Restore class/user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.min_value = "NaN";
+      ai.max_value = "NaN";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
     } catch (DevFailed e) {
       JiveUtils.showTangoError(e);
     }
@@ -379,6 +535,51 @@ public class TaskAttributeNode extends TangoNode {
 
   }
 
+  void resetLDisplay(int idx) {
+
+    // Restore library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.label = "Not specified";
+      ai.format = "Not specified";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetULDisplay(int idx) {
+
+    // Restore user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.label = "";
+      ai.format = "";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetCULDisplay(int idx) {
+
+    // Restore class/user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.label = "NaN";
+      ai.format = "NaN";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
   // -- Description -------------------------------------------------------------
 
   String getDescription(int idx) {
@@ -407,6 +608,48 @@ public class TaskAttributeNode extends TangoNode {
       String[] pNames = {"description"};
       db.delete_device_attribute_property(devName,getAttName(idx),pNames);
 
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetLDescription(int idx) {
+
+    // Restore library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.description = "Not specified";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetULDescription(int idx) {
+
+    // Restore user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.description = "";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetCULDescription(int idx) {
+
+    // Restore class/user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.description = "";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
     } catch (DevFailed e) {
       JiveUtils.showTangoError(e);
     }
@@ -455,6 +698,30 @@ public class TaskAttributeNode extends TangoNode {
 
     } catch (DevFailed e) {
       JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  public boolean isTango8() {
+
+    try {
+
+      DbDevImportInfo info = db.import_device(devName);
+      DeviceProxy ds = new DeviceProxy("dserver/" + info.server);
+      CommandInfo[] cmds = ds.command_list_query();
+      // Search "ZmqEventSubscriptionChange"
+      boolean found = false;
+      int i=0;
+      while(!found && i<cmds.length) {
+        found = cmds[i].cmd_name.equalsIgnoreCase("ZmqEventSubscriptionChange");
+        if(!found) i++;
+      }
+      return found;
+
+    } catch (DevFailed e) {
+
+      return false;
+
     }
 
   }
