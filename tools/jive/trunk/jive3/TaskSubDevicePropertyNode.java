@@ -64,6 +64,13 @@ class TaskSubDevicePropertyNode extends PropertyNode {
 
   }
 
+  public void viewHistory() {
+
+    parentPanel.invoker.historyDlg.viewDevicePropertyHistory(devName,subName+"/*");
+    parentPanel.invoker.showHistory();
+
+  }
+
   String[][] getProperties() {
 
     String[][] ret = new String[0][0];

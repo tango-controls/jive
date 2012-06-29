@@ -15,6 +15,8 @@ abstract public class PropertyNode extends TangoNode {
 
   abstract void deleteProperty(String propName);
 
+  abstract void viewHistory();
+
   void rename(String oldName,String value,String newName) {
     deleteProperty(oldName);
     setProperty(newName,value);
@@ -24,7 +26,7 @@ abstract public class PropertyNode extends TangoNode {
     if(JiveUtils.readOnly)
       return new int[0];      
     else
-      return new int[]{TreePanel.ACTION_COPY,TreePanel.ACTION_PASTE};
+      return new int[]{TreePanel.ACTION_COPY,TreePanel.ACTION_PASTE,TreePanel.ACTION_VIEW_HISTORY};
   }
 
   public void execAction(int number) {
@@ -42,6 +44,10 @@ abstract public class PropertyNode extends TangoNode {
           setProperty(JiveUtils.the_clipboard.getObjectPropertyName(i),
                       JiveUtils.the_clipboard.getObjectPropertyValue(i));
         parentPanel.refreshValues();
+        break;
+
+      case TreePanel.ACTION_VIEW_HISTORY:
+        viewHistory();
         break;
 
     }
