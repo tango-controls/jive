@@ -43,6 +43,13 @@ class TaskClassPropertyNode extends PropertyNode {
     return true;
   }
 
+  public void viewHistory() {
+
+    parentPanel.invoker.historyDlg.viewClassPropertyHistory(className,"*");
+    parentPanel.invoker.showHistory();
+    
+  }
+
   String[][] getProperties() {
 
     String[][] ret = new String[0][0];

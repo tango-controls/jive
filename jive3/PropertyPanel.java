@@ -23,6 +23,7 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
   private JButton     copyButton;
   private JButton     newButton;
   private MainPanel   parent;
+  private PropertyEditorDlg propertyEditor = null;
 
   private PropertyNode[]      source = null;
   private DefaultTableModel   dm;
@@ -33,6 +34,7 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
   private JMenuItem           renameMenuItem;
   private JMenuItem           deleteMenuItem;
   private JMenuItem           copyMenuItem;
+  private JMenuItem           editMenuItem;
 
   PropertyPanel()  {
 
@@ -108,9 +110,13 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
     historyMenuItem.addActionListener(this);
     deleteMenuItem = new JMenuItem("Delete");
     deleteMenuItem.addActionListener(this);
+    editMenuItem = new JMenuItem("Edit");
+    editMenuItem.addActionListener(this);
+
     tableMenu.add(copyMenuItem);
     tableMenu.add(deleteMenuItem);
     tableMenu.add(renameMenuItem);
+    tableMenu.add(editMenuItem);
     tableMenu.add(historyMenuItem);
 
   }
@@ -248,6 +254,19 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
       }
       refreshValue();
       ProgressFrame.hideProgress();
+
+    } else if (src==editMenuItem) {
+
+      if( propertyEditor==null )
+        propertyEditor = new PropertyEditorDlg(parent);
+
+      int row = theTable.getSelectedRow();
+      String pName = (String)dm.getValueAt(row,0);
+      String pValue = (String)dm.getValueAt(row,1);
+
+      propertyEditor.setSource(source[0],pName,pValue);
+      propertyEditor.setVisible(true);
+      refreshValue();
 
     } else if (src==historyMenuItem) {
     

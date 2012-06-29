@@ -31,6 +31,9 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
   private JPopupMenu  tableMenu;
   private JMenuItem   resetMenuItem;
+  private JMenuItem   resetLMenuItem;
+  private JMenuItem   resetULMenuItem;
+  private JMenuItem   resetCULMenuItem;
   private JMenuItem   alarmMinMenuItem;
   private JMenuItem   alarmMaxMenuItem;
   private JMenuItem   warningMinMenuItem;
@@ -363,6 +366,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
     resetMenuItem = new JMenuItem("Reset to default value");
     resetMenuItem.addActionListener(this);
     tableMenu.add(resetMenuItem);
+
+    resetLMenuItem = new JMenuItem("Return to lib default value");
+    resetLMenuItem.addActionListener(this);
+    tableMenu.add(resetLMenuItem);
+    resetULMenuItem = new JMenuItem("Return to user/lib default value");
+    resetULMenuItem.addActionListener(this);
+    tableMenu.add(resetULMenuItem);
+    resetCULMenuItem = new JMenuItem("Return to class/user/lib default value");
+    resetCULMenuItem.addActionListener(this);
+    tableMenu.add(resetCULMenuItem);
+
     alarmMinMenuItem = new JMenuItem("Set min alarm");
     alarmMinMenuItem.addActionListener(this);
     tableMenu.add(alarmMinMenuItem);
@@ -468,6 +482,23 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
         }
 
+        boolean isTango8 = true;
+        int i = 0;
+        while(isTango8 && i<source.length) {
+          isTango8 = source[i].isTango8();
+          i++;
+        }
+
+        if( isTango8 ) {
+          resetLMenuItem.setVisible(true);
+          resetULMenuItem.setVisible(true);
+          resetCULMenuItem.setVisible(true);
+        } else {
+          resetLMenuItem.setVisible(false);
+          resetULMenuItem.setVisible(false);
+          resetCULMenuItem.setVisible(false);
+        }
+        
         tableMenu.show(selectedTable, e.getX(), e.getY());
       }
 
@@ -491,6 +522,7 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
     } else if (src==resetMenuItem) {
 
+      // Reset to default menu item -----------------------------------------------------
       int nb = selectedRows.length * source.length;
       int k = 0;
 
@@ -565,6 +597,237 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
             source[j].resetDescription(selectedRows[i]);
           }
           source[j].restartDevice();
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+      }
+
+    } else if (src==resetLMenuItem) {
+
+      // Reset to library default menu item -----------------------------------------------------
+      int nb = selectedRows.length * source.length;
+      int k = 0;
+
+      if(selectedTable == alarmTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting alarms");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + alarmModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetLAlarms(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+
+      } else if (selectedTable == unitTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting units");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + unitModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetLUnit(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+
+      } else if (selectedTable == rangeTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting ranges");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + rangeModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetLRange(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+
+      } else if (selectedTable == displayTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting display");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + displayModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetLDisplay(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+
+      } else if (selectedTable == descriptionTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting description");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + descriptionModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetLDescription(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+      }
+
+    } else if (src==resetULMenuItem) {
+
+      // Reset to user/library default menu item -----------------------------------------------------
+      int nb = selectedRows.length * source.length;
+      int k = 0;
+
+      if(selectedTable == alarmTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting alarms");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + alarmModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetULAlarms(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+
+      } else if (selectedTable == unitTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting units");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + unitModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetULUnit(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+
+      } else if (selectedTable == rangeTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting ranges");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + rangeModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetULRange(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+
+      } else if (selectedTable == displayTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting display");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + displayModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetULDisplay(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+
+      } else if (selectedTable == descriptionTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting description");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + descriptionModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetULDescription(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+      }
+
+    } else if (src==resetCULMenuItem) {
+
+      // Reset to class/user/library default menu item -----------------------------------------------------
+      int nb = selectedRows.length * source.length;
+      int k = 0;
+
+      if(selectedTable == alarmTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting alarms");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + alarmModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetCULAlarms(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+
+      } else if (selectedTable == unitTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting units");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + unitModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetCULUnit(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+
+      } else if (selectedTable == rangeTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting ranges");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + rangeModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetCULRange(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+
+      } else if (selectedTable == displayTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting display");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + displayModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetCULDisplay(selectedRows[i]);
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+
+      } else if (selectedTable == descriptionTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting description");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + descriptionModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetCULDescription(selectedRows[i]);
+          }
         }
         ProgressFrame.hideProgress();
         refreshValue();
@@ -961,6 +1224,3 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
   }
 
 }
-
-
-
