@@ -15,6 +15,7 @@ import fr.esrf.TangoApi.DbDatum;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Vector;
 
 public class TangoFileReader {
 
@@ -275,6 +276,21 @@ public class TangoFileReader {
     return ret;
   }
 
+  private boolean compareResValue(String dbValue,String[] fileValue) {
+
+    String fileValueStr = JiveUtils.stringArrayToString(fileValue);
+    return fileValueStr.compareTo(dbValue)==0;
+
+  }
+
+  private boolean compareResValue(String[] dbValue,String[] fileValue) {
+
+    String dbValueStr = JiveUtils.stringArrayToString(dbValue);
+    String fileValueStr = JiveUtils.stringArrayToString(fileValue);
+    return fileValueStr.compareTo(dbValueStr)==0;
+
+  }
+
   // ****************************************************
   // Put a attribute property in the database     */
   // ****************************************************
@@ -296,6 +312,21 @@ public class TangoFileReader {
       db.delete_device_attribute_property(devname, att);
     else
       db.put_device_attribute_property(devname, att);
+
+  }
+
+  private void check_tango_dev_attr_prop(String devname, String att_name, String prop_name, String[] arr,Vector diff) throws DevFailed {
+
+    if( arr.length==1 && arr[0].compareTo("%")==0 )
+      return;
+
+    DbAttribute att = db.get_device_attribute_property(devname,att_name);
+    String dbValue = att.get_string_value(prop_name);
+    if( !compareResValue(dbValue,arr) ) {
+      diff.add(devname+"/"+att_name+"->"+prop_name);
+      diff.add(dbValue);
+      diff.add(JiveUtils.stringArrayToString(arr));
+    }
 
   }
 
@@ -323,6 +354,21 @@ public class TangoFileReader {
 
   }
 
+  private void check_tango_class_attr_prop(String classname, String att_name, String prop_name, String[] arr,Vector diff) throws DevFailed {
+
+    if( arr.length==1 && arr[0].compareTo("%")==0 )
+      return;
+
+    DbAttribute att = db.get_class_attribute_property(classname,att_name);
+    String dbValue = att.get_string_value(prop_name);
+    if( !compareResValue(dbValue,arr) ) {
+      diff.add("CLASS/"+classname+"/"+att_name+"->"+prop_name);
+      diff.add(dbValue);
+      diff.add(JiveUtils.stringArrayToString(arr));
+    }
+
+  }
+
   // ****************************************************
   // Put a resource to tango database
   // ****************************************************
@@ -335,6 +381,20 @@ public class TangoFileReader {
       db.delete_device_property(devname, d);
     else
       db.put_device_property(devname, d);
+  }
+
+  private void check_tango_res(String devname, String resname, String[] arr,Vector diff) throws DevFailed {
+
+    if( arr.length==1 && arr[0].compareTo("%")==0 )
+      return;
+
+    String[] res = db.get_device_property(devname,resname).extractStringArray();
+    if( !compareResValue(res,arr) ) {
+      diff.add(devname+"->"+resname);
+      diff.add(JiveUtils.stringArrayToString(res));
+      diff.add(JiveUtils.stringArrayToString(arr));
+    }
+
   }
 
   // ****************************************************
@@ -351,6 +411,20 @@ public class TangoFileReader {
       db.put_property(freename, d);
   }
 
+  private void check_free_tango_res(String freename, String resname, String[] arr,Vector diff) throws DevFailed {
+
+    if( arr.length==1 && arr[0].compareTo("%")==0 )
+      return;
+
+    String[] res = db.get_property(freename,resname).extractStringArray();
+    if( !compareResValue(res,arr) ) {
+      diff.add("FREE/"+freename+"->"+resname);
+      diff.add(JiveUtils.stringArrayToString(res));
+      diff.add(JiveUtils.stringArrayToString(arr));
+    }
+
+  }
+
   // ****************************************************
   // Put a resource to tango database
   // ****************************************************
@@ -363,6 +437,20 @@ public class TangoFileReader {
       db.delete_class_property(classname, d);
     else
       db.put_class_property(classname, d);
+  }
+
+  private void check_tango_res_class(String classname, String resname, String[] arr,Vector diff) throws DevFailed {
+
+    if( arr.length==1 && arr[0].compareTo("%")==0 )
+      return;
+
+    String[] res = db.get_class_property(classname, resname).extractStringArray();
+    if( !compareResValue(res,arr) ) {
+      diff.add("CLASS/"+classname+"->"+resname);
+      diff.add(JiveUtils.stringArrayToString(res));
+      diff.add(JiveUtils.stringArrayToString(arr));
+    }
+
   }
 
   // ****************************************************
@@ -405,6 +493,32 @@ public class TangoFileReader {
     for (i = 0; i < dev_list.length; i++) {
       if (!IsMember(dev_list[i], arr))
         db.delete_device(dev_list[i]);
+    }
+
+  }
+
+  private void check_tango_devices(String _class, String server, String arr[], Vector diff) throws DevFailed {
+
+    String[] dev_list;
+    int i;
+
+    dev_list = db.get_device_name(server , _class);
+
+    if( dev_list.length!=arr.length ) {
+      diff.add(server+"/device/"+_class);
+      diff.add(JiveUtils.stringArrayToString(dev_list));
+      diff.add(JiveUtils.stringArrayToString(arr));
+      return;
+    }
+
+    /* Add new devices */
+    for (i = 0; i < arr.length; i++) {
+      if (!IsMember(arr[i], dev_list)) {
+        diff.add(server+"/device/"+_class);
+        diff.add(JiveUtils.stringArrayToString(dev_list));
+        diff.add(JiveUtils.stringArrayToString(arr));
+        return;
+      }
     }
 
   }
@@ -457,11 +571,240 @@ public class TangoFileReader {
 
   }
 
+  // Check coherency between a file and the database
+  // Return error String
+  // diff contains difference (if any)
+  public String check_res_file(String file_name, Vector diff) {
+
+    FileReader f;
+    boolean eof = false;
+    int lex;
+
+    String domain;
+    String family;
+    String member;
+    String name;
+    String prop_name;
+
+    int i;
+    CrtLine = 1;
+    NextChar = ' ';
+    CurrentChar = ' ';
+
+    try {
+
+      /* OPEN THE FILE                  */
+      f = new FileReader(file_name);
+
+      /* CHECK BEGINING OF CONFIG FILE  */
+      word = read_word(f);
+      if (word == null)
+        return file_name + " is empty...";
+      lex = class_lex(word);
+
+      /* PARSE                          */
+      while (!eof) {
+        switch (lex) {
+          /* Start a resource mame */
+          case STRING:
+
+            /* Domain */
+            domain = word;
+            word = read_word(f);
+            lex = class_lex(word);
+            CHECK_LEX(lex, SLASH);
+
+            /* Family */
+            word = read_word(f);
+            lex = class_lex(word);
+            CHECK_LEX(lex, STRING);
+            family = word;
+            word = read_word(f);
+            lex = class_lex(word);
+
+            switch (lex) {
+
+              case SLASH:
+
+                /* Member */
+                word = read_word(f);
+                lex = class_lex(word);
+                CHECK_LEX(lex, STRING);
+                member = word;
+                word = read_word(f);
+                lex = class_lex(word);
+
+                switch (lex) {
+
+                  case SLASH:
+                    /* We have a 4 fields name */
+                    word = read_word(f);
+                    lex = class_lex(word);
+                    CHECK_LEX(lex, STRING);
+                    name = word;
+
+                    word = read_word(f);
+                    lex = class_lex(word);
+
+                    switch (lex) {
+
+                      case COLON:
+                        {
+                          /* Device definition */
+                          String[] values = parse_resource_value(f);
+                          lex = class_lex(word);
+
+                          if (member.equalsIgnoreCase("device")) {
+                            /* Device definition */
+                            check_tango_devices(name, domain + "/" + family, values, diff);
+                          }
+                        }
+                        break;
+
+                      case ARROW:
+                        {
+                          /* We have an attribute property definition */
+                          word = read_word(f);
+                          lex = class_lex(word);
+                          CHECK_LEX(lex, STRING);
+                          prop_name = word;
+
+                          /* jump : */
+                          word = read_word(f);
+                          lex = class_lex(word);
+                          CHECK_LEX(lex, COLON);
+
+                          /* Resource value */
+                          String[] values = parse_resource_value(f);
+                          lex = class_lex(word);
+
+                          /* Device attribute definition */
+                          check_tango_dev_attr_prop(domain + "/" + family + "/" + member, name, prop_name, values, diff);
+                        }
+                        break;
+
+                      default:
+                        return "COLON or -> expected at line " + StartLine;
+
+                    }
+                    break;
+
+                  case ARROW:
+
+                    /* We have a device property or attribute class definition */
+
+                    word = read_word(f);
+                    lex = class_lex(word);
+                    CHECK_LEX(lex, STRING);
+                    prop_name = word;
+
+                    /* jump : */
+                    word = read_word(f);
+                    lex = class_lex(word);
+                    if( lex==SLASH ) {
+                      // The property name contains a slash
+                      // Used for sub device property
+                      word = read_word(f);
+                      lex = class_lex(word);
+                      CHECK_LEX(lex, STRING);
+                      prop_name = prop_name + "/" + word;
+                      word = read_word(f);
+                      lex = class_lex(word);
+                    }
+
+                    CHECK_LEX(lex, COLON);
+
+                    /* Resource value */
+                    String[] values = parse_resource_value(f);
+                    lex = class_lex(word);
+
+                    if (domain.equalsIgnoreCase("class")) {
+
+                      /* Class attribute property definition */
+                      check_tango_class_attr_prop(family, member, prop_name, values, diff);
+
+                    } else {
+
+                      /* Device property definition */
+                      check_tango_res(domain + "/" + family + "/" + member, prop_name, values, diff);
+
+                    }
+                    break;
+
+                  default:
+                    return "SLASH or -> expected at line " + StartLine;
+
+                }
+                break;
+
+              case ARROW:
+
+                /* We have a class property */
+                /* Member */
+                word = read_word(f);
+                lex = class_lex(word);
+                CHECK_LEX(lex, STRING);
+                member = word;
+                word = read_word(f);
+                lex = class_lex(word);
+
+                /* Resource value */
+                String[] values = parse_resource_value(f);
+                lex = class_lex(word);
+
+                /* Class resource */
+                if (domain.equalsIgnoreCase("class")) {
+                  check_tango_res_class(family, member, values, diff);
+                } else if (domain.equalsIgnoreCase("free")) {
+                  check_free_tango_res(family, member, values, diff);
+                } else {
+                  return "Invlalid class property syntax on " + domain + "/" + family + "/" + member;
+                }
+                break;
+
+              default:
+                return "SLASH or -> expected at line " + StartLine;
+            }
+            break;
+
+          default:
+            return "Invalid resource name get " + lexical_word[lex] + " instead of STRING al line " + StartLine;
+        }
+
+        eof = (word == null);
+      }
+
+      return "";
+
+    } catch (Exception ex) {
+
+      if (ex instanceof DevFailed) {
+
+        String result = "";
+        DevFailed e = (DevFailed) ex;
+        for (i = 0; i < e.errors.length; i++) {
+          result += "Desc -> " + e.errors[i].desc + "\n";
+          result += "Reason -> " + e.errors[i].reason + "\n";
+          result += "Origin -> " + e.errors[i].origin + "\n";
+        }
+
+        return result;
+
+      } else {
+        return ex.getMessage();
+      }
+
+    }
+
+  }
+
+
   // ****************************************************
   // Parse a resource file
   // Return error as String (zero length when sucess)
   // ****************************************************
   public String parse_res_file(String file_name) {
+    
     FileReader f;
     boolean eof = false;
     int lex;
