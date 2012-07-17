@@ -160,6 +160,12 @@ public class MainPanel extends JFrame implements ChangeListener {
       }
     });
     loadFile.setEnabled(!JiveUtils.readOnly);
+    JMenuItem checkFile = new JMenuItem("Check property file");
+    checkFile.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        checkPropFile();
+      }
+    });
     JSeparator sep1 = new JSeparator();
     JMenuItem exit = new JMenuItem("Exit");
     exit.addActionListener(new ActionListener(){
@@ -169,6 +175,7 @@ public class MainPanel extends JFrame implements ChangeListener {
     });
 
     fileMenu.add(loadFile);
+    fileMenu.add(checkFile);
     fileMenu.add(sep1);
     fileMenu.add(exit);
     mainMenu.add(fileMenu);
@@ -570,6 +577,38 @@ public class MainPanel extends JFrame implements ChangeListener {
         if (err.length() > 0) JiveUtils.showJiveError(err);
         if (f != null) lastResOpenedDir = f.getAbsolutePath();
       }
+    }
+  }
+
+  // Load a property file in the database
+  private void checkPropFile() {
+    
+    String err = "";
+    TangoFileReader fr = new TangoFileReader(db);
+
+    JFileChooser chooser = new JFileChooser(lastResOpenedDir);
+    int returnVal = chooser.showOpenDialog(this);
+
+    if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+      File f = chooser.getSelectedFile();
+      if( f!=null ) {
+
+        Vector diff = new Vector();
+        err = fr.check_res_file(f.getAbsolutePath(),diff);
+        if (err.length() > 0) JiveUtils.showJiveError(err);
+        lastResOpenedDir = f.getAbsolutePath();
+        if( diff.size()>0 ) {
+          // Show differences
+          DiffDlg dlg = new DiffDlg(diff,f.getAbsolutePath());
+          ATKGraphicsUtils.centerFrameOnScreen(dlg);
+          dlg.setVisible(true);
+        } else {
+          JOptionPane.showMessageDialog(this,"Database and file match.");
+        }
+
+      }
+
     }
   }
 
