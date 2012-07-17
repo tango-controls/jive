@@ -596,15 +596,19 @@ public class MainPanel extends JFrame implements ChangeListener {
 
         Vector diff = new Vector();
         err = fr.check_res_file(f.getAbsolutePath(),diff);
-        if (err.length() > 0) JiveUtils.showJiveError(err);
         lastResOpenedDir = f.getAbsolutePath();
-        if( diff.size()>0 ) {
-          // Show differences
-          DiffDlg dlg = new DiffDlg(diff,f.getAbsolutePath());
-          ATKGraphicsUtils.centerFrameOnScreen(dlg);
-          dlg.setVisible(true);
+
+        if (err.length() > 0) {
+          JiveUtils.showJiveError(err);
         } else {
-          JOptionPane.showMessageDialog(this,"Database and file match.");
+          if( diff.size()>0 ) {
+            // Show differences
+            DiffDlg dlg = new DiffDlg(diff,f.getAbsolutePath());
+            ATKGraphicsUtils.centerFrameOnScreen(dlg);
+            dlg.setVisible(true);
+          } else {
+            JOptionPane.showMessageDialog(this,"Database and file match.");
+          }
         }
 
       }
