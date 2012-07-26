@@ -29,6 +29,9 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
 
   private JPopupMenu  tableMenu;
   private JMenuItem   resetMenuItem;
+  private JMenuItem   resetLMenuItem;
+  private JMenuItem   resetULMenuItem;
+  private JMenuItem   resetCULMenuItem;
   private JMenuItem   setAbsMenuItem;
   private JMenuItem   setRelMenuItem;
   private JMenuItem   setPeriodMenuItem;
@@ -208,6 +211,17 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
     resetMenuItem = new JMenuItem("Reset to default value");
     resetMenuItem.addActionListener(this);
     tableMenu.add(resetMenuItem);
+    
+    resetLMenuItem = new JMenuItem("Return to lib default value");
+    resetLMenuItem.addActionListener(this);
+    tableMenu.add(resetLMenuItem);
+    resetULMenuItem = new JMenuItem("Return to code/lib default value");
+    resetULMenuItem.addActionListener(this);
+    tableMenu.add(resetULMenuItem);
+    resetCULMenuItem = new JMenuItem("Return to class/code/lib default value");
+    resetCULMenuItem.addActionListener(this);
+    tableMenu.add(resetCULMenuItem);
+
     setAbsMenuItem = new JMenuItem("Set absolute change");
     setAbsMenuItem.addActionListener(this);
     tableMenu.add(setAbsMenuItem);
@@ -247,6 +261,24 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
           setRelMenuItem.setVisible(false);
           setPeriodMenuItem.setVisible(true);
         }
+
+        boolean isTango8 = true;
+        int i = 0;
+        while(isTango8 && i<source.length) {
+          isTango8 = source[i].isTango8();
+          i++;
+        }
+
+        if( isTango8 ) {
+          resetLMenuItem.setVisible(true);
+          resetULMenuItem.setVisible(true);
+          resetCULMenuItem.setVisible(true);
+        } else {
+          resetLMenuItem.setVisible(false);
+          resetULMenuItem.setVisible(false);
+          resetCULMenuItem.setVisible(false);
+        }
+
         tableMenu.show(selectedTable, e.getX(), e.getY());
       } else {
         selectedTable = null;
@@ -310,6 +342,135 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
             source[j].resetPeriodicEvent(selectedRows[i]);
           }
           source[j].restartDevice();
+        }
+
+      }
+      ProgressFrame.hideProgress();
+      refreshValue();
+
+    } else if (src==resetLMenuItem) {
+
+      int nb = selectedRows.length * source.length;
+      int k = 0;
+      if(nb>1) ProgressFrame.displayProgress("Reseting event config");
+
+      if(selectedTable == changeTable) {
+
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + changeModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetLChangeEvent(selectedRows[i]);
+          }
+        }
+
+      } else if (selectedTable==archTable) {
+
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + archModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetLArchEvent(selectedRows[i]);
+          }
+        }
+
+      } else if (selectedTable==perTable) {
+
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + perModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetLPeriodicEvent(selectedRows[i]);
+          }
+        }
+
+      }
+      ProgressFrame.hideProgress();
+      refreshValue();
+
+    } else if (src==resetULMenuItem) {
+
+      int nb = selectedRows.length * source.length;
+      int k = 0;
+      if(nb>1) ProgressFrame.displayProgress("Reseting event config");
+
+      if(selectedTable == changeTable) {
+
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + changeModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetULChangeEvent(selectedRows[i]);
+          }
+        }
+
+      } else if (selectedTable==archTable) {
+
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + archModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetULArchEvent(selectedRows[i]);
+          }
+        }
+
+      } else if (selectedTable==perTable) {
+
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + perModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetULPeriodicEvent(selectedRows[i]);
+          }
+        }
+
+      }
+      ProgressFrame.hideProgress();
+      refreshValue();
+
+    } else if (src==resetCULMenuItem) {
+
+      int nb = selectedRows.length * source.length;
+      int k = 0;
+      if(nb>1) ProgressFrame.displayProgress("Reseting event config");
+
+      if(selectedTable == changeTable) {
+
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + changeModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetCULChangeEvent(selectedRows[i]);
+          }
+        }
+
+      } else if (selectedTable==archTable) {
+
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + archModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetCULArchEvent(selectedRows[i]);
+          }
+        }
+
+      } else if (selectedTable==perTable) {
+
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + perModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].resetCULPeriodicEvent(selectedRows[i]);
+          }
         }
 
       }
