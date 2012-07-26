@@ -198,6 +198,51 @@ public class TaskEventNode extends TangoNode {
 
   }
 
+  void resetLChangeEvent(int idx) {
+
+    // Restore library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.events.ch_event.rel_change = "Not specified";
+      ai.events.ch_event.abs_change = "Not specified";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetULChangeEvent(int idx) {
+
+    // Restore user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.events.ch_event.rel_change = "";
+      ai.events.ch_event.abs_change = "";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetCULChangeEvent(int idx) {
+
+    // Restore class/user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.events.ch_event.rel_change = "NaN";
+      ai.events.ch_event.abs_change = "NaN";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
   void resetArchEvent(int idx) {
 
     try {
@@ -206,6 +251,54 @@ public class TaskEventNode extends TangoNode {
       String[] pNames = {"archive_rel_change","archive_abs_change","archive_period"};
       db.delete_device_attribute_property(devName,getAttName(idx),pNames);
 
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetLArchEvent(int idx) {
+
+    // Restore library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.events.arch_event.abs_change = "Not specified";
+      ai.events.arch_event.rel_change = "Not specified";
+      ai.events.arch_event.period = "Not specified";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetULArchEvent(int idx) {
+
+    // Restore user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.events.arch_event.abs_change = "";
+      ai.events.arch_event.rel_change = "";
+      ai.events.arch_event.period = "";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetCULArchEvent(int idx) {
+
+    // Restore class/user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.events.arch_event.abs_change = "NaN";
+      ai.events.arch_event.rel_change = "NaN";
+      ai.events.arch_event.period = "NaN";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
     } catch (DevFailed e) {
       JiveUtils.showTangoError(e);
     }
@@ -226,6 +319,48 @@ public class TaskEventNode extends TangoNode {
 
   }
 
+  void resetLPeriodicEvent(int idx) {
+
+    // Restore library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.events.per_event.period = "Not specified";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetULPeriodicEvent(int idx) {
+
+    // Restore user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.events.per_event.period = "";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  void resetCULPeriodicEvent(int idx) {
+
+    // Restore user/library defaults (Tango8)
+    try {
+      DeviceProxy ds = new DeviceProxy(devName);
+      AttributeInfoEx ai = ds.get_attribute_info_ex(getAttName(idx));
+      ai.events.per_event.period = "NaN";
+      ds.set_attribute_info(new AttributeInfoEx[]{ai});
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
   public void restartDevice() {
 
     try {
@@ -238,6 +373,30 @@ public class TaskEventNode extends TangoNode {
 
     } catch (DevFailed e) {
       JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  public boolean isTango8() {
+
+    try {
+
+      DbDevImportInfo info = db.import_device(devName);
+      DeviceProxy ds = new DeviceProxy("dserver/" + info.server);
+      CommandInfo[] cmds = ds.command_list_query();
+      // Search "ZmqEventSubscriptionChange"
+      boolean found = false;
+      int i=0;
+      while(!found && i<cmds.length) {
+        found = cmds[i].cmd_name.equalsIgnoreCase("ZmqEventSubscriptionChange");
+        if(!found) i++;
+      }
+      return found;
+
+    } catch (DevFailed e) {
+
+      return false;
+
     }
 
   }

@@ -370,10 +370,10 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
     resetLMenuItem = new JMenuItem("Return to lib default value");
     resetLMenuItem.addActionListener(this);
     tableMenu.add(resetLMenuItem);
-    resetULMenuItem = new JMenuItem("Return to user/lib default value");
+    resetULMenuItem = new JMenuItem("Return to code/lib default value");
     resetULMenuItem.addActionListener(this);
     tableMenu.add(resetULMenuItem);
-    resetCULMenuItem = new JMenuItem("Return to class/user/lib default value");
+    resetCULMenuItem = new JMenuItem("Return to class/code/lib default value");
     resetCULMenuItem.addActionListener(this);
     tableMenu.add(resetCULMenuItem);
 
