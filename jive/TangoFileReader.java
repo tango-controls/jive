@@ -650,12 +650,10 @@ public class TangoFileReader {
 
                       case COLON:
                         {
-                          /* Device definition */
-                          String[] values = parse_resource_value(f);
-                          lex = class_lex(word);
-
                           if (member.equalsIgnoreCase("device")) {
-                            /* Device definition */
+                            /* Devices definition */
+                            String[] values = parse_resource_value(f);
+                            lex = class_lex(word);
                             check_tango_devices(name, domain + "/" + family, values, diff);
                           } else {
                             return "Invalid syntax (may be -> should be used instead of COLON) at line " + StartLine;
@@ -881,12 +879,10 @@ public class TangoFileReader {
 
                       case COLON:
                         {
-                          /* Device definition */
-                          String[] values = parse_resource_value(f);
-                          lex = class_lex(word);
-
                           if (member.equalsIgnoreCase("device")) {
-                            /* Device definition */
+                            /* Devices definition */
+                            String[] values = parse_resource_value(f);
+                            lex = class_lex(word);
                             add_tango_devices(name, domain + "/" + family, values);
                           } else {
                             return "Invalid syntax (may be -> should be used instead of COLON) at line " + StartLine;
