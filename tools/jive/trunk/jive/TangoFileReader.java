@@ -657,6 +657,8 @@ public class TangoFileReader {
                           if (member.equalsIgnoreCase("device")) {
                             /* Device definition */
                             check_tango_devices(name, domain + "/" + family, values, diff);
+                          } else {
+                            return "Invalid syntax (may be -> should be used instead of COLON) at line " + StartLine;
                           }
                         }
                         break;
@@ -886,6 +888,8 @@ public class TangoFileReader {
                           if (member.equalsIgnoreCase("device")) {
                             /* Device definition */
                             add_tango_devices(name, domain + "/" + family, values);
+                          } else {
+                            return "Invalid syntax (may be -> should be used instead of COLON) at line " + StartLine;
                           }
                         }
                         break;
