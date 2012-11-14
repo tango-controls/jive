@@ -26,6 +26,8 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
   private DefaultTableModel displayModel;
   private JTable      descriptionTable;
   private DefaultTableModel descriptionModel;
+  private JTable      aliasTable;
+  private DefaultTableModel aliasModel;
   private JButton     refreshButton;
   private JButton     applyButton;
 
@@ -338,6 +340,39 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
     descriptionTable.addMouseListener(this);
     JScrollPane descriptionView = new JScrollPane(descriptionTable);
 
+    // -- alias table -------------------------------
+    aliasModel = new DefaultTableModel() {
+
+      public Class getColumnClass(int columnIndex) {
+          return String.class;
+      }
+      public boolean isCellEditable(int row, int column) {
+          return (column!=0) && (!JiveUtils.readOnly);
+      }
+
+      public void setValueAt(Object aValue, int row, int column) {
+        if(!aValue.equals(getValueAt(row,column))) {
+          super.setValueAt(aValue,row,column);
+          int nb = source.length;
+          int k = 0;
+          switch(column) {
+            case 1:
+              if(nb>1) {
+                JiveUtils.showJiveError("Cannot apply attribute alias to multiple instance");
+              } else if(nb==1) {
+                source[0].setAlias(row,(String)aValue);
+              }
+              refreshValue();
+              break;
+          }
+        }
+      }
+
+    };
+    aliasTable = new JTable(aliasModel);
+    aliasTable.addMouseListener(this);
+    JScrollPane aliasView = new JScrollPane(aliasTable);
+
     tabPane = new JTabbedPane();
     tabPane.setFont(ATKConstant.labelFont);
     tabPane.add("Display",displayView);
@@ -345,6 +380,7 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
     tabPane.add("Range",rangeView);
     tabPane.add("Alarms",alarmView);
     tabPane.add("Description",descriptionView);
+    tabPane.add("Alias",aliasView);
 
     Border b = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"...");
     tabPane.setBorder(b);
@@ -600,6 +636,21 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
         }
         ProgressFrame.hideProgress();
         refreshValue();
+
+      } else if (selectedTable == aliasTable) {
+
+        if(nb>1) ProgressFrame.displayProgress("Reseting alias");
+        for(int j=0;j<source.length;j++) {
+          for(int i=0;i<selectedRows.length;i++) {
+            k++;
+            ProgressFrame.setProgress("Reseting " + source[j].getName() + "/" + aliasModel.getValueAt(selectedRows[i],0),
+                                        (k*100)/nb );
+            source[j].setAlias(selectedRows[i],"");
+          }
+        }
+        ProgressFrame.hideProgress();
+        refreshValue();
+
       }
 
     } else if (src==resetLMenuItem) {
@@ -1107,6 +1158,10 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
         String t = ((JTextField)descriptionTable.getEditorComponent()).getText();
         descriptionModel.setValueAt(t,descriptionTable.getEditingRow(),descriptionTable.getEditingColumn());
       }
+      if(aliasTable.isEditing()) {
+        String t = ((JTextField)aliasTable.getEditorComponent()).getText();
+        aliasModel.setValueAt(t,aliasTable.getEditingRow(),aliasTable.getEditingColumn());
+      }
 
     }
 
@@ -1209,6 +1264,16 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       }
       descriptionModel.setDataVector(descrInfo, descrColName);
       descriptionTable.getColumnModel().getColumn(1).setPreferredWidth(200);
+
+      // Alias
+      String aliasColName[] = {"Attribute name" , "Alias"};
+      Object[][] aliasInfo = new Object[source[0].getAttributeNumber()][2];
+      for(int i=0;i<source[0].getAttributeNumber();i++) {
+        descrInfo[i][0] = source[0].getAttName(i);
+        descrInfo[i][1] = source[0].getAlias(i);
+      }
+      aliasModel.setDataVector(descrInfo, aliasColName);
+      aliasTable.getColumnModel().getColumn(1).setPreferredWidth(200);
 
       String title = source[0].getTitle();
       if(source.length==1) {
