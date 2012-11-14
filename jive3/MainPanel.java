@@ -27,6 +27,7 @@ public class MainPanel extends JFrame implements ChangeListener {
   TreePanelDevice   deviceTreePanel = null;
   TreePanelClass    classTreePanel = null;
   TreePanelAlias    aliasTreePanel = null;
+  TreePanelAttributeAlias attributeAliasTreePanel = null;
   TreePanelFreeProperty propertyTreePanel = null;
 
   // Right panels
@@ -36,6 +37,7 @@ public class MainPanel extends JFrame implements ChangeListener {
   DeviceEventPanel     deviceEventPanel;
   DeviceAttributePanel deviceAttributePanel;
   DeviceLoggingPanel   deviceLoggingPanel;
+  SingleAttributePanel singleAttributePanel;
 
   // History panel
   PropertyHistoryDlg   historyDlg;
@@ -48,7 +50,7 @@ public class MainPanel extends JFrame implements ChangeListener {
   private boolean running_from_shell;
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 4.27 ";
+  final static private String appVersion = "Jive 4.28 ";
 
   // General constructor
   public MainPanel() {
@@ -102,7 +104,6 @@ public class MainPanel extends JFrame implements ChangeListener {
 
     splitPane = new JSplitPane();
     splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-    splitPane.setDividerLocation(0.4);
     serverTreePanel = new TreePanelServer(this);
     serverTreePanel.setDatabase(db);
     deviceTreePanel = new TreePanelDevice(this);
@@ -111,21 +112,24 @@ public class MainPanel extends JFrame implements ChangeListener {
     classTreePanel.setDatabase(db);
     aliasTreePanel = new TreePanelAlias(this);
     aliasTreePanel.setDatabase(db);
+    attributeAliasTreePanel = new TreePanelAttributeAlias(this);
+    attributeAliasTreePanel.setDatabase(db);
     propertyTreePanel = new TreePanelFreeProperty(this);
     propertyTreePanel.setDatabase(db);
     historyDlg = new PropertyHistoryDlg();
     historyDlg.setDatabase(db,tangoHost);
     treePane = new JTabbedPane();
-    treePane.setMinimumSize(new Dimension(300,0));
+    treePane.setMinimumSize(new Dimension(365,0));
     treePane.setFont(ATKConstant.labelFont);
-    treePane.add("Server",serverTreePanel);
-    treePane.add("Device",deviceTreePanel);
+    treePane.add("Server", serverTreePanel);
+    treePane.add("Device", deviceTreePanel);
     treePane.add("Class",classTreePanel);
     treePane.add("Alias",aliasTreePanel);
+    treePane.add("Att. Alias",attributeAliasTreePanel);
     treePane.add("Property",propertyTreePanel);
     treePane.addChangeListener(this);
     splitPane.setLeftComponent(treePane);
-    getContentPane().add(splitPane,BorderLayout.CENTER);
+    getContentPane().add(splitPane, BorderLayout.CENTER);
     defaultPanel = new DefaultPanel();
     propertyPanel = new PropertyPanel();
     propertyPanel.setParent(this);
@@ -133,6 +137,7 @@ public class MainPanel extends JFrame implements ChangeListener {
     deviceEventPanel = new DeviceEventPanel();
     deviceAttributePanel = new DeviceAttributePanel();
     deviceLoggingPanel = new DeviceLoggingPanel();
+    singleAttributePanel = new SingleAttributePanel();
     splitPane.setRightComponent(defaultPanel);
 
     if( JiveUtils.readOnly ) {
@@ -278,7 +283,7 @@ public class MainPanel extends JFrame implements ChangeListener {
     });
     filterMenu.add(filterDevice);
     JMenuItem filterClass = new JMenuItem("Class");
-    filterClass.addActionListener(new ActionListener(){
+    filterClass.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         filterClass();
       }
@@ -291,6 +296,13 @@ public class MainPanel extends JFrame implements ChangeListener {
       }
     });
     filterMenu.add(filterAlias);
+    JMenuItem filterAttributeAlias = new JMenuItem("Att. Alias");
+    filterAttributeAlias.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        filterAttributeAlias();
+      }
+    });
+    filterMenu.add(filterAttributeAlias);
     JMenuItem filterProperty = new JMenuItem("Property");
     filterProperty.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
@@ -454,6 +466,20 @@ public class MainPanel extends JFrame implements ChangeListener {
 
   }
 
+  // Filter attribute alias
+  private void filterAttributeAlias() {
+
+    if(filterDlg==null) filterDlg = new FilterDlg(this);
+    filterDlg.setLabelName("Att. Alias filter");
+    filterDlg.setFilter(attributeAliasTreePanel.getFilter());
+    if( filterDlg.showDialog() ) {
+      // Apply filter
+      attributeAliasTreePanel.applyFilter(filterDlg.getFilterText());
+      attributeAliasTreePanel.refresh();
+    }
+
+  }
+
   // Filter property
   private void filterProperty() {
 
@@ -529,6 +555,7 @@ public class MainPanel extends JFrame implements ChangeListener {
       classTreePanel.setDatabase(db);
       ProgressFrame.setProgress("Refreshing...",60);
       aliasTreePanel.setDatabase(db);
+      attributeAliasTreePanel.setDatabase(db);
       ProgressFrame.setProgress("Refreshing...",80);
       propertyTreePanel.setDatabase(db);
       ProgressFrame.setProgress("Refreshing...",100);
@@ -548,12 +575,15 @@ public class MainPanel extends JFrame implements ChangeListener {
 
     ProgressFrame.displayProgress("Refresh in progress");
     serverTreePanel.refresh();
-    ProgressFrame.setProgress("Refreshing...",20);
+    ProgressFrame.setProgress("Refreshing...", 20);
     deviceTreePanel.refresh();
-    ProgressFrame.setProgress("Refreshing...",40);
+    ProgressFrame.setProgress("Refreshing...", 40);
     classTreePanel.refresh();
-    ProgressFrame.setProgress("Refreshing...",60);
+    ProgressFrame.setProgress("Refreshing...", 60);
     aliasTreePanel.refresh();
+    attributeAliasTreePanel.refresh();
+    ProgressFrame.setProgress("Refreshing...", 70);
+    attributeAliasTreePanel.refresh();
     ProgressFrame.setProgress("Refreshing...",80);
     propertyTreePanel.refresh();
     updateTabbedPane();
@@ -641,7 +671,7 @@ public class MainPanel extends JFrame implements ChangeListener {
 
   }
 
-  // Select a device a show the device tree panel
+  // Select a device and show the device tree panel
   public void goToDeviceNode(String devName) {
     deviceTreePanel.selectDevice(devName);
     treePane.setSelectedComponent(deviceTreePanel);
@@ -649,7 +679,7 @@ public class MainPanel extends JFrame implements ChangeListener {
     treePane.getSelectedComponent().setVisible(true);
   }
 
-  // Select a server a show the server tree panel
+  // Select a server and show the server tree panel
   public void goToServerNode(String srvName) {
     serverTreePanel.selectServer(srvName);
     treePane.setSelectedComponent(serverTreePanel);
@@ -680,6 +710,9 @@ public class MainPanel extends JFrame implements ChangeListener {
         aliasTreePanel.refreshValues();
         break;
       case 4:
+        attributeAliasTreePanel.refreshValues();
+        break;
+      case 5:
         propertyTreePanel.refreshValues();
         break;
     }
@@ -694,10 +727,22 @@ public class MainPanel extends JFrame implements ChangeListener {
     // Check if there is some unsaved change
     try {
 
-      PropertyPanel propertyPanel = (PropertyPanel)splitPane.getRightComponent();
-      if( propertyPanel.hasChanged() ) {
-        if( JOptionPane.showConfirmDialog(this,"Some properties has been updated and not saved.\nWould you like to save change ?","Confirmation",JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION )
-          propertyPanel.saveChange();
+      Component panel = splitPane.getRightComponent();
+
+      if( panel instanceof PropertyPanel) {
+        PropertyPanel propertyPanel = (PropertyPanel)panel;
+        if( propertyPanel.hasChanged() ) {
+          if( JOptionPane.showConfirmDialog(this,"Some properties has been updated and not saved.\nWould you like to save change ?","Confirmation",JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION )
+            propertyPanel.saveChange();
+        }
+      }
+
+      if( panel instanceof SingleAttributePanel) {
+        SingleAttributePanel attPanel = (SingleAttributePanel)panel;
+        if( attPanel.hasChanged() ) {
+          if( JOptionPane.showConfirmDialog(this,"Some attribute properties has been updated and not saved.\nWould you like to save change ?","Confirmation",JOptionPane.YES_NO_OPTION)==JOptionPane.YES_OPTION )
+            attPanel.saveChange();
+        }
       }
 
     } catch(Exception e) {}
@@ -752,6 +797,11 @@ public class MainPanel extends JFrame implements ChangeListener {
       for(i=0;i<source.length;i++) nodes[i] = (TaskLoggingNode)source[i];
       deviceLoggingPanel.setSource(nodes);
       splitPane.setRightComponent(deviceLoggingPanel);
+    } else if(nodeClass == TaskSingleAttributeNode.class) {
+      TaskSingleAttributeNode[] nodes = new TaskSingleAttributeNode[source.length];
+      for(i=0;i<source.length;i++) nodes[i] = (TaskSingleAttributeNode)source[i];
+      singleAttributePanel.setSource(nodes);
+      splitPane.setRightComponent(singleAttributePanel);
     } else {
       defaultPanel.setSource(source[0]);
       splitPane.setRightComponent(defaultPanel);
@@ -773,7 +823,7 @@ public class MainPanel extends JFrame implements ChangeListener {
   private void centerWindow() {
     Toolkit toolkit = Toolkit.getDefaultToolkit();
     Dimension scrsize = toolkit.getScreenSize();
-    Dimension appsize = new Dimension(770, 500);
+    Dimension appsize = new Dimension(830, 500);
     int x = (scrsize.width - appsize.width) / 2;
     int y = (scrsize.height - appsize.height) / 2;
     setBounds(x, y, appsize.width, appsize.height);

@@ -43,7 +43,7 @@ class TaskDeviceAttributePropertyNode extends PropertyNode {
   }
 
   String getName() {
-    return devName;
+    return devName + "/" + attributeName;
   }
   
   String getAttributeName() {
