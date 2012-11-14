@@ -320,8 +320,9 @@ public class TangoFileReader {
     if( arr.length==1 && arr[0].compareTo("%")==0 )
       return;
 
+    String dbValue = "";
     DbAttribute att = db.get_device_attribute_property(devname,att_name);
-    String dbValue = att.get_string_value(prop_name);
+    if( !att.isEmpty() ) dbValue = att.get_string_value(prop_name);
     if( !compareResValue(dbValue,arr) ) {
       diff.add(devname+"/"+att_name+"->"+prop_name);
       diff.add(dbValue);
@@ -359,8 +360,9 @@ public class TangoFileReader {
     if( arr.length==1 && arr[0].compareTo("%")==0 )
       return;
 
+    String dbValue = "";
     DbAttribute att = db.get_class_attribute_property(classname,att_name);
-    String dbValue = att.get_string_value(prop_name);
+    if( !att.isEmpty() ) dbValue = att.get_string_value(prop_name);
     if( !compareResValue(dbValue,arr) ) {
       diff.add("CLASS/"+classname+"/"+att_name+"->"+prop_name);
       diff.add(dbValue);
@@ -791,6 +793,10 @@ public class TangoFileReader {
         return result;
 
       } else {
+        if( ex instanceof NullPointerException ) {
+          ex.printStackTrace();
+          return "NullPointerException";
+        }
         return ex.getMessage();
       }
 

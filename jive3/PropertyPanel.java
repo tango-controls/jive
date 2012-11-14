@@ -2,10 +2,10 @@ package jive3;
 
 import jive.MultiLineCellEditor;
 import jive.JiveUtils;
+import jive.MultiLineCellRenderer;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -69,7 +69,7 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
     editor.getTextArea().addMouseListener(this);
     theTable.setDefaultEditor(String.class, editor);
 
-    MultiLineCellRenderer renderer = new MultiLineCellRenderer();
+    MultiLineCellRenderer renderer = new MultiLineCellRenderer(false,true);
     theTable.setDefaultRenderer(String.class, renderer);
 
     textView = new JScrollPane(theTable);
@@ -413,44 +413,6 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
       return -1;
     }
 
-  }
-
-  class MultiLineCellRenderer extends JTextArea implements TableCellRenderer {
-
-    Color  selColor = new Color(200,200,255);
-    Border selBorder = BorderFactory.createLineBorder(selColor);
-
-    public MultiLineCellRenderer() {
-      setEditable(false);
-      setLineWrap(false);
-      setWrapStyleWord(false);
-    }
-
-    public Component getTableCellRendererComponent(JTable table, Object value,
-                                                   boolean isSelected, boolean hasFocus, int row, int column) {
-
-      if (value instanceof String) {
-        setText((String) value);
-        // set the table's row height, if necessary
-        //updateRowHeight(row,getPreferredSize().height);
-      } else
-        setText("");
-
-      int[] selRows = table.getSelectedRows();
-
-      if (JiveUtils.contains(selRows,row) && column==0)
-        setBackground(selColor);
-      else
-        setBackground(Color.WHITE);
-
-      if(isSelected && column==1) {
-        setBorder(selBorder);
-      } else {
-        setBorder(null);
-      }
-
-      return this;
-    }
   }
 
 }

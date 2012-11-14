@@ -171,12 +171,14 @@ public class TreePanelClass extends TreePanel {
 
       // Get the list of device name of the specified class
       DeviceData argin = new DeviceData();
-      String request = "select name from device where class='" + className + "'";
+      String request = "select name from device where class='" + className + "' order by name";
       argin.insert(request);
       DeviceData argout = db.command_inout("DbMySqlSelect", argin);
       DevVarLongStringArray arg = argout.extractLongStringArray();
       for(int i=0;i<arg.svalue.length;i++)
         add(new DeviceNode(arg.svalue[i]));
+
+
 
     }
 

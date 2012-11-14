@@ -127,7 +127,8 @@ public class TreePanelAlias extends TreePanel {
 
   class AliasNode extends TangoNode {
 
-    private String aliasName;
+    private String aliasName = null;
+    private String devName = null;
 
     AliasNode(String aliasName) {
       this.aliasName = aliasName;
@@ -135,7 +136,7 @@ public class TreePanelAlias extends TreePanel {
 
     void populateNode() throws DevFailed {
       // Retrieve the device name
-      String devName = db.get_alias_device(aliasName);
+      devName = db.get_alias_device(aliasName);
       add(new TaskDevicePropertyNode(self,db,devName));
       add(new TaskPollingNode(db,devName));
       add(new TaskEventNode(db,devName));
@@ -158,7 +159,7 @@ public class TreePanelAlias extends TreePanel {
 
     public void goToDeviceNode() {
       try {
-        String devName = db.get_alias_device(aliasName);
+        if(devName==null) devName = db.get_alias_device(aliasName);
         invoker.goToDeviceNode(devName);
       } catch(DevFailed e) {
         JiveUtils.showTangoError(e);
@@ -184,6 +185,24 @@ public class TreePanelAlias extends TreePanel {
       }
     }
 
+    String getValue() {
+
+      if( devName==null ) {
+        try {
+          devName = db.get_alias_device(aliasName);
+        } catch(DevFailed e) {
+          JiveUtils.showTangoError(e);
+        }
+      }
+
+      return getDeviceInfo(devName);
+    }
+
+    String getTitle() {
+      return "Device Info";
+    }
+
   }
+
 
 }
