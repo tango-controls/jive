@@ -197,15 +197,19 @@ public class MainPanel extends JFrame implements ChangeListener {
 
     editMenu.add(new JSeparator());
 
-    JMenuItem chTangoHost = new JMenuItem("Change Tango Host");
-    chTangoHost.addActionListener(new ActionListener(){
+    if( running_from_shell ) {
+
+      JMenuItem chTangoHost = new JMenuItem("Change Tango Host");
+      chTangoHost.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
         changeTangoHost();
       }
     });
-    editMenu.add(chTangoHost);
+      editMenu.add(chTangoHost);
 
-    editMenu.add(new JSeparator());
+      editMenu.add(new JSeparator());
+
+    }
 
     JMenuItem createServer = new JMenuItem("Create server");
     createServer.addActionListener(new ActionListener(){
