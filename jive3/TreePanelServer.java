@@ -189,7 +189,7 @@ public class TreePanelServer extends TreePanel {
       if (JiveUtils.readOnly)
         return new int[0];
       else
-        return new int[]{ACTION_RENAME,ACTION_PASTE_INSTANCE};
+        return new int[]{ACTION_RENAME};
     }
 
     void execAction(int actionNumber) {
@@ -239,27 +239,6 @@ public class TreePanelServer extends TreePanel {
           // Refresh the tree
           refresh();
           selectServerRoot(newName);
-
-          break;
-
-        // ---------------------------------------------------------------------------
-        case ACTION_PASTE_INSTANCE:
-
-          for(int i=0;i<JiveUtils.the_clipboard.getSrvInstanceLength();i++) {
-            try {
-              db.add_device(JiveUtils.the_clipboard.getDeviceName(i),
-                            JiveUtils.the_clipboard.getClassName(i),
-                            server + "/" + JiveUtils.the_clipboard.getInstanceName(i));
-            } catch (DevFailed e) {
-              JiveUtils.showTangoError(e);
-            }
-          }
-
-          // Refresh the tree
-          if(JiveUtils.the_clipboard.getSrvInstanceLength()>0) {
-            refresh();
-            selectServer(server + "/" + JiveUtils.the_clipboard.getInstanceName(0));
-          }
 
           break;
 
@@ -369,9 +348,9 @@ public class TreePanelServer extends TreePanel {
                 ACTION_SAVESERVER,
                 ACTION_CLASSWIZ,
                 ACTION_UNEXPORT,
-                ACTION_CUT_INSTANCE,
                 ACTION_DEV_DEPEND,
-                ACTION_THREAD_POLL
+                ACTION_THREAD_POLL,
+                ACTION_MOVE_SERVER
         };
     }
 
@@ -520,37 +499,6 @@ public class TreePanelServer extends TreePanel {
           break;
 
         // ----------------------------------------------------------------------------
-        case TreePanel.ACTION_CUT_INSTANCE:
-
-          JiveUtils.the_clipboard.clear();
-          ok = JOptionPane.showConfirmDialog(invoker, "This will delete the server " + server + "/" + instance + " and copy it into the clipboard\n Do you want to continue ?", "Confirm cut instance", JOptionPane.YES_NO_OPTION);
-          if (ok == JOptionPane.YES_OPTION) {
-
-            // Get all devices for this instance
-            for (int j = 0; j < getChildCount(); j++) {
-              // Class
-              TangoNode n1 = (TangoNode) getChildAt(j);
-              for (int k = 0; k < n1.getChildCount(); k++) {
-                // Device
-                TangoNode n2 = (TangoNode) n1.getChildAt(k);
-                JiveUtils.the_clipboard.addDevice(instance, n1.toString(), n2.toString());
-              }
-            }
-            try {
-              db.delete_server(server + "/" + instance);
-            } catch (DevFailed e) {
-              JiveUtils.showTangoError(e);
-            }
-
-            // Refresh the tree
-            refresh();
-            selectServerRoot(server);
-
-          }
-
-          break;
-
-        // ----------------------------------------------------------------------------
         case ACTION_DEV_DEPEND:
           launchDevDepend(server + "/" + instance);
           break;
@@ -558,6 +506,21 @@ public class TreePanelServer extends TreePanel {
         // ----------------------------------------------------------------------------
         case ACTION_THREAD_POLL:
           launchPollingThreadsManager(server + "/" + instance);
+          break;
+
+        // ----------------------------------------------------------------------------
+        case ACTION_MOVE_SERVER:
+
+          // Rename a server
+          String newSName = JOptionPane.showInputDialog(null,"Rename server",server+"/"+instance);
+          if(newSName==null) return;
+          try {
+            db.rename_server(server+"/"+instance,newSName);
+            refresh();
+            selectServer(newSName);
+          } catch (DevFailed e) {
+            JiveUtils.showTangoError(e);
+          }
           break;
 
       }
