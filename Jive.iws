@@ -409,20 +409,25 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="TreePanelServer.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="TreePanelServer.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/jive3/TreePanelServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="191" column="52" selection-start="5107" selection-end="5113" vertical-scroll-proportion="0.0">
+            <state line="518" column="22" selection-start="15245" selection-end="15245" vertical-scroll-proportion="0.49804688">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DbWriter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/jive3/DbWriter.java">
+      <file leaf-file-name="TreePanel.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/jive3/TreePanel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="14" column="13" selection-start="289" selection-end="289" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="318" column="0" selection-start="12367" selection-end="12367" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="e#4457#4593#0" expanded="true" />
+                <element signature="e#4586#4587#0" expanded="true" />
+                <element signature="e#12440#12583#0" expanded="true" />
+                <element signature="e#12576#12577#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -463,10 +468,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MainPanel.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="MainPanel.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/jive3/MainPanel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="207" column="0" selection-start="6767" selection-end="6767" vertical-scroll-proportion="0.6447639">
+            <state line="207" column="0" selection-start="6767" selection-end="6767" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -514,7 +519,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/jive3/TreePanelDevice.java" />
         <option value="$PROJECT_DIR$/jive3/TreePanelAlias.java" />
         <option value="$PROJECT_DIR$/jive3/DeviceAttributePanel.java" />
         <option value="$PROJECT_DIR$/jive3/TreePanelAttributeAlias.java" />
@@ -528,8 +532,9 @@
         <option value="$PROJECT_DIR$/jive3/TaskEventNode.java" />
         <option value="$PROJECT_DIR$/jive3/TaskSingleAttributeNode.java" />
         <option value="$PROJECT_DIR$/jive3/TaskAttributeNode.java" />
-        <option value="$PROJECT_DIR$/jive3/TreePanelServer.java" />
         <option value="$PROJECT_DIR$/jive3/MainPanel.java" />
+        <option value="$PROJECT_DIR$/jive3/TreePanel.java" />
+        <option value="$PROJECT_DIR$/jive3/TreePanelServer.java" />
       </list>
     </option>
   </component>
@@ -610,8 +615,8 @@
     <option name="INTEGRATE_REVERSE" value="false" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="109" />
-    <option name="y" value="130" />
+    <option name="x" value="86" />
+    <option name="y" value="107" />
     <option name="width" value="1362" />
     <option name="height" value="997" />
   </component>
@@ -662,6 +667,20 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="PackagesPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Jive" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Jive" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -692,20 +711,6 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="jive3" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="PackagesPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Jive" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Jive" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -749,9 +754,9 @@
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="dynamic.classpath" value="false" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RunManager" selected="Application.Jive3">
     <configuration default="true" type="Remote" factoryName="Remote">
@@ -763,24 +768,6 @@
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
         <option name="Maven.BeforeRunTask" enabled="false" />
       </method>
     </configuration>
@@ -810,6 +797,24 @@
       <envs />
       <properties />
       <listeners />
+      <method>
+        <option name="AntTarget" enabled="false" />
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
+        <option name="Maven.BeforeRunTask" enabled="false" />
+      </method>
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -1079,7 +1084,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="109" y="130" width="1362" height="997" extended-state="0" />
+    <frame x="86" y="107" width="1362" height="997" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32962587" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
@@ -1095,7 +1100,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2467976" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.40016434" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2821101" sideWeight="0.65217394" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.28134558" sideWeight="0.65217394" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3478261" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="File View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24858299" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1222,11 +1227,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/jive3/TangoClassSelector.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="13" selection-start="281" selection-end="281" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/jive3/TaskAttributeNode.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="39" column="3" selection-start="773" selection-end="773" vertical-scroll-proportion="0.0" />
@@ -1252,13 +1252,6 @@
         <state line="99" column="9" selection-start="3294" selection-end="3294" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/jive3/TreePanelServer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="191" column="52" selection-start="5107" selection-end="5113" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/jive3/DbWriter.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="14" column="13" selection-start="289" selection-end="289" vertical-scroll-proportion="0.0" />
@@ -1276,14 +1269,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/jive3/TreePanelClass.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="152" column="22" selection-start="3706" selection-end="3718" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="152" column="22" selection-start="3706" selection-end="3718" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/jive3/TreePanelDevice.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="313" column="16" selection-start="9016" selection-end="9016" vertical-scroll-proportion="0.0">
+        <state line="313" column="16" selection-start="9016" selection-end="9016" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/jive3/MainPanel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="207" column="0" selection-start="6767" selection-end="6767" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -1303,9 +1299,21 @@
         <state line="299" column="51" selection-start="8274" selection-end="8274" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/jive3/MainPanel.java">
+    <entry file="file://$PROJECT_DIR$/jive3/TreePanel.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="207" column="0" selection-start="6767" selection-end="6767" vertical-scroll-proportion="0.6447639">
+        <state line="318" column="0" selection-start="12367" selection-end="12367" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#4457#4593#0" expanded="true" />
+            <element signature="e#4586#4587#0" expanded="true" />
+            <element signature="e#12440#12583#0" expanded="true" />
+            <element signature="e#12576#12577#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/jive3/TreePanelServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="518" column="22" selection-start="15245" selection-end="15245" vertical-scroll-proportion="0.49804688">
           <folding />
         </state>
       </provider>
