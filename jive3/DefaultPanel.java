@@ -19,6 +19,7 @@ class DefaultPanel extends JPanel implements ActionListener {
     setLayout(new BorderLayout());
     value = new JTextArea();
     value.setEditable(false);
+    value.setDragEnabled(true);
     value.setFont(new Font("Monospaced",Font.PLAIN,11));
     value.setBorder(BorderFactory.createLoweredBevelBorder());
     valueView = new JScrollPane(value);
