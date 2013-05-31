@@ -11,3 +11,4 @@ javac -deprecation jive/MainPanel.java
 javac -deprecation jive3/MainPanel.java
 javac -deprecation jive3/DbReader.java
 javac -deprecation jive3/DbWriter.java
+javac -deprecation jive3/DbDiff.java
