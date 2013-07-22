@@ -187,10 +187,24 @@ public class TangoFileReader {
     /* Treat string */
     if (CurrentChar == '"') {
       read_char(f);
-      while (CurrentChar != '"' && CurrentChar != 0 && CurrentChar != '\n') {
-        ret_word += CurrentChar;
-        read_char(f);
+
+      boolean eos = CurrentChar == '"' || CurrentChar == 0 || CurrentChar == '\n';
+      while(!eos) {
+
+        // Detect backslashed quote
+        if( CurrentChar=='\\' && NextChar=='"' ) {
+          ret_word += '"';
+          read_char(f);
+          read_char(f);
+        } else {
+          ret_word += CurrentChar;
+          read_char(f);
+        }
+
+        eos = CurrentChar == '"' || CurrentChar == 0 || CurrentChar == '\n';
+
       }
+
       if (CurrentChar == 0 || CurrentChar == '\n') {
         IOException e = new IOException("String too long at line " + StartLine);
         throw e;

@@ -2060,9 +2060,18 @@ public class JiveUtils {
       if (str.length() == 0)
         value[j] = new String("\"\"");
 
+      // backslash quotes
+      StringBuffer qStr = new StringBuffer(str);
+      int qIdx = qStr.indexOf("\"");
+      while(qIdx!=-1) {
+        qStr.insert(qIdx,"\\");
+        qIdx = qStr.indexOf("\"",qIdx+2);
+      }
+      str = qStr.toString();
+
       // Quote resource with space or special char
-      if (str.indexOf(' ') != -1 || str.indexOf('/') != -1 || str.indexOf(',') != -1)
-        value[j] = new String("\"" + value[j] + "\"");
+      if (str.indexOf(' ') != -1 || str.indexOf('/') != -1 || str.indexOf(',') != -1 || str.indexOf('"') != -1)
+        value[j] = new String("\"" + str + "\"");
 
       // Justify
       for (k = 0 ; j > 0 && k < shift ; k++) {
