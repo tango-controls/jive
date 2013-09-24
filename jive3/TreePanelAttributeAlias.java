@@ -62,6 +62,7 @@ public class TreePanelAttributeAlias extends TreePanel {
 
     void populateNode() throws DevFailed {
       String[] list = db.get_attribute_alias_list("*");
+      JiveUtils.sortList(list);
       for (int i = 0; i < list.length; i++) {
         if( aliasPattern!=null ) {
           Matcher matcher =  aliasPattern.matcher(list[i].toLowerCase());
