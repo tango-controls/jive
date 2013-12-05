@@ -2,6 +2,8 @@ package jive;
 
 import java.io.StringReader;
 import java.util.Vector;
+import java.util.Properties;
+import java.io.StringBufferInputStream;
 
 /** A class for parsing input arguments of tango command and attribute. */
 public class ArgParser {
@@ -496,7 +498,16 @@ public class ArgParser {
 
     String w = read_word();
     if(w!=null) {
-      return w;
+    
+      Properties prop = new Properties();
+      try {
+        prop.load(new StringBufferInputStream("x=" + w + "\n"));
+        String decoded = prop.getProperty("x");
+        return decoded;
+      } catch( Exception ex ) {
+        return w;
+      }
+            
     } else {
       throw new NumberFormatException("string expected.");
     }
@@ -844,6 +855,8 @@ public class ArgParser {
     final ArgParser a6 = new ArgParser("[7,8,-9,16,5700,0x10]");
     final ArgParser a7 = new ArgParser("\"test with \\\" ,quote\"");
     final ArgParser a8 = new ArgParser("\\\"quote\\\"");
+    final ArgParser a9 = new ArgParser("\\u0261toto");
+
 
     try {
       System.out.println(a1.parse_boolean());
@@ -855,6 +868,7 @@ public class ArgParser {
       print_array(a6.parse_short_array());
       System.out.println(a7.parse_string());
       System.out.println(a8.parse_string());
+      System.out.println(a9.parse_string());
     } catch (NumberFormatException e) {
       System.out.println("Getting error:" + e);
     }
