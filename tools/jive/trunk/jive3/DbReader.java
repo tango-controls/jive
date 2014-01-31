@@ -100,8 +100,7 @@ class DbReader {
 
           try {
 
-            DeviceProxy ds = new DeviceProxy(dev_list[l]);
-            att_list = ds.get_attribute_list();
+            att_list = db.get_device_attribute_list(dev_list[l]);
             lst = db.get_device_attribute_property(dev_list[l], att_list);
             prtOut = false;
             for (k = 0; k < lst.length; k++) {
