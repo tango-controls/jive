@@ -134,12 +134,15 @@ public class TreePanelAttributeAlias extends TreePanel {
     public void execAction(int actionNumber) {
       switch(actionNumber) {
         case TreePanel.ACTION_DELETE:
-          try {
-            db.delete_attribute_alias(aliasName);
-          } catch (DevFailed e) {
-            JiveUtils.showTangoError(e);
+          int ok = JOptionPane.showConfirmDialog(invoker, "Delete attribute alias " + aliasName + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
+          if (ok == JOptionPane.YES_OPTION) {
+            try {
+              db.delete_attribute_alias(aliasName);
+            } catch (DevFailed e) {
+              JiveUtils.showTangoError(e);
+            }
+            refresh();
           }
-          refresh();
           break;
         case TreePanel.ACTION_GOTODEVNODE:
           goToDeviceNode();

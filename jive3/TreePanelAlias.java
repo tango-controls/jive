@@ -169,12 +169,15 @@ public class TreePanelAlias extends TreePanel {
     public void execAction(int actionNumber) {
       switch(actionNumber) {
         case TreePanel.ACTION_DELETE:
-          try {
-            db.delete_device_alias(aliasName);
-          } catch (DevFailed e) {
-            JiveUtils.showTangoError(e);
+          int ok = JOptionPane.showConfirmDialog(invoker, "Delete alias " + aliasName + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
+          if (ok == JOptionPane.YES_OPTION) {
+            try {
+              db.delete_device_alias(aliasName);
+            } catch (DevFailed e) {
+              JiveUtils.showTangoError(e);
+            }
+            refresh();
           }
-          refresh();
           break;
         case TreePanel.ACTION_TESTDEV:
           testDevice(aliasName);

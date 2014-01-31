@@ -570,8 +570,7 @@ public class TreePanelServer extends TreePanel {
 
             try {
 
-              DeviceProxy ds = new DeviceProxy(dev_list[l]);
-              att_list = ds.get_attribute_list();
+              att_list = db.get_device_attribute_list(dev_list[l]);
               lst = db.get_device_attribute_property(dev_list[l], att_list);
               prtOut = false;
               for (k = 0; k < lst.length; k++) {
@@ -1027,20 +1026,17 @@ public class TreePanelServer extends TreePanel {
             }
 
             // Clone attributes propeties
-            if (isAlive) {
-              try {
+            try {
 
-                String[] attList = ds.get_attribute_list();
-                if (attList.length > 0) {
-                  DbAttribute[] adata = db.get_device_attribute_property(devName, attList);
-                  db.put_device_attribute_property(nDevName, adata);
-                }
+              String[] attList = db.get_device_attribute_list(devName);
 
-              } catch (DevFailed e3) {
-                JiveUtils.showJiveError("Failed to copy attribute properties of " + devName + "\n" + e3.errors[0].desc);
+              if (attList.length > 0) {
+                DbAttribute[] adata = db.get_device_attribute_property(devName, attList);
+                db.put_device_attribute_property(nDevName, adata);
               }
-            } else {
-              JiveUtils.showJiveError("Cannot copy attribute properties of " + devName + "\nThe device is not alive.");
+
+            } catch (DevFailed e3) {
+              JiveUtils.showJiveError("Failed to copy attribute properties of " + devName + "\n" + e3.errors[0].desc);
             }
 
           }

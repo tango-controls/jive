@@ -841,8 +841,7 @@ public class JiveUtils {
       }
 
       // Get device attribute prop list
-      DeviceProxy ds = new DeviceProxy(devname);
-      list = ds.get_attribute_list();
+      list = db.get_device_attribute_list(devname);
       for (i = 0; i < list.length; i++) {
         String att_list[] = {list[i]};
         DbAttribute lst[] = db.get_device_attribute_property(devname, att_list);
@@ -881,8 +880,7 @@ public class JiveUtils {
       }
 
       // Get device attribute prop list
-      DeviceProxy ds = new DeviceProxy(devname);
-      list = ds.get_attribute_list();
+      list = db.get_device_attribute_list(devname);
       for (i = 0; i < list.length; i++) {
         String att_list[] = {list[i]};
         DbAttribute lst[] = db.get_device_attribute_property(devname, att_list);
