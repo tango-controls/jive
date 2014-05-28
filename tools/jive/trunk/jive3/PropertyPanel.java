@@ -12,11 +12,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Vector;
 
 public class PropertyPanel extends JPanel implements ActionListener,MouseListener {
 
   private JScrollPane textView;
-  private JTable      theTable;
+  private JiveTable   theTable;
   private JButton     refreshButton;
   private JButton     applyButton;
   private JButton     deleteButton;
@@ -27,7 +28,6 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
 
   private PropertyNode[]      source = null;
   private DefaultTableModel   dm;
-  private MultiLineCellEditor editor;
   private boolean[]           updatedProp;
   private JPopupMenu          tableMenu;
   private JMenuItem           historyMenuItem;
@@ -62,15 +62,9 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
     };
 
     // Table initialisation
-    theTable = new JTable(dm);
+    theTable = new JiveTable(dm);
     theTable.addMouseListener(this);
-
-    editor = new MultiLineCellEditor(theTable);
-    editor.getTextArea().addMouseListener(this);
-    theTable.setDefaultEditor(String.class, editor);
-
-    MultiLineCellRenderer renderer = new MultiLineCellRenderer(false,true);
-    theTable.setDefaultRenderer(String.class, renderer);
+    theTable.getEditor().getTextArea().addMouseListener(this);
 
     textView = new JScrollPane(theTable);
     add(textView, BorderLayout.CENTER);
@@ -131,7 +125,7 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
 
     if(src==theTable && e.getButton() == MouseEvent.BUTTON3 && e.getClickCount()==1 && !JiveUtils.readOnly) {
 
-      int row = getRowForLocation(e.getY());
+      int row = theTable.getRowForLocation(e.getY());
       if(row!=-1) {
         theTable.addRowSelectionInterval(row,row);
         theTable.setColumnSelectionInterval(0,1);
@@ -143,8 +137,8 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
 
     }
 
-    if(src==editor.getTextArea() && e.getButton() == MouseEvent.BUTTON3 && e.getClickCount()==1) {
-      String selText = editor.getTextArea().getSelectedText();
+    if(src==theTable.getEditor().getTextArea() && e.getButton() == MouseEvent.BUTTON3 && e.getClickCount()==1) {
+      String selText = theTable.getEditor().getTextArea().getSelectedText();
       if( selText!=null ) {
         // Basic device name check
         int slashCount=0;
@@ -166,6 +160,7 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
   
   public void setParent(MainPanel parent) {
     this.parent = parent;
+    theTable.setParent(parent);
   }
 
   public boolean hasChanged() {
@@ -177,6 +172,26 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
     // Update property
     int nb = getNbUpdated() * source.length;
     int k = 0;
+
+    // Confirmation dialog
+    if(source.length>1) {
+
+      Vector propChange = new Vector();
+      for(int i=0;i<updatedProp.length;i++) {
+        if(updatedProp[i]) {
+          propChange.add((String)dm.getValueAt(i,0));
+          propChange.add((String)dm.getValueAt(i,1));
+        }
+      }
+
+      if( !MultiChangeConfirmDlg.confirmChange(propChange, source.length) ) {
+        applyButton.setEnabled(false);
+        for(int i=0;i<updatedProp.length;i++) updatedProp[i] = false;
+        return;
+      }
+
+    }
+
     if(nb>1) ProgressFrame.displayProgress("Updating properties");
     for(int i=0;i<updatedProp.length;i++) {
       if(updatedProp[i]) {
@@ -359,7 +374,7 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
       dm.setDataVector(prop, colName);
       updatedProp = new boolean[prop.length];
       for(int i=0;i<prop.length;i++) updatedProp[i] = false;
-      editor.updateRows();
+      theTable.updateRows();
       theTable.getColumnModel().getColumn(1).setPreferredWidth(250);
       theTable.validate();
       String title = source[0].getTitle();
@@ -391,28 +406,6 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
     for(int i=0;i<updatedProp.length;i++)
       if(updatedProp[i]) k++;
     return k;
-  }
-
-  private int getRowForLocation(int y) {
-
-    boolean found = false;
-    int i = 0;
-    int h = 0;
-
-    while(i<dm.getRowCount() && !found) {
-      found = (y>=h && y<=h+theTable.getRowHeight(i));
-      if(!found) {
-        h+=theTable.getRowHeight(i);
-        i++;
-      }
-    }
-
-    if(found) {
-      return i;
-    } else {
-      return -1;
-    }
-
   }
 
 }

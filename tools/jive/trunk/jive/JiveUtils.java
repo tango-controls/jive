@@ -2647,4 +2647,45 @@ public class JiveUtils {
 
   }
 
+  /**
+   * Return true if devName has a correct device name syntax
+   * @param devName Name to be checked
+   */
+  static public boolean isDeviceName(String devName)
+  {
+
+    if(devName.length()<5 || devName.contains(" ")) return false;
+
+    boolean   devNamePattern;
+
+    String s = new String(devName);
+
+    // Remove the 'tango:'
+    if(s.startsWith("tango:")) s = s.substring(6);
+
+    // Check full syntax: //hostName:portNumber/domain/family/member
+    devNamePattern = Pattern.matches("//[a-zA-Z_0-9]+:[0-9]+/[a-zA-Z_0-9\\.[-]]+/[a-zA-Z_0-9\\.[-]]+/[a-zA-Z_0-9\\.[-]]+", s);
+
+    // Check classic syntax: domain/family/member
+    if (devNamePattern == false)
+      devNamePattern = Pattern.matches("[a-zA-Z_0-9\\.[-]]+/[a-zA-Z_0-9\\.[-]]+/[[a-zA-Z_0-9\\.][-]]+", s);
+
+    // Check full syntax: //ipAdress:portNumber/domain/family/member
+    if (devNamePattern == false)
+      devNamePattern = Pattern.matches("//[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+:[0-9]+/[a-zA-Z_0-9[-]]+/[a-zA-Z_0-9[-]]+/[a-zA-Z_0-9[-]]+", s);
+
+    return devNamePattern;
+
+  }
+
+  /**
+   * Return true if servName has a correct server name syntax
+   * @param srvName Name to be checked
+   */
+  static public boolean isServerName(String srvName)
+  {
+    // Check classic syntax: Server/instance
+    return Pattern.matches("[a-zA-Z_0-9\\.[-]]+/[a-zA-Z_0-9\\.[-]]+", srvName);
+  }
+
 }

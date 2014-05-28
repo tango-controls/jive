@@ -5,6 +5,7 @@ import jive.*;
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -16,7 +17,7 @@ import fr.esrf.Tango.DevFailed;
 import fr.esrf.tangoatk.widget.util.ATKConstant;
 import fr.esrf.tangoatk.widget.util.ATKGraphicsUtils;
 
-public class MainPanel extends JFrame implements ChangeListener {
+public class MainPanel extends JFrame implements ChangeListener,NavigationListener {
 
   private Database db;
 
@@ -42,15 +43,26 @@ public class MainPanel extends JFrame implements ChangeListener {
   // History panel
   PropertyHistoryDlg   historyDlg;
 
+  // Multiple selecection panel
+  SelectionDlg   selectionDlg;
+
   // Filter dialog
   FilterDlg filterDlg=null;
+
+  // Navigation stuff
+  private NavManager    navManager;
+  private NavigationBar navBar;
+  private boolean       recordPos;
+
+  //Search stuff
+  SearchEngine          searchEngine;
 
   private String lastResOpenedDir = ".";
 
   private boolean running_from_shell;
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 4.36 ";
+  final static private String appVersion = "Jive 5.0 ";
 
   // General constructor
   public MainPanel() {
@@ -69,6 +81,9 @@ public class MainPanel extends JFrame implements ChangeListener {
     centerWindow();
     setVisible(true);
     JiveUtils.parent = this;
+    navManager = new NavManager(this);
+    searchEngine = new SearchEngine(this);
+    recordPos = true;
   }
 
   // Init componenet
@@ -118,6 +133,8 @@ public class MainPanel extends JFrame implements ChangeListener {
     propertyTreePanel.setDatabase(db);
     historyDlg = new PropertyHistoryDlg();
     historyDlg.setDatabase(db,tangoHost);
+    selectionDlg = new SelectionDlg();
+    selectionDlg.setDatabase(db);
     treePane = new JTabbedPane();
     treePane.setMinimumSize(new Dimension(365,0));
     treePane.setFont(ATKConstant.labelFont);
@@ -139,6 +156,12 @@ public class MainPanel extends JFrame implements ChangeListener {
     deviceLoggingPanel = new DeviceLoggingPanel();
     singleAttributePanel = new SingleAttributePanel();
     splitPane.setRightComponent(defaultPanel);
+
+    navBar = new NavigationBar();
+    navBar.enableBack(false);
+    navBar.enableForward(false);
+    navBar.addNavigationListener(this);
+    getContentPane().add(navBar,BorderLayout.NORTH);
 
     if( JiveUtils.readOnly ) {
       lockPanel = new JPanel();
@@ -257,7 +280,7 @@ public class MainPanel extends JFrame implements ChangeListener {
     createServerWz.setEnabled(!JiveUtils.readOnly);
     serverMenu.add(createServerWz);
     JMenuItem dbInfoMenu = new JMenuItem("Database Info");
-    dbInfoMenu.addActionListener(new ActionListener(){
+    dbInfoMenu.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         showDatabaseInfo();
       }
@@ -270,6 +293,13 @@ public class MainPanel extends JFrame implements ChangeListener {
       }
     });
     serverMenu.add(dbHistMenu);
+    JMenuItem selectionMenu = new JMenuItem("Multiple selection");
+    selectionMenu.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        showMultipleSelection();
+      }
+    });
+    serverMenu.add(selectionMenu);
 
     JMenu filterMenu = new JMenu("Filter");
     JMenuItem filterServer = new JMenuItem("Server");
@@ -346,7 +376,92 @@ public class MainPanel extends JFrame implements ChangeListener {
 
   }
 
-  // Show the clipbaord content
+  //**************************************************************
+  // Navigation listener
+  //**************************************************************
+  private void reselect() {
+
+    TreePath path = navManager.getCurrentPath();
+    JTree tree = navManager.getCurrentTree();
+
+    recordPos = false;
+
+    if(tree==serverTreePanel.tree) {
+      treePane.setSelectedComponent(serverTreePanel);
+    } else if (tree==deviceTreePanel.tree) {
+      treePane.setSelectedComponent(deviceTreePanel);
+    } else if (tree==classTreePanel.tree) {
+      treePane.setSelectedComponent(classTreePanel);
+    } else if (tree==aliasTreePanel.tree) {
+      treePane.setSelectedComponent(aliasTreePanel);
+    } else if (tree==attributeAliasTreePanel.tree) {
+      treePane.setSelectedComponent(attributeAliasTreePanel);
+    } else if (tree==propertyTreePanel.tree) {
+      treePane.setSelectedComponent(propertyTreePanel);
+    }
+    // Work around X11 bug
+    treePane.getSelectedComponent().setVisible(true);
+
+    tree.setSelectionPath(path);
+    recordPos = true;
+    tree.scrollPathToVisible(path);
+
+  }
+
+  public void backAction(NavigationBar src) {
+    navManager.goBack();
+    navBar.enableBack(navManager.canGoBackward());
+    navBar.enableForward(navManager.canGoForward());
+    reselect();
+  }
+  public void forwardAction(NavigationBar src) {
+    navManager.goForward();
+    navBar.enableBack(navManager.canGoBackward());
+    navBar.enableForward(navManager.canGoForward());
+    reselect();
+  }
+  public void searchAction(NavigationBar src) {
+
+    String searchText = src.getSearchText();
+    TreePanel selected = (TreePanel)treePane.getSelectedComponent();
+
+    // Fast device search
+    if( JiveUtils.isDeviceName(searchText) ) {
+      if( searchText.startsWith("tango:") )
+        searchText = searchText.substring(6);
+      String[] devnames = searchText.split("/");
+      if( deviceTreePanel.isDomain(devnames[0])) {
+        goToDeviceNode(searchText);
+        treePane.setSelectedComponent(deviceTreePanel);
+        treePane.getSelectedComponent().setVisible(true);
+        return;
+      }
+    }
+
+    // Fast server search
+    if( JiveUtils.isServerName(searchText) ) {
+      String srvNames[] = searchText.split("/");
+      if( serverTreePanel.isServer(srvNames[0]) ) {
+        goToServerNode(searchText);
+        treePane.setSelectedComponent(serverTreePanel);
+        treePane.getSelectedComponent().setVisible(true);
+        return;
+      }
+    }
+
+    // Default search
+    TreePath path = searchEngine.findText(searchText,selected.root);
+    if(path!=null) {
+      selected.tree.setSelectionPath(path);
+      selected.tree.scrollPathToVisible(path);
+    }
+
+  }
+  public void refreshAction(NavigationBar src) {
+    refreshTree();
+  }
+
+  // Show the clipboard content
   public void showClipboard() {
     JiveUtils.the_clipboard.show(this);
   }
@@ -553,24 +668,32 @@ public class MainPanel extends JFrame implements ChangeListener {
 
       ProgressFrame.displayProgress("Refresh in progress");
       serverTreePanel.setDatabase(db);
-      ProgressFrame.setProgress("Refreshing...",20);
+      ProgressFrame.setProgress("Refreshing...", 20);
       deviceTreePanel.setDatabase(db);
-      ProgressFrame.setProgress("Refreshing...",40);
+      ProgressFrame.setProgress("Refreshing...", 40);
       classTreePanel.setDatabase(db);
-      ProgressFrame.setProgress("Refreshing...",60);
+      ProgressFrame.setProgress("Refreshing...", 60);
       aliasTreePanel.setDatabase(db);
       attributeAliasTreePanel.setDatabase(db);
-      ProgressFrame.setProgress("Refreshing...",80);
+      ProgressFrame.setProgress("Refreshing...", 80);
       propertyTreePanel.setDatabase(db);
-      ProgressFrame.setProgress("Refreshing...",100);
-      historyDlg.setDatabase(db,th);
+      ProgressFrame.setProgress("Refreshing...", 100);
+      historyDlg.setDatabase(db, th);
+      selectionDlg.setDatabase(db);
       updateTitle(th);
       defaultPanel.setSource(null);
       splitPane.setRightComponent(defaultPanel);
       ProgressFrame.hideProgress();
 
-
     }
+
+  }
+
+  public void resetNavigation() {
+
+    navManager.reset();
+    navBar.enableForward(false);
+    navBar.enableBack(false);
 
   }
 
@@ -663,6 +786,16 @@ public class MainPanel extends JFrame implements ChangeListener {
     } catch (DevFailed e) {
       JiveUtils.showTangoError(e);
     }
+
+  }
+  
+  // Show Multiple selection dialog
+  private void showMultipleSelection() {
+
+    if(!selectionDlg.isVisible())
+      ATKGraphicsUtils.centerFrameOnScreen(selectionDlg);
+    selectionDlg.clear();
+    selectionDlg.setVisible(true);
 
   }
 
@@ -758,6 +891,38 @@ public class MainPanel extends JFrame implements ChangeListener {
       splitPane.setRightComponent(defaultPanel);
       return;
     }
+
+    if (recordPos) {
+      switch (treePane.getSelectedIndex()) {
+        case 0:
+          serverTreePanel.tree.setName("SERVER");
+          navManager.recordPath(serverTreePanel.tree);
+          break;
+        case 1:
+          deviceTreePanel.tree.setName("DEVICE");
+          navManager.recordPath(deviceTreePanel.tree);
+          break;
+        case 2:
+          classTreePanel.tree.setName("CLASS");
+          navManager.recordPath(classTreePanel.tree);
+          break;
+        case 3:
+          aliasTreePanel.tree.setName("DEV-ALIAS");
+          navManager.recordPath(aliasTreePanel.tree);
+          break;
+        case 4:
+          attributeAliasTreePanel.tree.setName("ATT-ALIAS");
+          navManager.recordPath(attributeAliasTreePanel.tree);
+          break;
+        case 5:
+          propertyTreePanel.tree.setName("PROPERTY");
+          navManager.recordPath(propertyTreePanel.tree);
+          break;
+      }
+    }
+
+    navBar.enableBack(navManager.canGoBackward());
+    navBar.enableForward(navManager.canGoForward());
 
     // Check node class
     boolean sameClass = true;

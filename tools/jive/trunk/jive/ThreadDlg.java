@@ -24,6 +24,7 @@ public class ThreadDlg extends JDialog {
   private JPanel innerPanel;
   private JProgressBar progressBar;
   private boolean hasProgress;
+  private JLabel animationLabel;
 
   // Construction
   public ThreadDlg(Frame parent, String title, boolean progress, Thread process) {
@@ -48,9 +49,13 @@ public class ThreadDlg extends JDialog {
 
     this.hasProgress = progress;
     if (!hasProgress) {
+      animationLabel = new JLabel();
+      animationLabel.setIcon(new ImageIcon(getClass().getResource("/jive/wait_anim.gif")));
+      animationLabel.setBounds(10,5,40,40);
+      getContentPane().add(animationLabel);
       textArea = new JLabel();
       textArea.setText(title);
-      textArea.setBounds(5, 5, 200, 40);
+      textArea.setBounds(50, 5, 150, 40);
       textArea.setHorizontalAlignment(JLabel.CENTER);
       getContentPane().add(textArea);
     } else {

@@ -313,6 +313,19 @@ public class TangoFileReader {
     //System.out.println( "put_tango_dev_attr_prop " + devname + "/" + att_name + "->" + prop_name + prtValue(arr) );
 
     checkAttDatum(arr);
+
+    // Sepcial case for attribute alias
+    if(prop_name.equals("__alias")) {
+
+      if(DELETE_ENTRY) {
+        // TODO
+      } else {
+        db.put_attribute_alias(devname+"/"+att_name,arr[0]);
+      }
+      return;
+
+    }
+
     DbAttribute att = new DbAttribute(att_name);
     if(arr.length==0) {
       throw new IllegalStateException("Unexpected empty value");
@@ -331,7 +344,7 @@ public class TangoFileReader {
 
   private void check_tango_dev_attr_prop(String devname, String att_name, String prop_name, String[] arr,Vector diff) throws DevFailed {
 
-    if( arr.length==1 && arr[0].compareTo("%")==0 )
+    if( (arr.length==1 && arr[0].compareTo("%")==0) || prop_name.equals("__alias") )
       return;
 
     String dbValue = "";
@@ -391,6 +404,18 @@ public class TangoFileReader {
   private void put_tango_res(String devname, String resname, String[] arr) throws DevFailed {
 
     //System.out.println( "put_tango_res " + devname + "->" + resname + prtValue(arr) );
+
+    // Sepcial case for device alias
+    if(resname.equals("__alias")) {
+
+      if(DELETE_ENTRY) {
+        // TODO
+      } else {
+        db.put_device_alias(devname,arr[0]);
+      }
+      return;
+
+    }
 
     DbDatum[] d = makeDbDatum(resname, arr);
     if (DELETE_ENTRY)
