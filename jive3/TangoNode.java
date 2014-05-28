@@ -5,6 +5,7 @@ import fr.esrf.Tango.DevFailed;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.*;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 
 import jive.JiveUtils;
@@ -73,6 +74,21 @@ abstract class TangoNode extends DefaultMutableTreeNode {
   // Execute the given action
   void execAction(int actionNumber) {
     System.out.println("Warning, TangoNode.execAction("+actionNumber+") hasn't effect.");
+  }
+
+  // Return the complete path of the node
+  public TreePath getCompletePath() {
+    int i;
+
+    // Construct the path
+    TangoNode node = this;
+    TangoNode[] nodes = new TangoNode[node.getLevel()+1];
+    for (i = nodes.length - 1; i >= 0; i--) {
+      nodes[i] = node;
+      node = (TangoNode) node.getParent();
+    }
+    return new TreePath(nodes);
+
   }
 
 }

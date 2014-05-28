@@ -597,6 +597,12 @@ class CommandPanel extends JPanel implements ActionListener,ListSelectionListene
       case Tango_DEV_LONG:
         send.insert(arg.parse_long());
         break;
+      case Tango_DEV_LONG64:
+        send.insert(arg.parse_long64());
+        break;
+      case Tango_DEV_ULONG64:
+        send.insert_u64(arg.parse_long64());
+        break;
       case Tango_DEV_FLOAT:
         send.insert(arg.parse_float());
         break;
@@ -620,6 +626,12 @@ class CommandPanel extends JPanel implements ActionListener,ListSelectionListene
         break;
       case Tango_DEVVAR_LONGARRAY:
         send.insert(arg.parse_long_array());
+        break;
+      case Tango_DEVVAR_LONG64ARRAY:
+        send.insert(arg.parse_long64_array());
+        break;
+      case Tango_DEVVAR_ULONG64ARRAY:
+        send.insert_u64(arg.parse_long64_array());
         break;
       case Tango_DEVVAR_FLOATARRAY:
         send.insert(arg.parse_float_array());
@@ -671,8 +683,16 @@ class CommandPanel extends JPanel implements ActionListener,ListSelectionListene
         ret_string.append(Long.toString(data.extractULong()));
         ret_string.append("\n");
         break;
+      case Tango_DEV_ULONG64:
+        ret_string.append(Long.toString(data.extractULong64()));
+        ret_string.append("\n");
+        break;
       case Tango_DEV_LONG:
         ret_string.append(Integer.toString(data.extractLong()));
+        ret_string.append("\n");
+        break;
+      case Tango_DEV_LONG64:
+        ret_string.append(Long.toString(data.extractLong64()));
         ret_string.append("\n");
         break;
       case Tango_DEV_FLOAT:
@@ -729,6 +749,15 @@ class CommandPanel extends JPanel implements ActionListener,ListSelectionListene
             ret_string.append("[" + i + "]\t " + Long.toString(dummy[i]) + "\n");
         }
         break;
+      case Tango_DEVVAR_ULONG64ARRAY:
+      {
+        long[] dummy = data.extractULong64Array();
+        int start = getLimitMin(ret_string,dummy.length);
+        int end   = getLimitMax(ret_string,dummy.length);
+        for (int i = start; i < end; i++)
+          ret_string.append("[" + i + "]\t " + Long.toString(dummy[i]) + "\n");
+      }
+      break;
       case Tango_DEVVAR_LONGARRAY:
         {
           int[] dummy = data.extractLongArray();
@@ -738,6 +767,15 @@ class CommandPanel extends JPanel implements ActionListener,ListSelectionListene
             ret_string.append("[" + i + "]\t " + Integer.toString(dummy[i]) + "\n");
         }
         break;
+      case Tango_DEVVAR_LONG64ARRAY:
+      {
+        long[] dummy = data.extractULong64Array();
+        int start = getLimitMin(ret_string,dummy.length);
+        int end   = getLimitMax(ret_string,dummy.length);
+        for (int i = start; i < end; i++)
+          ret_string.append("[" + i + "]\t " + Long.toString(dummy[i]) + "\n");
+      }
+      break;
       case Tango_DEVVAR_FLOATARRAY:
         {
           float[] dummy = data.extractFloatArray();

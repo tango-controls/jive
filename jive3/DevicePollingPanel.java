@@ -11,6 +11,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.ActionEvent;
+import java.util.Vector;
 
 import jive.JiveUtils;
 
@@ -62,6 +63,22 @@ public class DevicePollingPanel extends JPanel implements MouseListener,ActionLi
           if(column==2) { polled=true; }
           int nb = source.length;
           int k = 0;
+
+          // Confirmation dialog
+          if (source.length > 1) {
+
+            Vector propChange = new Vector();
+            propChange.add("IsPolled");
+            propChange.add(Boolean.toString(polled));
+            propChange.add("Period");
+            propChange.add(period);
+            if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," for command " + name)) {
+              refreshValue();
+              return;
+            }
+
+          }
+
           if(nb>1) ProgressFrame.displayProgress("Updating polling");
           for(int i=0;i<source.length;i++) {
             k++;
@@ -101,6 +118,22 @@ public class DevicePollingPanel extends JPanel implements MouseListener,ActionLi
           if(column==2) { polled=true; }
           int nb = source.length;
           int k = 0;
+
+          // Confirmation dialog
+          if (source.length > 1) {
+
+            Vector propChange = new Vector();
+            propChange.add("IsPolled");
+            propChange.add(Boolean.toString(polled));
+            propChange.add("Period");
+            propChange.add(period);
+            if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," for attribute " + name)) {
+              refreshValue();
+              return;
+            }
+
+          }
+
           if(nb>1) ProgressFrame.displayProgress("Updating polling");
           for(int i=0;i<source.length;i++) {
             k++;
@@ -133,6 +166,27 @@ public class DevicePollingPanel extends JPanel implements MouseListener,ActionLi
           super.setValueAt(aValue,row,column);
           int nb = source.length;
           int k = 0;
+
+          // Confirmation dialog
+          if (source.length > 1) {
+
+            Vector propChange = new Vector();
+
+            if( row==0 ) {
+              propChange.add("PollOldFactor");
+              propChange.add((String) aValue);
+            } else {
+              propChange.add("PollRingDepth");
+              propChange.add((String) aValue);
+            }
+
+            if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length)) {
+              refreshValue();
+              return;
+            }
+
+          }
+
           if(nb>1) ProgressFrame.displayProgress("Updating polling");
           if (row == 0) {
             for (int i = 0; i < source.length; i++) {
@@ -161,13 +215,13 @@ public class DevicePollingPanel extends JPanel implements MouseListener,ActionLi
 
     tabPane = new JTabbedPane();
     tabPane.setFont(ATKConstant.labelFont);
-    tabPane.add("Command",cmdView);
+    tabPane.add("Command", cmdView);
     tabPane.add("Attribute",attView);
     tabPane.add("Settings",adminView);
 
     Border b = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"...");
     tabPane.setBorder(b);
-    add(tabPane,BorderLayout.CENTER);
+    add(tabPane, BorderLayout.CENTER);
 
     // Bottom panel
     JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));

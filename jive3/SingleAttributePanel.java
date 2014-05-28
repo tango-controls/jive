@@ -59,7 +59,7 @@ public class SingleAttributePanel extends JPanel implements ActionListener {
     editor = new MultiLineCellEditor(attTable);
     attTable.setDefaultEditor(String.class, editor);
 
-    MultiLineCellRenderer renderer = new MultiLineCellRenderer(true,true);
+    MultiLineCellRenderer renderer = new MultiLineCellRenderer(true,true,false);
     attTable.setDefaultRenderer(String.class, renderer);
 
     JScrollPane attView = new JScrollPane(attTable);

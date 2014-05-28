@@ -10,6 +10,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.ActionEvent;
+import java.util.Vector;
 
 import jive.JiveUtils;
 
@@ -58,6 +59,29 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
           super.setValueAt(aValue,row,column);
           int nb = source.length;
           int k = 0;
+
+          // Confirmation dialog
+          if (source.length > 1) {
+
+            String name = (String)changeModel.getValueAt(row,0);
+            Vector propChange = new Vector();
+            switch(column) {
+              case 1:
+                propChange.add("abs_change");
+                break;
+              case 2:
+                propChange.add("rel_change");
+                break;
+            }
+            propChange.add((String)aValue);
+
+            if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," for attribute " + name)) {
+              refreshValue();
+              return;
+            }
+
+          }
+
           switch(column) {
             case 1:
               if(nb>1) ProgressFrame.displayProgress("Updating event config");
@@ -106,6 +130,32 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
           super.setValueAt(aValue,row,column);
           int nb = source.length;
           int k = 0;
+
+          // Confirmation dialog
+          if (source.length > 1) {
+
+            String name = (String)archModel.getValueAt(row,0);
+            Vector propChange = new Vector();
+            switch(column) {
+              case 1:
+                propChange.add("arch_abs_change");
+                break;
+              case 2:
+                propChange.add("arch_rel_change");
+                break;
+              case 3:
+                propChange.add("arch_period");
+                break;
+            }
+            propChange.add((String)aValue);
+
+            if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," for attribute " + name)) {
+              refreshValue();
+              return;
+            }
+
+          }
+
           switch(column) {
             case 1:
               if(nb>1) ProgressFrame.displayProgress("Updating event config");
@@ -164,6 +214,26 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
           super.setValueAt(aValue,row,column);
           int nb = source.length;
           int k = 0;
+
+          // Confirmation dialog
+          if (source.length > 1) {
+
+            String name = (String)perModel.getValueAt(row,0);
+            Vector propChange = new Vector();
+            switch(column) {
+              case 1:
+                propChange.add("period");
+                break;
+            }
+            propChange.add((String)aValue);
+
+            if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," for attribute " + name)) {
+              refreshValue();
+              return;
+            }
+
+          }
+
           switch(column) {
             case 1:
               if(nb>1) ProgressFrame.displayProgress("Updating event config");
@@ -187,13 +257,13 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
 
     tabPane = new JTabbedPane();
     tabPane.setFont(ATKConstant.labelFont);
-    tabPane.add("Change event",changeView);
+    tabPane.add("Change event", changeView);
     tabPane.add("Archive event",archView);
     tabPane.add("Periodic event",perView);
 
     Border b = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"...");
     tabPane.setBorder(b);
-    add(tabPane,BorderLayout.CENTER);
+    add(tabPane, BorderLayout.CENTER);
 
     // Bottom panel
     JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -204,7 +274,7 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
     applyButton.setEnabled(!JiveUtils.readOnly);
     applyButton.addActionListener(this);
     btnPanel.add(applyButton);
-    add(btnPanel,BorderLayout.SOUTH);
+    add(btnPanel, BorderLayout.SOUTH);
 
     // Contextual menu
     tableMenu = new JPopupMenu();
@@ -306,6 +376,15 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
 
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation message
+      if( source.length>1 ) {
+        String message = "You are going to reset event configuration for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+        int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+        if( result==JOptionPane.NO_OPTION )
+          return;
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Reseting event config");
 
       if(selectedTable == changeTable) {
@@ -352,6 +431,15 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
 
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation message
+      if( source.length>1 ) {
+        String message = "You are going to reset event configuration to library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+        int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+        if( result==JOptionPane.NO_OPTION )
+          return;
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Reseting event config");
 
       if(selectedTable == changeTable) {
@@ -395,6 +483,15 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
 
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation message
+      if( source.length>1 ) {
+        String message = "You are going to reset event configuration to code/library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+        int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+        if( result==JOptionPane.NO_OPTION )
+          return;
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Reseting event config");
 
       if(selectedTable == changeTable) {
@@ -438,6 +535,15 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
 
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation message
+      if( source.length>1 ) {
+        String message = "You are going to reset event configuration to class/code/library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+        int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+        if( result==JOptionPane.NO_OPTION )
+          return;
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Reseting event config");
 
       if(selectedTable == changeTable) {
@@ -483,6 +589,21 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
       if(abs==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        if(selectedTable == changeTable) {
+          propChange.add("abs_change");
+        } else {
+          propChange.add("arch_abs_change");
+        }
+        propChange.add(abs);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating abs change");
 
       if(selectedTable == changeTable) {
@@ -517,6 +638,21 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
       if(rel==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        if(selectedTable == changeTable) {
+          propChange.add("rel_change");
+        } else {
+          propChange.add("arch_rel_change");
+        }
+        propChange.add(rel);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating rel change");
 
       if(selectedTable == changeTable) {
@@ -551,6 +687,21 @@ public class DeviceEventPanel extends JPanel implements MouseListener,ActionList
       if(per==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        if(selectedTable == archTable) {
+          propChange.add("arch_period");
+        } else {
+          propChange.add("period");
+        }
+        propChange.add(per);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating period");
 
       if(selectedTable == archTable) {

@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Vector;
 
 public class DeviceLoggingPanel extends JPanel implements ActionListener, MouseListener {
 
@@ -45,6 +46,37 @@ public class DeviceLoggingPanel extends JPanel implements ActionListener, MouseL
           super.setValueAt(aValue,row,column);
           int nb = source.length;
           int k = 0;
+
+          // Confirmation dialog
+          if (source.length > 1) {
+
+            Vector propChange = new Vector();
+            switch(row) {
+              case 0:
+                propChange.add("logging_level");
+                break;
+              case 1:
+                propChange.add("cur_logging_level");
+                break;
+              case 2:
+                propChange.add("logging_target");
+                break;
+              case 3:
+                propChange.add("cur_logging_target");
+                break;
+              case 4:
+                propChange.add("logging_rft");
+                break;
+            }
+            propChange.add((String)aValue);
+
+            if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length)) {
+              refreshValue();
+              return;
+            }
+
+          }
+
           switch(row) {
             case 0:
               if(nb>1) ProgressFrame.displayProgress("Updating logging config");
@@ -184,6 +216,13 @@ public class DeviceLoggingPanel extends JPanel implements ActionListener, MouseL
 
       switch(selectedRow) {
         case 0:
+          // Confirmation message
+          if( source.length>1 ) {
+            String message = "You are going to reset logging level for " + source.length + " devices.\nDo you want to proceed ?";
+            int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+            if( result==JOptionPane.NO_OPTION )
+              return;
+          }
           if(nb>1) ProgressFrame.displayProgress("Reseting logging config");
           for(int i=0;i<source.length;i++) {
             k++;
@@ -195,6 +234,13 @@ public class DeviceLoggingPanel extends JPanel implements ActionListener, MouseL
           refreshValue();
           break;
         case 2:
+          // Confirmation message
+          if( source.length>1 ) {
+            String message = "You are going to reset logging target for " + source.length + " devices.\nDo you want to proceed ?";
+            int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+            if( result==JOptionPane.NO_OPTION )
+              return;
+          }
           if(nb>1) ProgressFrame.displayProgress("Reseting logging config");
           for(int i=0;i<source.length;i++) {
             k++;
@@ -206,6 +252,13 @@ public class DeviceLoggingPanel extends JPanel implements ActionListener, MouseL
           refreshValue();
           break;
         case 4:
+          // Confirmation message
+          if( source.length>1 ) {
+            String message = "You are going to reset logging rft for " + source.length + " devices.\nDo you want to proceed ?";
+            int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+            if( result==JOptionPane.NO_OPTION )
+              return;
+          }
           if(nb>1) ProgressFrame.displayProgress("Reseting logging config");
           for(int i=0;i<source.length;i++) {
             k++;

@@ -10,6 +10,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.ActionEvent;
+import java.util.Vector;
 
 import jive.JiveUtils;
 
@@ -76,6 +77,41 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
           super.setValueAt(aValue,row,column);
           int nb = source.length;
           int k = 0;
+
+          // Confirmation dialog
+          if (source.length > 1) {
+
+            String name = (String)alarmModel.getValueAt(row,0);
+            Vector propChange = new Vector();
+            switch(column) {
+              case 1:
+                propChange.add("min_alarm");
+                break;
+              case 2:
+                propChange.add("max_alarm");
+                break;
+              case 3:
+                propChange.add("min_warning");
+                break;
+              case 4:
+                propChange.add("max_warning");
+                break;
+              case 5:
+                propChange.add("delta_t");
+                break;
+              case 6:
+                propChange.add("delta_val");
+                break;
+            }
+            propChange.add((String)aValue);
+
+            if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," for attribute " + name)) {
+              refreshValue();
+              return;
+            }
+
+          }
+
           switch(column) {
             case 1:
               if(nb>1) ProgressFrame.displayProgress("Updating alarm");
@@ -167,6 +203,32 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
           super.setValueAt(aValue,row,column);
           int nb = source.length;
           int k = 0;
+
+          // Confirmation dialog
+          if (source.length > 1) {
+
+            String name = (String)unitModel.getValueAt(row,0);
+            Vector propChange = new Vector();
+            switch(column) {
+              case 1:
+                propChange.add("unit");
+                break;
+              case 2:
+                propChange.add("display_unit");
+                break;
+              case 3:
+                propChange.add("standard_unit");
+                break;
+            }
+            propChange.add((String)aValue);
+
+            if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," for attribute " + name)) {
+              refreshValue();
+              return;
+            }
+
+          }
+
           switch(column) {
             case 1:
               if(nb>1) ProgressFrame.displayProgress("Updating unit");
@@ -225,6 +287,29 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
           super.setValueAt(aValue,row,column);
           int nb = source.length;
           int k = 0;
+
+          // Confirmation dialog
+          if (source.length > 1) {
+
+            String name = (String)rangeModel.getValueAt(row,0);
+            Vector propChange = new Vector();
+            switch(column) {
+              case 1:
+                propChange.add("min");
+                break;
+              case 2:
+                propChange.add("max");
+                break;
+            }
+            propChange.add((String)aValue);
+
+            if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," for attribute " + name)) {
+              refreshValue();
+              return;
+            }
+
+          }
+
           switch(column) {
             case 1:
               if(nb>1) ProgressFrame.displayProgress("Updating range");
@@ -272,6 +357,29 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
           super.setValueAt(aValue,row,column);
           int nb = source.length;
           int k = 0;
+
+          // Confirmation dialog
+          if (source.length > 1) {
+
+            String name = (String)displayModel.getValueAt(row,0);
+            Vector propChange = new Vector();
+            switch(column) {
+              case 1:
+                propChange.add("label");
+                break;
+              case 2:
+                propChange.add("format");
+                break;
+            }
+            propChange.add((String)aValue);
+
+            if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," for attribute " + name)) {
+              refreshValue();
+              return;
+            }
+
+          }
+
           switch(column) {
             case 1:
               if(nb>1) ProgressFrame.displayProgress("Updating label");
@@ -319,6 +427,26 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
           super.setValueAt(aValue,row,column);
           int nb = source.length;
           int k = 0;
+
+          // Confirmation dialog
+          if (source.length > 1) {
+
+            String name = (String)descriptionModel.getValueAt(row,0);
+            Vector propChange = new Vector();
+            switch(column) {
+              case 1:
+                propChange.add("description");
+                break;
+            }
+            propChange.add((String)aValue);
+
+            if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," for attribute " + name)) {
+              refreshValue();
+              return;
+            }
+
+          }
+
           switch(column) {
             case 1:
               if(nb>1) ProgressFrame.displayProgress("Updating description");
@@ -564,6 +692,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
       if(selectedTable == alarmTable) {
 
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset alarm configuration for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
+
         if(nb>1) ProgressFrame.displayProgress("Reseting alarms");
         for(int j=0;j<source.length;j++) {
           for(int i=0;i<selectedRows.length;i++) {
@@ -578,6 +714,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
         refreshValue();
 
       } else if (selectedTable == unitTable) {
+
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset unit configuration for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
 
         if(nb>1) ProgressFrame.displayProgress("Reseting units");
         for(int j=0;j<source.length;j++) {
@@ -594,6 +738,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
       } else if (selectedTable == rangeTable) {
 
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset range configuration for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
+
         if(nb>1) ProgressFrame.displayProgress("Reseting ranges");
         for(int j=0;j<source.length;j++) {
           for(int i=0;i<selectedRows.length;i++) {
@@ -608,6 +760,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
         refreshValue();
 
       } else if (selectedTable == displayTable) {
+
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset display configuration for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
 
         if(nb>1) ProgressFrame.displayProgress("Reseting display");
         for(int j=0;j<source.length;j++) {
@@ -624,6 +784,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
       } else if (selectedTable == descriptionTable) {
 
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset description for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
+
         if(nb>1) ProgressFrame.displayProgress("Reseting description");
         for(int j=0;j<source.length;j++) {
           for(int i=0;i<selectedRows.length;i++) {
@@ -638,6 +806,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
         refreshValue();
 
       } else if (selectedTable == aliasTable) {
+
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset alias for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
 
         if(nb>1) ProgressFrame.displayProgress("Reseting alias");
         for(int j=0;j<source.length;j++) {
@@ -661,6 +837,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
       if(selectedTable == alarmTable) {
 
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset alarm configuration to library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
+
         if(nb>1) ProgressFrame.displayProgress("Reseting alarms");
         for(int j=0;j<source.length;j++) {
           for(int i=0;i<selectedRows.length;i++) {
@@ -674,6 +858,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
         refreshValue();
 
       } else if (selectedTable == unitTable) {
+
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset unit configuration to library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
 
         if(nb>1) ProgressFrame.displayProgress("Reseting units");
         for(int j=0;j<source.length;j++) {
@@ -689,6 +881,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
       } else if (selectedTable == rangeTable) {
 
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset range configuration to library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
+
         if(nb>1) ProgressFrame.displayProgress("Reseting ranges");
         for(int j=0;j<source.length;j++) {
           for(int i=0;i<selectedRows.length;i++) {
@@ -703,6 +903,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
       } else if (selectedTable == displayTable) {
 
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset display configuration to library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
+
         if(nb>1) ProgressFrame.displayProgress("Reseting display");
         for(int j=0;j<source.length;j++) {
           for(int i=0;i<selectedRows.length;i++) {
@@ -716,6 +924,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
         refreshValue();
 
       } else if (selectedTable == descriptionTable) {
+
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset description to library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
 
         if(nb>1) ProgressFrame.displayProgress("Reseting description");
         for(int j=0;j<source.length;j++) {
@@ -738,6 +954,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
       if(selectedTable == alarmTable) {
 
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset alarm configuration to code/library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
+
         if(nb>1) ProgressFrame.displayProgress("Reseting alarms");
         for(int j=0;j<source.length;j++) {
           for(int i=0;i<selectedRows.length;i++) {
@@ -751,6 +975,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
         refreshValue();
 
       } else if (selectedTable == unitTable) {
+
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset unit configuration to code/library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
 
         if(nb>1) ProgressFrame.displayProgress("Reseting units");
         for(int j=0;j<source.length;j++) {
@@ -766,6 +998,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
       } else if (selectedTable == rangeTable) {
 
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset range configuration to code/library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
+
         if(nb>1) ProgressFrame.displayProgress("Reseting ranges");
         for(int j=0;j<source.length;j++) {
           for(int i=0;i<selectedRows.length;i++) {
@@ -780,6 +1020,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
       } else if (selectedTable == displayTable) {
 
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset display configuration to code/library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
+
         if(nb>1) ProgressFrame.displayProgress("Reseting display");
         for(int j=0;j<source.length;j++) {
           for(int i=0;i<selectedRows.length;i++) {
@@ -793,6 +1041,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
         refreshValue();
 
       } else if (selectedTable == descriptionTable) {
+
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset description to code/library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
 
         if(nb>1) ProgressFrame.displayProgress("Reseting description");
         for(int j=0;j<source.length;j++) {
@@ -815,6 +1071,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
       if(selectedTable == alarmTable) {
 
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset alarm configuration to class/code/library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
+
         if(nb>1) ProgressFrame.displayProgress("Reseting alarms");
         for(int j=0;j<source.length;j++) {
           for(int i=0;i<selectedRows.length;i++) {
@@ -828,6 +1092,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
         refreshValue();
 
       } else if (selectedTable == unitTable) {
+
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset unit configuration to class/code/library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
 
         if(nb>1) ProgressFrame.displayProgress("Reseting units");
         for(int j=0;j<source.length;j++) {
@@ -843,6 +1115,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
       } else if (selectedTable == rangeTable) {
 
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset range configuration to class/code/library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
+
         if(nb>1) ProgressFrame.displayProgress("Reseting ranges");
         for(int j=0;j<source.length;j++) {
           for(int i=0;i<selectedRows.length;i++) {
@@ -857,6 +1137,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
 
       } else if (selectedTable == displayTable) {
 
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset display configuration to class/code/library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
+
         if(nb>1) ProgressFrame.displayProgress("Reseting display");
         for(int j=0;j<source.length;j++) {
           for(int i=0;i<selectedRows.length;i++) {
@@ -870,6 +1158,14 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
         refreshValue();
 
       } else if (selectedTable == descriptionTable) {
+
+        // Confirmation message
+        if( source.length>1 ) {
+          String message = "You are going to reset description to class/code/library value for " + source.length + " device(s) and " + selectedRows.length + " attribute(s).\nDo you want to proceed ?";
+          int result = JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+          if( result==JOptionPane.NO_OPTION )
+            return;
+        }
 
         if(nb>1) ProgressFrame.displayProgress("Reseting description");
         for(int j=0;j<source.length;j++) {
@@ -890,6 +1186,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("label");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating label");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
@@ -908,6 +1215,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("format");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating format");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
@@ -926,6 +1244,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("unit");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating unit");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
@@ -944,6 +1273,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("display_unit");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating display unit");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
@@ -962,6 +1302,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("standard_unit");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating standard unit");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
@@ -980,6 +1331,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("min");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating min");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
@@ -998,6 +1360,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("max");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating max");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
@@ -1016,6 +1389,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("min_alarm");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating min alarm");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
@@ -1034,6 +1418,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("max_alarm");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating max alarm");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
@@ -1052,6 +1447,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("min_warning");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating min warning");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
@@ -1070,6 +1476,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("max_warning");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating max warning");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
@@ -1088,6 +1505,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("delta_t");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating delta T");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
@@ -1106,6 +1534,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("delta_val");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating delta value");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
@@ -1124,6 +1563,17 @@ public class DeviceAttributePanel extends JPanel implements MouseListener,Action
       if(val==null) return;
       int nb = selectedRows.length * source.length;
       int k = 0;
+
+      // Confirmation dialog
+      if (source.length > 1) {
+        Vector propChange = new Vector();
+        propChange.add("description");
+        propChange.add(val);
+        if (!MultiChangeConfirmDlg.confirmChange(propChange, source.length," and " + selectedRows.length + " attribute(s)")) {
+          return;
+        }
+      }
+
       if(nb>1) ProgressFrame.displayProgress("Updating description");
       for(int j=0;j<source.length;j++) {
         for(int i=0;i<selectedRows.length;i++) {
