@@ -373,6 +373,8 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
     remove(treeView);
     if(db!=null) initTree();
 
+    invoker.resetNavigation();
+
     if (oldPath != null) {
 
       // Reselect old node

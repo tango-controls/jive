@@ -33,6 +33,11 @@ public class TreePanelDevice extends TreePanel {
 
   }
 
+  public boolean isDomain(String domain) {
+    TangoNode domainNode = searchNode(root,domain);
+    return domainNode!=null;
+  }
+
   public void selectDevice(String devName) {
 
     int bslash = devName.indexOf('/');
@@ -323,7 +328,6 @@ public class TreePanelDevice extends TreePanel {
     }
 
   }
-
 
   // ---------------------------------------------------------------
 

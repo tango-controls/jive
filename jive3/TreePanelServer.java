@@ -85,6 +85,11 @@ public class TreePanelServer extends TreePanel {
 
   }
 
+  public boolean isServer(String exeName) {
+    TangoNode srvNode = searchNode(root,exeName);
+    return srvNode!=null;
+  }
+
   public void selectServer(String serverName) {
 
     int slash = serverName.indexOf('/');
@@ -678,7 +683,7 @@ public class TreePanelServer extends TreePanel {
     void populateNode() throws DevFailed {
       String[] list = db.get_device_name(server+"/"+instance , className);
       for (int i = 0; i < list.length; i++)
-        add(new DeviceNode(server,instance,className,list[i]));
+        add(new DeviceServerNode(server,instance,className,list[i]));
     }
 
     ImageIcon getIcon() {
@@ -833,18 +838,16 @@ public class TreePanelServer extends TreePanel {
 
   }
 
-
-
   // ---------------------------------------------------------------
 
-  class DeviceNode extends TangoNode {
+  class DeviceServerNode extends TangoNode {
 
     private String server;
     private String instance;
     private String className;
     private String    devName;
 
-    DeviceNode(String server,String instance,String className,String devName) {
+    DeviceServerNode(String server, String instance, String className, String devName) {
       this.server = server;
       this.instance = instance;
       this.className = className;
