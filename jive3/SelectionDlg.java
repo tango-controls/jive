@@ -43,6 +43,7 @@ public class SelectionDlg extends JFrame implements ActionListener {
   JTextField selectionText;
   JLabel selectionLabel;
   JButton searchButton;
+  JButton applyAllButton;
   JButton applyButton;
   JButton dismissButton;
   JLabel infoLabel;
@@ -107,7 +108,14 @@ public class SelectionDlg extends JFrame implements ActionListener {
     infoLabel = new JLabel("0 item(s)");
     infoLabel.setFont(ATKConstant.labelFont);
     innerPanel2.add(infoLabel);
+
+    applyAllButton = new JButton("Apply to all ...");
+    applyAllButton.setToolTipText("Ask for a value and apply it to the current selection");
+    applyAllButton.addActionListener(this);
+    innerPanel2.add(applyAllButton);
+
     applyButton = new JButton("Apply");
+    applyButton.setToolTipText("Apply change to the database");
     applyButton.addActionListener(this);
     applyButton.setEnabled(false);
     innerPanel2.add(applyButton);
@@ -207,20 +215,51 @@ public class SelectionDlg extends JFrame implements ActionListener {
 
       infoLabel.setText(items.size()+ " item(s)");
 
-      String[][] prop = new String[items.size()][2];
-      for (int i = 0; i < items.size(); i++) {
-        prop[i][0] = items.get(i).devName + "/" + items.get(i).pName;
-        prop[i][1] = items.get(i).toString();
-      }
-
-      dm.setDataVector(prop, colName);
-      editor.updateRows();
-      theTable.getColumnModel().getColumn(1).setPreferredWidth(250);
-      theTable.validate();
-      ((JPanel)getContentPane()).revalidate();
+      refreshTable();
 
     } catch (DevFailed e) {
       JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  private void refreshTable() {
+
+    String[][] prop = new String[items.size()][2];
+    for (int i = 0; i < items.size(); i++) {
+      prop[i][0] = items.get(i).devName + "/" + items.get(i).pName;
+      prop[i][1] = items.get(i).toString();
+    }
+
+    dm.setDataVector(prop, colName);
+    editor.updateRows();
+    theTable.getColumnModel().getColumn(1).setPreferredWidth(250);
+    theTable.validate();
+    ((JPanel)getContentPane()).revalidate();
+
+  }
+
+  private void applyAll() {
+
+    if(items.size()==0) {
+      JOptionPane.showMessageDialog(this,"No selection");
+      return;
+    }
+
+    String[] newValue = MultiLineInputDlg.getInputText(this,
+                                                       "Apply to all",
+                                                       "Apply to "+items.size()+" item(s)",
+                                                       items.get(0).value);
+
+    if( newValue!=null ) {
+
+      for(int i=0;i<items.size();i++) {
+        items.get(i).value = newValue;
+        items.get(i).updated = true;
+      }
+      apply();
+      refreshTable();
+
     }
 
   }
@@ -282,6 +321,8 @@ public class SelectionDlg extends JFrame implements ActionListener {
       setVisible(false);
     } else if( src==applyButton ) {
       apply();
+    } else if ( src==applyAllButton ) {
+      applyAll();
     }
 
   }
