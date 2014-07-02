@@ -374,17 +374,22 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
     if(db!=null) initTree();
 
     invoker.resetNavigation();
+    selectPath(oldPath);
 
-    if (oldPath != null) {
+  }
+
+  public void selectPath(TreePath path) {
+
+    if (path != null) {
 
       // Reselect old node
       TreePath newPath = new TreePath(root);
       TangoNode node = root;
       boolean found = true;
       int i = 1;
-      while (found && i < oldPath.getPathCount()) {
+      while (found && i < path.getPathCount()) {
 
-        String item = oldPath.getPathComponent(i).toString();
+        String item = path.getPathComponent(i).toString();
 
         // Search for item
         node = searchNode(node,item);
@@ -433,6 +438,27 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
     }
 
   }
+
+  // Check if itemName if an item at first level
+  public boolean isRootItem(String itemName) {
+
+    TangoNode node = searchNode(root,itemName);
+    return (node!=null);
+
+  }
+
+  // Select a "first level" item
+  public TreePath selectRootItem(String itemName) {
+
+    TangoNode node = searchNode(root, itemName);
+    TreePath selPath = new TreePath(root);
+    selPath = selPath.pathByAddingChild(node);
+    tree.setSelectionPath(selPath);
+    return selPath;
+
+  }
+
+
 
   // Search the tree
   public TangoNode searchNode(TangoNode startNode,String value) {

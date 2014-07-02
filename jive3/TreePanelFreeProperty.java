@@ -88,7 +88,7 @@ public class TreePanelFreeProperty extends TreePanel {
     }
 
     public String toString() {
-      return "Property: ";
+      return "FreeProperty:";
     }
 
   }

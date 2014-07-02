@@ -90,7 +90,7 @@ public class TreePanelServer extends TreePanel {
     return srvNode!=null;
   }
 
-  public void selectServer(String serverName) {
+  public boolean selectFullServer(String serverName) {
 
     int slash = serverName.indexOf('/');
     String server   = serverName.substring(0,slash);
@@ -98,24 +98,26 @@ public class TreePanelServer extends TreePanel {
 
     // Search server
     TangoNode srvNode = searchNode(root,server);
-    if(srvNode==null) return;
+    if(srvNode==null) return false;
     TangoNode instNode = searchNode(srvNode,instance);
-    if(instNode==null) return;
+    if(instNode==null) return false;
     TreePath selPath = new TreePath(root);
     selPath = selPath.pathByAddingChild(srvNode);
     selPath = selPath.pathByAddingChild(instNode);
     tree.setSelectionPath(selPath);
+    return true;
 
   }
 
-  public void selectServerRoot(String serverName) {
+  public boolean selectServerRoot(String serverName) {
 
     // Search server
     TangoNode srvNode = searchNode(root,serverName);
-    if(srvNode==null) return;
+    if(srvNode==null) return false;
     TreePath selPath = new TreePath(root);
     selPath = selPath.pathByAddingChild(srvNode);
     tree.setSelectionPath(selPath);
+    return true;
 
   }
 
@@ -161,7 +163,7 @@ public class TreePanelServer extends TreePanel {
     }
 
     public String toString() {
-      return "Server :";
+      return "Server:";
     }
 
   }
@@ -398,7 +400,7 @@ public class TreePanelServer extends TreePanel {
 
           // Refresh the tree
           refresh();
-          selectServer(server+"/"+newName);
+          selectFullServer(server + "/" + newName);
           break;
 
         // ----------------------------------------------------------------------------
@@ -522,7 +524,7 @@ public class TreePanelServer extends TreePanel {
           try {
             db.rename_server(server+"/"+instance,newSName);
             refresh();
-            selectServer(newSName);
+            selectFullServer(newSName);
           } catch (DevFailed e) {
             JiveUtils.showTangoError(e);
           }
@@ -752,7 +754,7 @@ public class TreePanelServer extends TreePanel {
             }
 
             refresh();
-            selectServer(server+"/"+instance);
+            selectFullServer(server + "/" + instance);
 
           }
           break;

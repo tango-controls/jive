@@ -4,14 +4,12 @@ import fr.esrf.Tango.DevFailed;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import fr.esrf.Tango.DevVarLongStringArray;
 import fr.esrf.TangoApi.*;
-import jive.DevWizard;
 import jive.JiveUtils;
 
 
@@ -87,7 +85,7 @@ public class TreePanelClass extends TreePanel {
     }
 
     public String toString() {
-      return "Class: ";
+      return "Class:";
     }
 
   }
@@ -300,7 +298,7 @@ public class TreePanelClass extends TreePanel {
         case ACTION_GOTOSERVNODE:
           try {
             DbDevImportInfo info = db.import_device(devName);
-            invoker.goToServerNode(info.server);
+            invoker.goToServerFullNode(info.server);
           } catch (DevFailed e) {
             JiveUtils.showTangoError(e);
           }

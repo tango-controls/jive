@@ -1,6 +1,9 @@
 package jive3;
 
+import jive.JiveUtils;
+
 import javax.swing.*;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,17 +12,32 @@ import java.util.Vector;
 /**
  * Navigation bar
  */
+
+class ComboItem {
+
+  String text;
+  TreePath path;
+
+  public String toString() {
+    return text;
+  }
+
+}
+
 public class NavigationBar extends JPanel implements ActionListener {
 
   private final static Insets nullInsets = new Insets(0,0,0,0);
   private JButton backBtn;
   private JButton forwardBtn;
-  private JTextField searchText;
+  private JComboBox searchText;
   private JButton searchBtn;
   private JButton refreshBtn;
   private Vector<NavigationListener> listeners;
+  private boolean isUpdating;
 
   NavigationBar() {
+
+    isUpdating = true;
 
     setLayout(new GridBagLayout());
     GridBagConstraints gbc = new GridBagConstraints();
@@ -59,7 +77,7 @@ public class NavigationBar extends JPanel implements ActionListener {
     gbc.fill = GridBagConstraints.VERTICAL;
     add(refreshBtn,gbc);
 
-    searchText = new JTextField();
+    searchText = new JComboBox();
     searchText.setEditable(true);
     searchText.addActionListener(this);
     gbc.gridx = 3;
@@ -80,6 +98,7 @@ public class NavigationBar extends JPanel implements ActionListener {
     add(searchBtn,gbc);
 
     listeners = new Vector<NavigationListener>();
+    isUpdating = false;
   }
 
   public void addNavigationListener(NavigationListener l) {
@@ -91,7 +110,26 @@ public class NavigationBar extends JPanel implements ActionListener {
   }
 
   public String getSearchText() {
-    return searchText.getText();
+    return searchText.getEditor().getItem().toString();
+  }
+
+  public TreePath getSelectedItemPath() {
+
+    Object selectedItem = searchText.getSelectedItem();
+    if( selectedItem instanceof ComboItem ) {
+      ComboItem item = (ComboItem)selectedItem;
+      return item.path;
+    }
+
+    return null;
+
+  }
+
+  public void addLink(TreePath path) {
+    isUpdating = true;
+    int idx = addSearchText(JiveUtils.getPathAsText(path),path);
+    searchText.setSelectedIndex(idx);
+    isUpdating = false;
   }
 
   public void enableBack(boolean enable) {
@@ -112,9 +150,47 @@ public class NavigationBar extends JPanel implements ActionListener {
       for(int i=0;i<listeners.size();i++) listeners.get(i).forwardAction(this);
     } else if(src==refreshBtn) {
       for(int i=0;i<listeners.size();i++) listeners.get(i).refreshAction(this);
-    } else if(src==searchBtn || src==searchText) {
-      for(int i=0;i<listeners.size();i++) listeners.get(i).searchAction(this);
+    } else if(src==searchBtn) {
+      TreePath path = getSelectedItemPath();
+      for(int i=0;i<listeners.size();i++) listeners.get(i).searchAction(this,path);
+      if(path==null) {
+        isUpdating = true;
+        addSearchText(getSearchText(),null);
+        isUpdating = false;
+      }
+    } else if(src==searchText) {
+      if(!isUpdating) {
+        TreePath path = getSelectedItemPath();
+        for(int i=0;i<listeners.size();i++) listeners.get(i).searchAction(this,path);
+        if(path==null) {
+          isUpdating = true;
+          addSearchText(getSearchText(),null);
+          isUpdating = false;
+        }
+      }
     }
+
+  }
+
+  private int addSearchText(String text,TreePath path) {
+
+    // Add the input string if not already done
+    boolean found = false;
+    boolean alreadyThere = false;
+    int i = 0;
+    while(i<searchText.getItemCount() && !found) {
+      int cmp = text.compareToIgnoreCase(searchText.getItemAt(i).toString());
+      alreadyThere = cmp==0;
+      found = cmp<=0;
+      if(!found) i++;
+    }
+
+    ComboItem item = new ComboItem();
+    item.text = text;
+    item.path = path;
+    if(!alreadyThere) searchText.insertItemAt(item, i);
+
+    return i;
 
   }
 

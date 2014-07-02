@@ -9,7 +9,6 @@ import fr.esrf.TangoApi.DbDevImportInfo;
 import javax.swing.*;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.util.Vector;
 
 import jive.JiveUtils;
 
@@ -125,7 +124,7 @@ public class TreePanelDevice extends TreePanel {
     }
 
     public String toString() {
-      return "Device: ";
+      return "Device:";
     }
 
   }
@@ -442,7 +441,7 @@ public class TreePanelDevice extends TreePanel {
         case ACTION_GOTOSERVNODE:
           try {
             DbDevImportInfo info = db.import_device(devName);
-            invoker.goToServerNode(info.server);
+            invoker.goToServerFullNode(info.server);
           } catch (DevFailed e) {
             JiveUtils.showTangoError(e);
           }
