@@ -112,7 +112,7 @@ public class SearchEngine {
       if( searchPath ) {
 
         TreePath path = node.getCompletePath();
-        String pathText = getPathAsText(path);
+        String pathText = JiveUtils.getPathAsText(path);
         //System.out.println("Looping..." + scanProgress + " " + searchText + " " + pathText);
 
         if (searchIgnoreCase)
@@ -139,20 +139,5 @@ public class SearchEngine {
 
   }
 
-
-  private String getPathAsText(TreePath path) {
-
-    StringBuffer str = new StringBuffer();
-    if(path==null) {
-      str.append("null");
-    } else {
-      for(int i=0;i<path.getPathCount();i++) {
-        str.append(path.getPathComponent(i).toString());
-        if(i!=path.getPathCount()-1) str.append("/");
-      }
-    }
-    return str.toString();
-
-  }
 
 }

@@ -62,7 +62,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private boolean running_from_shell;
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 5.0 ";
+  final static private String appVersion = "Jive 5.1 ";
 
   // General constructor
   public MainPanel() {
@@ -420,34 +420,77 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     navBar.enableForward(navManager.canGoForward());
     reselect();
   }
-  public void searchAction(NavigationBar src) {
 
+  public void searchAction(NavigationBar src,TreePath pathToSelect) {
+
+    // Check if we have a link
+    if(pathToSelect!=null) {
+      String treeName = pathToSelect.getPathComponent(0).toString();
+      if(treeName.equals("Server:")) {
+        serverTreePanel.selectPath(pathToSelect);
+        treePane.setSelectedComponent(serverTreePanel);
+        treePane.getSelectedComponent().setVisible(true);
+      } else if(treeName.equals("Device:")) {
+        deviceTreePanel.selectPath(pathToSelect);
+        treePane.setSelectedComponent(deviceTreePanel);
+        treePane.getSelectedComponent().setVisible(true);
+      } else if(treeName.equals("Class:")) {
+        classTreePanel.selectPath(pathToSelect);
+        treePane.setSelectedComponent(classTreePanel);
+        treePane.getSelectedComponent().setVisible(true);
+      } else if(treeName.equals("Alias:")) {
+        aliasTreePanel.selectPath(pathToSelect);
+        treePane.setSelectedComponent(aliasTreePanel);
+        treePane.getSelectedComponent().setVisible(true);
+      } else if(treeName.equals("AttAlias:")) {
+        attributeAliasTreePanel.selectPath(pathToSelect);
+        treePane.setSelectedComponent(attributeAliasTreePanel);
+        treePane.getSelectedComponent().setVisible(true);
+      } else if(treeName.equals("FreeProperty:")) {
+        propertyTreePanel.selectPath(pathToSelect);
+        treePane.setSelectedComponent(propertyTreePanel);
+        treePane.getSelectedComponent().setVisible(true);
+      }
+      return;
+    }
+
+    // Search
     String searchText = src.getSearchText();
     TreePanel selected = (TreePanel)treePane.getSelectedComponent();
+
+    String[] fieldnames = searchText.split("/");
+
+    // Fast one field search
+    if( fieldnames.length==1 ) {
+      // One field name given
+      if( selected.isRootItem(fieldnames[0]) ) {
+        TreePath path = selected.selectRootItem(fieldnames[0]);
+        selected.tree.scrollPathToVisible(path);
+        return;
+      }
+    }
 
     // Fast device search
     if( JiveUtils.isDeviceName(searchText) ) {
       if( searchText.startsWith("tango:") )
         searchText = searchText.substring(6);
-      String[] devnames = searchText.split("/");
-      if( deviceTreePanel.isDomain(devnames[0])) {
+      if( deviceTreePanel.isDomain(fieldnames[0])) {
         goToDeviceNode(searchText);
-        treePane.setSelectedComponent(deviceTreePanel);
-        treePane.getSelectedComponent().setVisible(true);
         return;
       }
     }
 
     // Fast server search
-    if( JiveUtils.isServerName(searchText) ) {
-      String srvNames[] = searchText.split("/");
-      if( serverTreePanel.isServer(srvNames[0]) ) {
-        goToServerNode(searchText);
-        treePane.setSelectedComponent(serverTreePanel);
-        treePane.getSelectedComponent().setVisible(true);
+    if( JiveUtils.isFullServerName(searchText) ) {
+      if( serverTreePanel.isServer(fieldnames[0]) ) {
+        if( !goToServerFullNode(searchText) )
+          // Try to go to server root
+          goToServerRootNode(fieldnames[0]);
         return;
       }
     }
+
+
 
     // Default search
     TreePath path = searchEngine.findText(searchText,selected.root);
@@ -523,7 +566,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       }
 
       refreshTree();
-      serverTreePanel.selectServer(server);
+      serverTreePanel.selectFullServer(server);
 
     }
 
@@ -817,11 +860,30 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   }
 
   // Select a server and show the server tree panel
-  public void goToServerNode(String srvName) {
-    serverTreePanel.selectServer(srvName);
-    treePane.setSelectedComponent(serverTreePanel);
-    // Work around X11 bug
-    treePane.getSelectedComponent().setVisible(true);
+  public boolean goToServerNode(String srvName) {
+    return goToServerFullNode(srvName);
+  }
+
+  // Select a server and show the server tree panel
+  public boolean goToServerFullNode(String srvName) {
+    boolean selected = serverTreePanel.selectFullServer(srvName);
+    if( selected ) {
+      treePane.setSelectedComponent(serverTreePanel);
+      // Work around X11 bug
+      treePane.getSelectedComponent().setVisible(true);
+    }
+    return selected;
+  }
+
+  // Select a server and show the server tree panel
+  public boolean goToServerRootNode(String srvName) {
+    boolean selected = serverTreePanel.selectServerRoot(srvName);
+    if( selected ) {
+      treePane.setSelectedComponent(serverTreePanel);
+      // Work around X11 bug
+      treePane.getSelectedComponent().setVisible(true);
+    }
+    return selected;
   }
 
   // Tabbed pane listener
@@ -892,37 +954,44 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       return;
     }
 
-    if (recordPos) {
-      switch (treePane.getSelectedIndex()) {
-        case 0:
-          serverTreePanel.tree.setName("SERVER");
-          navManager.recordPath(serverTreePanel.tree);
-          break;
-        case 1:
-          deviceTreePanel.tree.setName("DEVICE");
-          navManager.recordPath(deviceTreePanel.tree);
-          break;
-        case 2:
-          classTreePanel.tree.setName("CLASS");
-          navManager.recordPath(classTreePanel.tree);
-          break;
-        case 3:
-          aliasTreePanel.tree.setName("DEV-ALIAS");
-          navManager.recordPath(aliasTreePanel.tree);
-          break;
-        case 4:
-          attributeAliasTreePanel.tree.setName("ATT-ALIAS");
-          navManager.recordPath(attributeAliasTreePanel.tree);
-          break;
-        case 5:
-          propertyTreePanel.tree.setName("PROPERTY");
-          navManager.recordPath(propertyTreePanel.tree);
-          break;
-      }
+
+    switch (treePane.getSelectedIndex()) {
+      case 0:
+        serverTreePanel.tree.setName("SERVER");
+        if (recordPos) navManager.recordPath(serverTreePanel.tree);
+        navBar.addLink(serverTreePanel.tree.getSelectionPath());
+        break;
+      case 1:
+        deviceTreePanel.tree.setName("DEVICE");
+        if (recordPos) navManager.recordPath(deviceTreePanel.tree);
+        navBar.addLink(deviceTreePanel.tree.getSelectionPath());
+        break;
+      case 2:
+        classTreePanel.tree.setName("CLASS");
+        if (recordPos) navManager.recordPath(classTreePanel.tree);
+        navBar.addLink(classTreePanel.tree.getSelectionPath());
+        break;
+      case 3:
+        aliasTreePanel.tree.setName("DEV-ALIAS");
+        if (recordPos) navManager.recordPath(aliasTreePanel.tree);
+        navBar.addLink(aliasTreePanel.tree.getSelectionPath());
+        break;
+      case 4:
+        attributeAliasTreePanel.tree.setName("ATT-ALIAS");
+        if (recordPos) navManager.recordPath(attributeAliasTreePanel.tree);
+        navBar.addLink(attributeAliasTreePanel.tree.getSelectionPath());
+        break;
+      case 5:
+        propertyTreePanel.tree.setName("PROPERTY");
+        if (recordPos) navManager.recordPath(propertyTreePanel.tree);
+        navBar.addLink(propertyTreePanel.tree.getSelectionPath());
+        break;
     }
 
     navBar.enableBack(navManager.canGoBackward());
     navBar.enableForward(navManager.canGoForward());
+
+
 
     // Check node class
     boolean sameClass = true;
