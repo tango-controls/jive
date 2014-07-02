@@ -76,7 +76,7 @@ public class TreePanelAttributeAlias extends TreePanel {
     }
 
     public String toString() {
-      return "Alias: ";
+      return "AttAlias:";
     }
 
   }

@@ -2682,10 +2682,29 @@ public class JiveUtils {
    * Return true if servName has a correct server name syntax
    * @param srvName Name to be checked
    */
-  static public boolean isServerName(String srvName)
+  static public boolean isFullServerName(String srvName)
   {
     // Check classic syntax: Server/instance
     return Pattern.matches("[a-zA-Z_0-9\\.[-]]+/[a-zA-Z_0-9\\.[-]]+", srvName);
+  }
+
+  /**
+   * Return a string corresponding to the path
+   * @param path Path to convert
+   */
+  static public String getPathAsText(TreePath path) {
+
+    StringBuffer str = new StringBuffer();
+    if(path==null) {
+      str.append("null");
+    } else {
+      for(int i=0;i<path.getPathCount();i++) {
+        str.append(path.getPathComponent(i).toString());
+        if(i!=path.getPathCount()-1) str.append("/");
+      }
+    }
+    return str.toString();
+
   }
 
 }
