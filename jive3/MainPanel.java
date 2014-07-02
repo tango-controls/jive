@@ -860,8 +860,8 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   }
 
   // Select a server and show the server tree panel
-  public boolean goToServerNode(String srvName) {
-    return goToServerFullNode(srvName);
+  public void goToServerNode(String srvName) {
+    goToServerFullNode(srvName);
   }
 
   // Select a server and show the server tree panel
