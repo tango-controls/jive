@@ -206,20 +206,20 @@ public class DevWizard extends JDialog implements ActionListener {
     // --------------------------------------------------------
     helpPanel = new JPanel(null);
     //helpPanel.setBackground(Color.GREEN);
-    helpPanel.setPreferredSize(new Dimension(500,240));
+    helpPanel.setPreferredSize(new Dimension(520,240));
     helpIcon = new JLabel();
     helpIcon.setBounds(10,10,128,128);
     helpPanel.add(helpIcon);
 
     helpLabel = new JLabel();
     helpLabel.setFont(new Font("Dialog",Font.BOLD,16));
-    helpLabel.setBounds(140,10,350,30);
+    helpLabel.setBounds(140,10,370,30);
     helpPanel.add(helpLabel);
 
     helpText = new JTextArea();
     helpText.setEditable(false);
     helpText.setBorder(null);
-    helpText.setBounds(140,40,350,98);
+    helpText.setBounds(140,40,370,98);
     helpText.setBackground(innerPanel.getBackground());
     helpText.setLineWrap(true);
     helpText.setWrapStyleWord(true);
@@ -230,17 +230,17 @@ public class DevWizard extends JDialog implements ActionListener {
     helpIconText.setBorder(null);
     helpIconText.setMargin(new Insets(0,0,0,0));
     helpIconText.setBackground(innerPanel.getBackground());
-    helpIconText.setFont(new Font("Dialog",Font.BOLD,12));
+    helpIconText.setFont(new Font("Dialog",Font.BOLD,10));
     helpIconText.setLineWrap(true);
     helpIconText.setWrapStyleWord(true);
-    helpIconText.setBounds(10,140,128,95);
+    helpIconText.setBounds(10,140,148,95);
     helpPanel.add(helpIconText);
 
     innerPanel.add(helpPanel,BorderLayout.NORTH);
 
     wizardContainer = new JPanel(new GridLayout(1,1));
     wizardContainer.setBorder(null);
-    wizardContainer.setBounds(140,140,350,95);
+    wizardContainer.setBounds(160,140,350,95);
     helpPanel.add(wizardContainer);
 
     // ------------------------------------------------------
@@ -343,8 +343,8 @@ public class DevWizard extends JDialog implements ActionListener {
     final DevWizard dlg = new DevWizard((Frame)null);
     //String[] myList = {"Server1","Motor","Serial"};
     //dlg.showWizard(myList);
-    dlg.showDeviceWizard("HDB++ES-SRV/hdbplus","HdbEventSubscriber","Hdb++/cm/1");
-    //dlg.showWizard(null);
+    //dlg.showDeviceWizard("HDB++ES-SRV/hdbplus","HdbEventSubscriber","Hdb++/cm/1");
+    dlg.showWizard(null);
     System.exit(0);
 
   }
@@ -1076,14 +1076,14 @@ class PropertyPanel extends WizardPanel implements ActionListener {
     setDefaultButton.setMargin(new Insets(2,1,2,1));
     setDefaultButton.setFont(DevWizard.wizFont);
     setDefaultButton.addActionListener(this);
-    setDefaultButton.setBounds(245,0,105,25);
+    setDefaultButton.setBounds(235,0,115,25);
     add(setDefaultButton);
 
     viewDefaultButton = new JButton("View Default");
     viewDefaultButton.setMargin(new Insets(2,1,2,1));
     viewDefaultButton.setFont(DevWizard.wizFont);
     viewDefaultButton.addActionListener(this);
-    viewDefaultButton.setBounds(245,30,105,25);
+    viewDefaultButton.setBounds(235,30,115,25);
     add(viewDefaultButton);
 
     if(propertyType==CLASS_PROPERTY)
