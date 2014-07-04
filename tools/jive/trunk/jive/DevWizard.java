@@ -343,8 +343,8 @@ public class DevWizard extends JDialog implements ActionListener {
     final DevWizard dlg = new DevWizard((Frame)null);
     //String[] myList = {"Server1","Motor","Serial"};
     //dlg.showWizard(myList);
-    //dlg.showDeviceWizard("DSTestWz/jlp","Wizard");
-    dlg.showWizard(null);
+    dlg.showDeviceWizard("HDB++ES-SRV/hdbplus","HdbEventSubscriber","Hdb++/cm/1");
+    //dlg.showWizard(null);
     System.exit(0);
 
   }
@@ -1076,14 +1076,14 @@ class PropertyPanel extends WizardPanel implements ActionListener {
     setDefaultButton.setMargin(new Insets(2,1,2,1));
     setDefaultButton.setFont(DevWizard.wizFont);
     setDefaultButton.addActionListener(this);
-    setDefaultButton.setBounds(235,0,115,25);
+    setDefaultButton.setBounds(245,0,105,25);
     add(setDefaultButton);
 
     viewDefaultButton = new JButton("View Default");
     viewDefaultButton.setMargin(new Insets(2,1,2,1));
     viewDefaultButton.setFont(DevWizard.wizFont);
     viewDefaultButton.addActionListener(this);
-    viewDefaultButton.setBounds(235,30,115,25);
+    viewDefaultButton.setBounds(245,30,105,25);
     add(viewDefaultButton);
 
     if(propertyType==CLASS_PROPERTY)
