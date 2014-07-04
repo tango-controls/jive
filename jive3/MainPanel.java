@@ -161,9 +161,12 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     navBar.enableBack(false);
     navBar.enableForward(false);
     navBar.addNavigationListener(this);
-    getContentPane().add(navBar,BorderLayout.NORTH);
 
     if( JiveUtils.readOnly ) {
+
+      JPanel upPanel = new JPanel();
+      upPanel.setLayout(new BorderLayout());
+
       lockPanel = new JPanel();
       lockPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
       lockPanel.setBackground(new Color(233,233,233));
@@ -173,7 +176,14 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       JLabel lockLabel = new JLabel("Read only mode (No write access to database allowed)");
       lockLabel.setFont(ATKConstant.labelFont);
       lockPanel.add(lockLabel);
-      getContentPane().add(lockPanel,BorderLayout.NORTH);
+      upPanel.add(lockPanel,BorderLayout.NORTH);
+      upPanel.add(navBar,BorderLayout.SOUTH);
+      getContentPane().add(upPanel,BorderLayout.NORTH);
+
+    } else {
+
+      getContentPane().add(navBar,BorderLayout.NORTH);
+
     }
 
     //**************************************************************
