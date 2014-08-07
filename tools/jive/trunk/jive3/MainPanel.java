@@ -9,6 +9,7 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.Vector;
 
 import fr.esrf.TangoApi.ApiUtil;
@@ -62,7 +63,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private boolean running_from_shell;
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 5.3 ";
+  final static private String appVersion = "Jive 5.4 ";
 
   // General constructor
   public MainPanel() {
@@ -466,8 +467,29 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
     // Search
     String searchText = src.getSearchText();
-    TreePanel selected = (TreePanel)treePane.getSelectedComponent();
 
+    if( searchText.startsWith("Server:/") ) {
+      searchText = searchText.substring(8);
+      treePane.setSelectedComponent(serverTreePanel);
+    } else if ( searchText.startsWith("Device:/") ) {
+      searchText = searchText.substring(8);
+      treePane.setSelectedComponent(deviceTreePanel);
+    } else if ( searchText.startsWith("Class:/") ) {
+      searchText = searchText.substring(7);
+      treePane.setSelectedComponent(classTreePanel);
+    } else if ( searchText.startsWith("Alias:/") ) {
+      searchText = searchText.substring(7);
+      treePane.setSelectedComponent(aliasTreePanel);
+    } else if ( searchText.startsWith("AttAlias:/") ) {
+      searchText = searchText.substring(10);
+      treePane.setSelectedComponent(attributeAliasTreePanel);
+    } else if ( searchText.startsWith("FreeProperty:/") ) {
+      searchText = searchText.substring(14);
+      treePane.setSelectedComponent(propertyTreePanel);
+    }
+
+    treePane.getSelectedComponent().setVisible(true);
+    TreePanel selected = (TreePanel)treePane.getSelectedComponent();
     String[] fieldnames = searchText.split("/");
 
     // Fast one field search

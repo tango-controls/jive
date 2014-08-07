@@ -1,9 +1,8 @@
 package jive;
 
-import java.io.StringReader;
+import java.io.*;
 import java.util.Vector;
 import java.util.Properties;
-import java.io.StringBufferInputStream;
 
 /** A class for parsing input arguments of tango command and attribute. */
 public class ArgParser {
@@ -17,12 +16,28 @@ public class ArgParser {
     if(s==null || s.length()==0)
       throw new NumberFormatException("Empty argument, you must specify a value");
 
-    theStream = new StringReader(s);
+    if(s.startsWith("file:/")) {
+
+      // We have a file
+      try {
+        theStream = new FileReader(s.substring(6));
+      } catch( IOException e) {
+        throw new NumberFormatException(e.getMessage());
+      }
+
+    } else {
+
+      theStream = new StringReader(s);
+
+    }
+
     width=0;
     height=0;
+
     // Done 2 times to initialise nextchar and currentChar
     read_char();
     read_char();
+
   }
 
   /**
@@ -562,7 +577,7 @@ public class ArgParser {
   // Private stuff
   // ********************************************************************************************
 
-  private StringReader theStream;
+  private Reader theStream;
   private char nextChar;
   private char currentChar;
   private boolean backSlashed;
