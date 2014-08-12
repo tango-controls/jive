@@ -2,10 +2,7 @@ package jive;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 
 /**
  * Class for handling a long task in an asynchronous way without blocking GUI
@@ -32,8 +29,8 @@ public class ThreadDlg extends JDialog {
     super(parent, true);
     getContentPane().setLayout(null);
     okButton = new JButton("Stop");
-    okButton.addMouseListener(new MouseAdapter() {
-      public void mouseClicked(MouseEvent evt) {
+    okButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent evt) {
         if (!stopflag) {
           stopflag = true;
         } else {
