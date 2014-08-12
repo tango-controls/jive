@@ -47,13 +47,27 @@ public class SearchEngine {
 
   }
 
+  public boolean isStackEmpty() {
+
+    if( searchStack==null )
+      return true;
+    else
+      return searchStack.empty();
+
+  }
+
+  public void resetSearch() {
+    searchStack.clear();
+  }
+
   public TreePath findText(String value,TangoNode root) {
 
     scanProgress = 0;
     searchStack.clear();
     searchStack.push(root);
 
-    //System.out.println("TangoTreeNode::findText() Entering...");
+    //System.out.println("SearchEngine::findText() Entering...");
+
     if(searchIgnoreCase)
       searchText=value.toLowerCase();
     else
@@ -68,12 +82,12 @@ public class SearchEngine {
       }
     };
 
-    //System.out.println("TangoTreeNode::findText() Thread created...");
+    //System.out.println("SearchEngine::findText() Thread created...");
 
     searchResult = null;
     searchDlg = new ThreadDlg(parent,"Searching the database",false, doSearch);
 
-    //System.out.println("TangoTreeNode::findText() Dialog created...");
+    //System.out.println("SearchEngine::findText() Dialog created...");
     searchDlg.showDlg();
 
     // Wait for thread completion
@@ -81,8 +95,37 @@ public class SearchEngine {
     catch (InterruptedException e) {}
     doSearch=null;
 
-    //System.out.println("TangoTreeNode::findText() Exiting...");
+    //System.out.println("SearchEngine::findText() Exiting...");
     return searchResult;
+  }
+
+  public TreePath findNext() {
+
+    Thread doSearch = new Thread() {
+      public void run() {
+        //System.out.println("Starting thread.");
+        searchResult = findTextTask();
+        searchDlg.hideDlg();
+        //System.out.println("Ending thread.");
+      }
+    };
+
+    //System.out.println("SearchEngine::findNext() Thread created...");
+
+    searchResult = null;
+    searchDlg = new ThreadDlg(parent,"Searching the database",false, doSearch);
+
+    //System.out.println("SearchEngine::findNext() Dialog created...");
+    searchDlg.showDlg();
+
+    // Wait for thread completion
+    try { doSearch.join();}
+    catch (InterruptedException e) {}
+    doSearch=null;
+
+    //System.out.println("SearchEngine::findNext() Exiting...");
+    return searchResult;
+
   }
 
   private TreePath findTextTask() {
@@ -108,11 +151,12 @@ public class SearchEngine {
       searchStack.remove(0);
 
       scanProgress++;
+      String pathText = null;
 
       if( searchPath ) {
 
         TreePath path = node.getCompletePath();
-        String pathText = JiveUtils.getPathAsText(path);
+        pathText = JiveUtils.getPathAsText(path);
         //System.out.println("Looping..." + scanProgress + " " + searchText + " " + pathText);
 
         if (searchIgnoreCase)
@@ -126,8 +170,10 @@ public class SearchEngine {
 
       }
 
-      int count = node.getChildCount();
-      for (i = 0;i<count;i++) searchStack.add((TangoNode) node.getChildAt(i));
+      if( !found ) {
+        int count = node.getChildCount();
+        for (i = 0;i<count;i++) searchStack.add((TangoNode) node.getChildAt(i));
+      }
 
     }
 

@@ -7,6 +7,8 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Vector;
 
 /**
@@ -24,7 +26,7 @@ class ComboItem {
 
 }
 
-public class NavigationBar extends JPanel implements ActionListener {
+public class NavigationBar extends JPanel implements ActionListener,KeyListener {
 
   private final static Insets nullInsets = new Insets(0,0,0,0);
   private JButton backBtn;
@@ -33,11 +35,12 @@ public class NavigationBar extends JPanel implements ActionListener {
   private JButton searchBtn;
   private JButton refreshBtn;
   private Vector<NavigationListener> listeners;
+  private JButton upBtn;
+  private JButton downBtn;
+
   private boolean isUpdating;
 
   NavigationBar() {
-
-    isUpdating = true;
 
     setLayout(new GridBagLayout());
     GridBagConstraints gbc = new GridBagConstraints();
@@ -48,6 +51,7 @@ public class NavigationBar extends JPanel implements ActionListener {
     backBtn.setIcon(new ImageIcon(NavigationBar.class.getResource("/jive/bw_btn.gif")));
     backBtn.setMargin(nullInsets);
     backBtn.addActionListener(this);
+    backBtn.setToolTipText("Go back");
     gbc.gridx = 0;
     gbc.gridy = 0;
     gbc.weightx = 0;
@@ -60,6 +64,7 @@ public class NavigationBar extends JPanel implements ActionListener {
     forwardBtn.setIcon(new ImageIcon(NavigationBar.class.getResource("/jive/fw_btn.gif")));
     forwardBtn.setMargin(nullInsets);
     forwardBtn.addActionListener(this);
+    forwardBtn.setToolTipText("Go forward");
     gbc.gridx = 1;
     gbc.gridy = 0;
     gbc.weightx = 0;
@@ -71,34 +76,65 @@ public class NavigationBar extends JPanel implements ActionListener {
     refreshBtn.setIcon(new ImageIcon(NavigationBar.class.getResource("/jive/refresh_btn.gif")));
     refreshBtn.setMargin(nullInsets);
     refreshBtn.addActionListener(this);
+    refreshBtn.setToolTipText("Refresh the tree");
     gbc.gridx = 2;
     gbc.gridy = 0;
     gbc.weightx = 0;
     gbc.fill = GridBagConstraints.VERTICAL;
     add(refreshBtn,gbc);
 
+    isUpdating = true;
     searchText = new JComboBox();
     searchText.setEditable(true);
+    searchText.getEditor().getEditorComponent().addKeyListener(this);
     searchText.addActionListener(this);
     gbc.gridx = 3;
     gbc.gridy = 0;
     gbc.weightx = 1;
     gbc.fill = GridBagConstraints.BOTH;
     add(searchText, gbc);
+    isUpdating = false;
+
+    downBtn = new JButton();
+    downBtn.setPressedIcon(new ImageIcon(NavigationBar.class.getResource("/jive/down_btn_pressed.gif")));
+    downBtn.setIcon(new ImageIcon(NavigationBar.class.getResource("/jive/down_btn.gif")));
+    downBtn.setDisabledIcon(new ImageIcon(NavigationBar.class.getResource("/jive/down_btn_disa.gif")));
+    downBtn.setMargin(nullInsets);
+    downBtn.addActionListener(this);
+    downBtn.setToolTipText("Next occurence");
+    gbc.gridx = 4;
+    gbc.gridy = 0;
+    gbc.weightx = 0;
+    gbc.fill = GridBagConstraints.VERTICAL;
+    add(downBtn,gbc);
+
+    //upBtn = new JButton();
+    //upBtn.setPressedIcon(new ImageIcon(NavigationBar.class.getResource("/jive/up_btn_pressed.gif")));
+    //upBtn.setIcon(new ImageIcon(NavigationBar.class.getResource("/jive/up_btn.gif")));
+    //upBtn.setDisabledIcon(new ImageIcon(NavigationBar.class.getResource("/jive/up_btn_disa.gif")));
+    //upBtn.setMargin(nullInsets);
+    //upBtn.addActionListener(this);
+    //upBtn.setToolTipText("Previous occurence");
+    //gbc.gridx = 5;
+    //gbc.gridy = 0;
+    //gbc.weightx = 0;
+    //gbc.fill = GridBagConstraints.VERTICAL;
+    //add(upBtn,gbc);
 
     searchBtn = new JButton();
     searchBtn.setPressedIcon(new ImageIcon(NavigationBar.class.getResource("/jive/search_btn_pressed.gif")));
     searchBtn.setIcon(new ImageIcon(NavigationBar.class.getResource("/jive/search_btn.gif")));
     searchBtn.setMargin(nullInsets);
     searchBtn.addActionListener(this);
-    gbc.gridx = 4;
+    searchBtn.setToolTipText("Search");
+    gbc.gridx = 5;
     gbc.gridy = 0;
     gbc.weightx = 0;
     gbc.fill = GridBagConstraints.VERTICAL;
     add(searchBtn,gbc);
 
     listeners = new Vector<NavigationListener>();
-    isUpdating = false;
+
   }
 
   public void addNavigationListener(NavigationListener l) {
@@ -140,6 +176,14 @@ public class NavigationBar extends JPanel implements ActionListener {
     forwardBtn.setEnabled(enable);
   }
 
+  public void enableNextOcc(boolean enable) {
+    downBtn.setEnabled(enable);
+  }
+
+  public void enablePreviousOcc(boolean enable) {
+    //upBtn.setEnabled(enable);
+  }
+
   public void actionPerformed(ActionEvent evt) {
 
     Object src = evt.getSource();
@@ -150,6 +194,8 @@ public class NavigationBar extends JPanel implements ActionListener {
       for(int i=0;i<listeners.size();i++) listeners.get(i).forwardAction(this);
     } else if(src==refreshBtn) {
       for(int i=0;i<listeners.size();i++) listeners.get(i).refreshAction(this);
+    } else if(src==downBtn) {
+      for(int i=0;i<listeners.size();i++) listeners.get(i).nextOccAction(this);
     } else if(src==searchBtn) {
       TreePath path = getSelectedItemPath();
       for(int i=0;i<listeners.size();i++) listeners.get(i).searchAction(this,path);
@@ -158,19 +204,31 @@ public class NavigationBar extends JPanel implements ActionListener {
         addSearchText(getSearchText(),null);
         isUpdating = false;
       }
-    } else if(src==searchText) {
-      if(!isUpdating) {
+    } else if(src==searchText ) {
+      if( !isUpdating ) {
         TreePath path = getSelectedItemPath();
-        for(int i=0;i<listeners.size();i++) listeners.get(i).searchAction(this,path);
-        if(path==null) {
-          isUpdating = true;
-          addSearchText(getSearchText(),null);
-          isUpdating = false;
+        if(path!=null) {
+          for(int i=0;i<listeners.size();i++) listeners.get(i).searchAction(this,path);
         }
       }
     }
 
   }
+
+  public void keyTyped(KeyEvent e) {}
+  public void keyPressed(KeyEvent e) {}
+  public void keyReleased(KeyEvent e) {
+
+    if(e.getKeyCode()==KeyEvent.VK_ENTER) {
+      TreePath path = getSelectedItemPath();
+      for(int i=0;i<listeners.size();i++) listeners.get(i).searchAction(this,path);
+      isUpdating = true;
+      addSearchText(getSearchText(),null);
+      isUpdating = false;
+    }
+
+  }
+
 
   private int addSearchText(String text,TreePath path) {
 

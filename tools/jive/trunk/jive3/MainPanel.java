@@ -63,7 +63,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private boolean running_from_shell;
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 5.4 ";
+  final static private String appVersion = "Jive 5.5 ";
 
   // General constructor
   public MainPanel() {
@@ -161,6 +161,8 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     navBar = new NavigationBar();
     navBar.enableBack(false);
     navBar.enableForward(false);
+    navBar.enableNextOcc(false);
+    navBar.enablePreviousOcc(false);
     navBar.addNavigationListener(this);
 
     if( JiveUtils.readOnly ) {
@@ -432,6 +434,23 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     reselect();
   }
 
+  public void nextOccAction(NavigationBar src) {
+
+    TreePath path = searchEngine.findNext();
+    TreePanel selected = (TreePanel)treePane.getSelectedComponent();
+    if(path!=null) {
+      selected.tree.setSelectionPath(path);
+      selected.tree.scrollPathToVisible(path);
+    }
+
+    navBar.enableNextOcc(!searchEngine.isStackEmpty());
+
+  }
+
+  public void previousOccAction(NavigationBar src) {
+
+  }
+
   public void searchAction(NavigationBar src,TreePath pathToSelect) {
 
     // Check if we have a link
@@ -462,6 +481,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
         treePane.setSelectedComponent(propertyTreePanel);
         treePane.getSelectedComponent().setVisible(true);
       }
+      resetSearch();
       return;
     }
 
@@ -498,6 +518,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       if( selected.isRootItem(fieldnames[0]) ) {
         TreePath path = selected.selectRootItem(fieldnames[0]);
         selected.tree.scrollPathToVisible(path);
+        resetSearch();
         return;
       }
     }
@@ -508,6 +529,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
         searchText = searchText.substring(6);
       if( deviceTreePanel.isDomain(fieldnames[0])) {
         goToDeviceNode(searchText);
+        resetSearch();
         return;
       }
     }
@@ -518,11 +540,10 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
         if( !goToServerFullNode(searchText) )
           // Try to go to server root
           goToServerRootNode(fieldnames[0]);
+        resetSearch();
         return;
       }
     }
-
-
 
     // Default search
     TreePath path = searchEngine.findText(searchText,selected.root);
@@ -530,6 +551,8 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       selected.tree.setSelectionPath(path);
       selected.tree.scrollPathToVisible(path);
     }
+
+    navBar.enableNextOcc(!searchEngine.isStackEmpty());
 
   }
   public void refreshAction(NavigationBar src) {
@@ -550,6 +573,14 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       treePane.setSelectedComponent(propertyTreePanel);
       propertyTreePanel.setVisible(true);
     }
+
+  }
+
+  private void resetSearch() {
+
+    searchEngine.resetSearch();
+    navBar.enableNextOcc(false);
+    navBar.enablePreviousOcc(false);
 
   }
 
@@ -614,6 +645,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       // Apply filter
       serverTreePanel.applyFilter(filterDlg.getFilterText());
       serverTreePanel.refresh();
+      resetSearch();
     }
 
   }
@@ -628,6 +660,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       // Apply filter
       deviceTreePanel.applyFilter(filterDlg.getFilterText());
       deviceTreePanel.refresh();
+      resetSearch();
     }
 
   }
@@ -642,6 +675,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       // Apply filter
       classTreePanel.applyFilter(filterDlg.getFilterText());
       classTreePanel.refresh();
+      resetSearch();
     }
 
   }
@@ -656,6 +690,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       // Apply filter
       aliasTreePanel.applyFilter(filterDlg.getFilterText());
       aliasTreePanel.refresh();
+      resetSearch();
     }
 
   }
@@ -670,6 +705,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       // Apply filter
       attributeAliasTreePanel.applyFilter(filterDlg.getFilterText());
       attributeAliasTreePanel.refresh();
+      resetSearch();
     }
 
   }
@@ -684,6 +720,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       // Apply filter
       propertyTreePanel.applyFilter(filterDlg.getFilterText());
       propertyTreePanel.refresh();
+      resetSearch();
     }
 
   }
@@ -759,6 +796,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       defaultPanel.setSource(null);
       splitPane.setRightComponent(defaultPanel);
       ProgressFrame.hideProgress();
+      resetSearch();
 
     }
 
@@ -789,6 +827,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     ProgressFrame.setProgress("Refreshing...",80);
     propertyTreePanel.refresh();
     updateTabbedPane();
+    resetSearch();
 
     ProgressFrame.hideProgress();
   }

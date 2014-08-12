@@ -11,5 +11,7 @@ public interface NavigationListener {
   public void forwardAction(NavigationBar src);
   public void refreshAction(NavigationBar src);
   public void searchAction(NavigationBar src,TreePath pathToSelect);
+  public void nextOccAction(NavigationBar src);
+  public void previousOccAction(NavigationBar src);
 
 }
