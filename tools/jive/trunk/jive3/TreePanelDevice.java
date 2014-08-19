@@ -37,7 +37,7 @@ public class TreePanelDevice extends TreePanel {
     return domainNode!=null;
   }
 
-  public void selectDevice(String devName) {
+  public TangoNode selectDevice(String devName) {
 
     int bslash = devName.indexOf('/');
     int lslash = devName.lastIndexOf('/');
@@ -48,16 +48,17 @@ public class TreePanelDevice extends TreePanel {
 
     // Search server
     TangoNode domainNode = searchNode(root,domain);
-    if(domainNode==null) return;
+    if(domainNode==null) return null;
     TangoNode familyNode = searchNode(domainNode,family);
-    if(familyNode==null) return;
+    if(familyNode==null) return null;
     TangoNode memberNode = searchNode(familyNode,member);
-    if(memberNode==null) return;
+    if(memberNode==null) return null;
     TreePath selPath = new TreePath(root);
     selPath = selPath.pathByAddingChild(domainNode);
     selPath = selPath.pathByAddingChild(familyNode);
     selPath = selPath.pathByAddingChild(memberNode);
     tree.setSelectionPath(selPath);
+    return memberNode;
 
   }
 
