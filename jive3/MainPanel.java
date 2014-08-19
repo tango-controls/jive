@@ -9,7 +9,6 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.Vector;
 
 import fr.esrf.TangoApi.ApiUtil;
@@ -63,7 +62,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private boolean running_from_shell;
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 5.5 ";
+  final static private String appVersion = "Jive 5.6 ";
 
   // General constructor
   public MainPanel() {
@@ -518,7 +517,9 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       if( selected.isRootItem(fieldnames[0]) ) {
         TreePath path = selected.selectRootItem(fieldnames[0]);
         selected.tree.scrollPathToVisible(path);
-        resetSearch();
+        TangoNode focusedNode = (TangoNode)path.getLastPathComponent();
+        searchEngine.setSearchText(searchText);
+        resetSearch(focusedNode);
         return;
       }
     }
@@ -528,20 +529,32 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       if( searchText.startsWith("tango:") )
         searchText = searchText.substring(6);
       if( deviceTreePanel.isDomain(fieldnames[0])) {
-        goToDeviceNode(searchText);
-        resetSearch();
-        return;
+        TangoNode focusedNode = goToDeviceFullNode(searchText);
+        if(focusedNode!=null) {
+          searchEngine.setSearchText(searchText);
+          resetSearch(focusedNode);
+          return;
+        }
       }
     }
 
     // Fast server search
     if( JiveUtils.isFullServerName(searchText) ) {
       if( serverTreePanel.isServer(fieldnames[0]) ) {
-        if( !goToServerFullNode(searchText) )
+        TangoNode focusedNode = goToServerFullNode(searchText);
+        if( focusedNode == null ) {
           // Try to go to server root
-          goToServerRootNode(fieldnames[0]);
-        resetSearch();
-        return;
+          focusedNode = goToServerRootNode(fieldnames[0]);
+          if( focusedNode!=null ) {
+            searchEngine.setSearchText(searchText);
+            resetSearch(focusedNode);
+            return;
+          }
+        } else {
+          searchEngine.setSearchText(searchText);
+          resetSearch(focusedNode);
+          return;
+        }
       }
     }
 
@@ -577,9 +590,13 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   }
 
   private void resetSearch() {
+    resetSearch(null);
+  }
 
-    searchEngine.resetSearch();
-    navBar.enableNextOcc(false);
+  private void resetSearch(TangoNode focusedNode) {
+
+    searchEngine.resetSearch(focusedNode);
+    navBar.enableNextOcc(focusedNode!=null);
     navBar.enablePreviousOcc(false);
 
   }
@@ -930,15 +947,25 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     treePane.getSelectedComponent().setVisible(true);
   }
 
+  private TangoNode goToDeviceFullNode(String devName) {
+    TangoNode selected = deviceTreePanel.selectDevice(devName);
+    if( selected!=null ) {
+      treePane.setSelectedComponent(deviceTreePanel);
+      // Work around X11 bug
+      treePane.getSelectedComponent().setVisible(true);
+    }
+    return selected;
+  }
+
   // Select a server and show the server tree panel
   public void goToServerNode(String srvName) {
     goToServerFullNode(srvName);
   }
 
   // Select a server and show the server tree panel
-  public boolean goToServerFullNode(String srvName) {
-    boolean selected = serverTreePanel.selectFullServer(srvName);
-    if( selected ) {
+  public TangoNode goToServerFullNode(String srvName) {
+    TangoNode selected = serverTreePanel.selectFullServer(srvName);
+    if( selected!=null ) {
       treePane.setSelectedComponent(serverTreePanel);
       // Work around X11 bug
       treePane.getSelectedComponent().setVisible(true);
@@ -947,9 +974,9 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   }
 
   // Select a server and show the server tree panel
-  public boolean goToServerRootNode(String srvName) {
-    boolean selected = serverTreePanel.selectServerRoot(srvName);
-    if( selected ) {
+  public TangoNode goToServerRootNode(String srvName) {
+    TangoNode selected = serverTreePanel.selectServerRoot(srvName);
+    if( selected!=null ) {
       treePane.setSelectedComponent(serverTreePanel);
       // Work around X11 bug
       treePane.getSelectedComponent().setVisible(true);

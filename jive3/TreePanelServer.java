@@ -90,7 +90,7 @@ public class TreePanelServer extends TreePanel {
     return srvNode!=null;
   }
 
-  public boolean selectFullServer(String serverName) {
+  public TangoNode selectFullServer(String serverName) {
 
     int slash = serverName.indexOf('/');
     String server   = serverName.substring(0,slash);
@@ -98,26 +98,26 @@ public class TreePanelServer extends TreePanel {
 
     // Search server
     TangoNode srvNode = searchNode(root,server);
-    if(srvNode==null) return false;
+    if(srvNode==null) return null;
     TangoNode instNode = searchNode(srvNode,instance);
-    if(instNode==null) return false;
+    if(instNode==null) return null;
     TreePath selPath = new TreePath(root);
     selPath = selPath.pathByAddingChild(srvNode);
     selPath = selPath.pathByAddingChild(instNode);
     tree.setSelectionPath(selPath);
-    return true;
+    return instNode;
 
   }
 
-  public boolean selectServerRoot(String serverName) {
+  public TangoNode selectServerRoot(String serverName) {
 
     // Search server
     TangoNode srvNode = searchNode(root,serverName);
-    if(srvNode==null) return false;
+    if(srvNode==null) return null;
     TreePath selPath = new TreePath(root);
     selPath = selPath.pathByAddingChild(srvNode);
     tree.setSelectionPath(selPath);
-    return true;
+    return srvNode;
 
   }
 

@@ -30,6 +30,7 @@ public class SearchEngine {
   TreePath          searchResult;
   ThreadDlg         searchDlg;
   JFrame            parent;
+  TangoNode         focusedNode;
 
   SearchEngine(JFrame parent) {
 
@@ -44,6 +45,7 @@ public class SearchEngine {
     searchEvent = false;
     searchAttProperty = false;
     searchUseRegexp = false;
+    focusedNode = null;
 
   }
 
@@ -56,8 +58,20 @@ public class SearchEngine {
 
   }
 
-  public void resetSearch() {
+  public void resetSearch(TangoNode focusedNode) {
+
+    this.focusedNode = focusedNode;
     searchStack.clear();
+
+  }
+
+  public void setSearchText(String searchText) {
+
+    if(searchIgnoreCase)
+      this.searchText=searchText.toLowerCase();
+    else
+      this.searchText=searchText;
+
   }
 
   public TreePath findText(String value,TangoNode root) {
@@ -100,6 +114,15 @@ public class SearchEngine {
   }
 
   public TreePath findNext() {
+
+    if( focusedNode!=null ) {
+      // A fast search has been performed
+      // We need to create a stack for the next action
+      searchStack.clear();
+      searchStack.push((TangoNode)focusedNode.getRoot());
+      createStackTask();
+      focusedNode = null;
+    }
 
     Thread doSearch = new Thread() {
       public void run() {
@@ -185,5 +208,25 @@ public class SearchEngine {
 
   }
 
+  private void createStackTask() {
+
+    int       i;
+    TangoNode node = null;
+    boolean   found = false;
+
+    while (!searchStack.empty() && !ThreadDlg.stopflag && !found) {
+
+      node = searchStack.get(0);
+      searchStack.remove(0);
+      found = (node == focusedNode);
+
+      if( !found ) {
+        int count = node.getChildCount();
+        for (i = 0;i<count;i++) searchStack.add((TangoNode) node.getChildAt(i));
+      }
+
+    }
+
+  }
 
 }
