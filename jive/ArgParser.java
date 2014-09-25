@@ -1,5 +1,10 @@
 package jive;
 
+import fr.esrf.Tango.DevState;
+import fr.esrf.TangoApi.PipeBlob;
+import fr.esrf.TangoApi.PipeDataElement;
+import fr.esrf.TangoDs.TangoConst;
+
 import java.io.*;
 import java.util.Vector;
 import java.util.Properties;
@@ -37,6 +42,142 @@ public class ArgParser {
     // Done 2 times to initialise nextchar and currentChar
     read_char();
     read_char();
+
+  }
+
+  public PipeBlob parse_pipe() throws NumberFormatException {
+
+    String blobName = read_word();
+    jump_space();
+
+    PipeBlob pb = new PipeBlob(blobName);
+
+    do {
+
+      jump_sep(",");
+      jump_space();
+      jump_sep("[");
+      jump_space();
+
+      String itemName = read_word();
+      jump_space();
+      jump_sep(",");
+      jump_space();
+
+      PipeDataElement de;
+
+      if (currentChar == '[') {
+
+        // An inner blob
+        jump_sep("[");
+        jump_space();
+        PipeBlob ipb = parse_pipe();
+        jump_space();
+        jump_sep("]");
+        de = new PipeDataElement(itemName, ipb);
+
+      } else {
+
+        Vector tmp = parse_array();
+        int vSize = tmp.size();
+
+        if (vSize < 2) {
+          throw new NumberFormatException("Typed value expected: typeStr,value");
+        }
+
+        // Get type STR
+        String typeStr = (String) tmp.get(0);
+        tmp.remove(0);
+        vSize -= 1;
+
+        if (typeStr.equalsIgnoreCase("D")) {
+
+          // Double array
+          double[] da = new double[vSize];
+          for (int i = 0; i < vSize; i++) da[i] = Double.parseDouble((String) tmp.get(i));
+          de = new PipeDataElement(itemName, da);
+
+        } else if (typeStr.equalsIgnoreCase("F")) {
+
+          // Float array
+          float[] fa = new float[vSize];
+          for (int i = 0; i < vSize; i++) fa[i] = Float.parseFloat((String) tmp.get(i));
+          de = new PipeDataElement(itemName, fa);
+
+        } else if (typeStr.equalsIgnoreCase("UC")) {
+
+          // UChar array
+          short[] ca = new short[vSize];
+          for (int i = 0; i < vSize; i++) ca[i] = get_uchar((String) tmp.get(i));
+          de = new PipeDataElement(itemName, ca, true);
+
+        } else if (typeStr.equalsIgnoreCase("S")) {
+
+          // Short array
+          short[] sa = new short[vSize];
+          for (int i = 0; i < vSize; i++) sa[i] = get_short((String) tmp.get(i));
+          de = new PipeDataElement(itemName, sa);
+
+        } else if (typeStr.equalsIgnoreCase("US")) {
+
+          // UShort array
+          int[] usa = new int[vSize];
+          for (int i = 0; i < vSize; i++) usa[i] = get_ushort((String) tmp.get(i));
+          de = new PipeDataElement(itemName, usa, true);
+
+        } else if (typeStr.equalsIgnoreCase("L")) {
+
+          // Long array
+          int[] la = new int[vSize];
+          for (int i = 0; i < vSize; i++) la[i] = get_long((String) tmp.get(i));
+          de = new PipeDataElement(itemName, la);
+
+        } else if (typeStr.equalsIgnoreCase("UL")) {
+
+          // ULong array
+          long[] ula = new long[vSize];
+          for (int i = 0; i < vSize; i++) ula[i] = get_long((String) tmp.get(i));
+          de = new PipeDataElement(itemName, ula, true);
+
+        } else if (typeStr.equalsIgnoreCase("LL")) {
+
+          // Long array
+          long[] lla = new long[vSize];
+          for (int i = 0; i < vSize; i++) lla[i] = get_long64((String) tmp.get(i));
+          de = new PipeDataElement(itemName, lla);
+
+        } else if (typeStr.equalsIgnoreCase("ST")) {
+
+          // State array
+          DevState[] sa = new DevState[vSize];
+          for (int i = 0; i < vSize; i++) sa[i] = get_state((String) tmp.get(i));
+          de = new PipeDataElement(itemName, sa);
+
+        } else if (typeStr.equalsIgnoreCase("STR")) {
+
+          // Default as string array
+          String[] ss = new String[vSize];
+          for (int i = 0; i < vSize; i++) ss[i] = (String) tmp.get(i);
+          de = new PipeDataElement(itemName, ss);
+
+        } else {
+
+          throw new NumberFormatException("Unknown type specified " + typeStr);
+
+        }
+
+      }
+
+      pb.add(de);
+      jump_space();
+      jump_sep("]");
+      jump_space();
+
+
+    } while (currentChar == ',');
+
+
+    return pb;
 
   }
 
@@ -504,6 +645,21 @@ public class ArgParser {
     return ret;
 
   }
+
+  private String convertString(String w) {
+
+    Properties prop = new Properties();
+    try {
+      prop.load(new StringBufferInputStream("x=" + w + "\n"));
+      String decoded = prop.getProperty("x");
+      return decoded;
+    } catch( Exception ex ) {
+      return w;
+    }
+
+  }
+
+
   /**
    * Parse a string.
    * @return The string.
@@ -513,16 +669,7 @@ public class ArgParser {
 
     String w = read_word();
     if(w!=null) {
-    
-      Properties prop = new Properties();
-      try {
-        prop.load(new StringBufferInputStream("x=" + w + "\n"));
-        String decoded = prop.getProperty("x");
-        return decoded;
-      } catch( Exception ex ) {
-        return w;
-      }
-            
+      return convertString(w);
     } else {
       throw new NumberFormatException("string expected.");
     }
@@ -538,7 +685,7 @@ public class ArgParser {
 
     Vector tmp = parse_array();
     String[] ret = new String[tmp.size()];
-    for(int l=0;l<ret.length;l++) ret[l]=(String)tmp.get(l);
+    for(int l=0;l<ret.length;l++) ret[l]=convertString((String) tmp.get(l));
     return ret;
 
   }
@@ -798,6 +945,38 @@ public class ArgParser {
   // ****************************************************
   private long get_long64(String w) throws NumberFormatException {
     return get_number(w,"long64",-9223372036854775808L,9223372036854775807L);
+  }
+
+  private boolean is_number(char c) {
+    return (c>='0' && c<='9') || c=='-';
+  }
+
+  private DevState get_state(String s) throws NumberFormatException {
+
+    boolean found = false;
+    int i=0;
+
+    while(!found && i< TangoConst.Tango_DevStateName.length) {
+      found = s.equalsIgnoreCase(TangoConst.Tango_DevStateName[i]);
+      if(!found) i++;
+    }
+
+    if( found ) {
+      return DevState.from_int(i);
+    } else {
+      throw new NumberFormatException("Invalid state name " + s);
+    }
+
+  }
+
+  private boolean is_state_array(Vector v) {
+    try {
+      for(int i=0;i<v.size();i++) get_state((String)v.get(i));
+    } catch(NumberFormatException e) {
+      return false;
+    }
+
+    return true;
   }
 
   // ****************************************************
