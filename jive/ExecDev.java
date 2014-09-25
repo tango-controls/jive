@@ -22,6 +22,10 @@ public class ExecDev extends JPanel {
     JTabbedPane tab = new JTabbedPane();
     tab.add("Commands",new CommandPanel(ds,console,common));
     tab.add("Attributes",new AttributePanel(ds,console,common));
+    int idl = ds.get_idl_version();
+    if( idl>=5 ) {
+      tab.add("Pipe",new PipePanel(ds,console,common));
+    }
     tab.add("Admin",common);
     JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
     splitPane.setTopComponent(tab);
