@@ -10,6 +10,8 @@ import javax.swing.*;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 
+import fr.esrf.tangoatk.widget.util.ATKGraphicsUtils;
+import jive.DevWizard;
 import jive.JiveUtils;
 
 
@@ -386,7 +388,8 @@ public class TreePanelDevice extends TreePanel {
                          ACTION_GOTOSERVNODE,
                          ACTION_RESTART,
                          ACTION_GOTOADMINNODE,
-                         ACTION_LOG_VIEWER
+                         ACTION_LOG_VIEWER,
+                         ACTION_DEVICEWIZ
         };
     }
 
@@ -474,6 +477,18 @@ public class TreePanelDevice extends TreePanel {
         // ----------------------------------------------------------------------------
         case ACTION_LOG_VIEWER:
           launchLogViewer(devName);
+          break;
+
+        // ----------------------------------------------------------------------------
+        case ACTION_DEVICEWIZ:
+          try {
+            DbDevImportInfo info = db.import_device(devName);
+            DevWizard dwdlg = new DevWizard(invoker);
+            String className = db.get_class_for_device(devName);
+            dwdlg.showDeviceWizard(info.server , className , devName);
+          } catch(DevFailed e) {
+            JiveUtils.showTangoError(e);
+          }
           break;
 
       }

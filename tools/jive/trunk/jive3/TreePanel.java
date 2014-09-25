@@ -3,7 +3,6 @@ package jive3;
 import fr.esrf.TangoApi.*;
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevVarLongStringArray;
-import fr.esrf.tangoatk.widget.device.tree.DomainNode;
 import fr.esrf.tangoatk.widget.util.ATKGraphicsUtils;
 
 import javax.swing.*;
