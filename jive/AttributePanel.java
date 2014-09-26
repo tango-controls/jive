@@ -1,9 +1,6 @@
 package jive;
 
-import fr.esrf.TangoApi.CommandInfo;
-import fr.esrf.TangoApi.DeviceProxy;
-import fr.esrf.TangoApi.AttributeInfo;
-import fr.esrf.TangoApi.DeviceAttribute;
+import fr.esrf.TangoApi.*;
 import fr.esrf.Tango.*;
 import fr.esrf.tangoatk.widget.util.ATKConstant;
 import fr.esrf.tangoatk.widget.util.ErrorPane;
@@ -30,10 +27,10 @@ import java.util.TimeZone;
  */
 class AttributePanel extends JPanel implements ActionListener,ListSelectionListener,TangoConst,MouseListener,ClipboardOwner,DragGestureListener,DragSourceListener {
 
-  private AttributeInfo[] attList;
-  private ConsolePanel    console;
-  private DeviceProxy     device;
-  private CommonPanel     common;
+  private AttributeInfoEx[] attList;
+  private ConsolePanel      console;
+  private DeviceProxy       device;
+  private CommonPanel       common;
 
   private JComboBox   arginCombo;
   private JLabel      arginLabel;
@@ -158,7 +155,7 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
 
     int idx = attributeList.getSelectedIndex();
     if(attList.length==0) return; // Empty set
-    AttributeInfo ai = attList[idx];
+    AttributeInfoEx ai = attList[idx];
 
     if(!e.getValueIsAdjusting()) {
 
@@ -172,23 +169,28 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
         writeBtn.setEnabled(false);
       }
 
-      descrList.setText(
-        "Name         " + ai.name + "\n" +
-        "Label        " + ai.label + "\n" +
-        "Writable     " + getWriteString(ai) + "\n" +
-        "Data format  " + getFormatString(ai) + "\n" +
-        "Data type    " + Tango_CmdArgTypeName[ai.data_type] + "\n" +
-        "Max Dim X    " + ai.max_dim_x + "\n" +
-        "Max Dim Y    " + ai.max_dim_y + "\n" +
-        "Unit         " + ai.unit + "\n" +
-        "Std Unit     " + ai.standard_unit + "\n" +
-        "Disp Unit    " + ai.display_unit + "\n" +
-        "Format       " + ai.format + "\n" +
-        "Min value    " + ai.min_value + "\n" +
-        "Max value    " + ai.max_value + "\n" +
-        "Min alarm    " + ai.min_alarm + "\n" +
-        "Max alarm    " + ai.max_alarm
-      );
+      String descText =
+          "Name         " + ai.name + "\n" +
+          "Label        " + ai.label + "\n" +
+          "Writable     " + getWriteString(ai) + "\n" +
+          "Data format  " + getFormatString(ai) + "\n" +
+          "Data type    " + Tango_CmdArgTypeName[ai.data_type] + "\n" +
+          "Max Dim X    " + ai.max_dim_x + "\n" +
+          "Max Dim Y    " + ai.max_dim_y + "\n" +
+          "Unit         " + ai.unit + "\n" +
+          "Std Unit     " + ai.standard_unit + "\n" +
+          "Disp Unit    " + ai.display_unit + "\n" +
+          "Format       " + ai.format + "\n" +
+          "Min value    " + ai.min_value + "\n" +
+          "Max value    " + ai.max_value + "\n" +
+          "Min alarm    " + ai.min_alarm + "\n" +
+          "Max alarm    " + ai.max_alarm;
+
+      if( ai.data_type == Tango_DEV_ENUM ) {
+        descText += "\nEnum values:\n" + JiveUtils.stringArrayToString(ai.enum_label);
+      }
+
+      descrList.setText(descText);
       descrList.setCaretPosition(0);
 
       plotBtn.setEnabled(isPlotable(ai));
@@ -339,13 +341,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
   // -----------------------------------------------------
   // Private stuff
   // -----------------------------------------------------
-  private AttributeInfo[] getAttributeList() throws DevFailed {
+  private AttributeInfoEx[] getAttributeList() throws DevFailed {
 
     int         i,j;
     boolean     end;
-    AttributeInfo tmp;
+    AttributeInfoEx tmp;
 
-    AttributeInfo[] lst = device.get_attribute_info();
+    AttributeInfoEx[] lst = device.get_attribute_info_ex();
 
     //Sort the list
     end = false;
@@ -366,7 +368,6 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
     return lst;
 
   }
-
 
   private void placeComponents(Dimension dim) {
 
@@ -421,7 +422,7 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
 
     try {
 
-      AttributeInfo ai = attList[attributeList.getSelectedIndex()];
+      AttributeInfoEx ai = attList[attributeList.getSelectedIndex()];
       String att = ai.name;
       String arginStr = (String)arginCombo.getSelectedItem();
       if(arginStr!=null) addArgin(arginStr);
@@ -524,7 +525,7 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
 
   }
 
-  private String getExample(AttributeInfo ai) {
+  private String getExample(AttributeInfoEx ai) {
 
     String ret_string = "";
 
@@ -566,6 +567,13 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
       case Tango_DEV_STRING:
         ret_string = "quotes needed for string with space or special char";
         break;
+      case Tango_DEV_ENUM:
+        ret_string = "Enum: ";
+        for(int i=0;i<ai.enum_label.length;i++) {
+          ret_string += ai.enum_label[i];
+          if(i<ai.enum_label.length-1) ret_string += ",";
+        }
+        return ret_string;
       default:
         ret_string = new String("");
         break;
@@ -640,7 +648,7 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
 
   }
 
-  private void insertData(String argin,DeviceAttribute send,AttributeInfo ai) throws NumberFormatException {
+  private void insertData(String argin,DeviceAttribute send,AttributeInfoEx ai) throws NumberFormatException {
 
     ArgParser arg = new ArgParser(argin);
 
@@ -797,6 +805,51 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
           case AttrDataFormat._IMAGE:
             send.insert(arg.parse_string_image(),arg.get_image_width(),arg.get_image_height());
             break;
+        }
+        break;
+
+      case Tango_DEV_ENUM:
+
+        // Convert string to short array
+        switch (ai.data_format.value())
+        {
+          case AttrDataFormat._SCALAR: {
+            String in = arg.parse_string();
+            short idx = (short) JiveUtils.isInsideArray(in, ai.enum_label);
+            if (idx < 0)
+              throw new NumberFormatException("\"" + in + "\" not known in enum\nPossible values are:\n"+
+                  JiveUtils.stringArrayToString(ai.enum_label));
+            send.insert(idx);
+          }
+          break;
+          case AttrDataFormat._SPECTRUM:
+          {
+            String[] in = arg.parse_string_array();
+            short[] idx = new short[in.length];
+            for (int i = 0; i < in.length; i++) {
+              idx[i] = (short) JiveUtils.isInsideArray(in[i], ai.enum_label);
+              if (idx[i] < 0)
+                throw new NumberFormatException("\"" + in[i] + "\" not known in enum\nPossible values are:\n"+
+                    JiveUtils.stringArrayToString(ai.enum_label));
+            }
+            send.insert(idx);
+          }
+          break;
+          case AttrDataFormat._IMAGE:
+          {
+            String[] in = arg.parse_string_image();
+            int width = arg.get_image_width();
+            int height = arg.get_image_height();
+            short[] idx = new short[in.length];
+            for (int i = 0; i < in.length; i++) {
+              idx[i] = (short) JiveUtils.isInsideArray(in[i], ai.enum_label);
+              if (idx[i] < 0)
+                throw new NumberFormatException("\"" + in[i] + "\" not known in enum\nPossible values are:\n"+
+                    JiveUtils.stringArrayToString(ai.enum_label));
+            }
+            send.insert(idx, width, height);
+          }
+          break;
         }
         break;
 
@@ -1112,6 +1165,26 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
               vs = (short)(vs & 0xFF);
               printArrayItem(ret_string,i,printIndex,Short.toString(vs),false);
             }
+          }
+          break;
+
+        case Tango_DEV_ENUM:
+
+          // We need the labels definition
+          AttributeInfoEx info = device.get_attribute_info_ex(ai.name);
+
+          short[] dummy = data.extractShortArray();
+          int nbRead = data.getNbRead();
+          int nbWritten = dummy.length - nbRead;
+          int start = getLimitMin(checkLimit,ret_string,nbRead);
+          int end = getLimitMax(checkLimit,ret_string,nbRead,false);
+          for (int i = start; i < end; i++)
+            printArrayItem(ret_string,i,printIndex,info.getEnumLabel(dummy[i]),false);
+          if( isWritable(ai) ) {
+            start = getLimitMin(checkLimit,ret_string,nbWritten);
+            end = getLimitMax(checkLimit,ret_string,nbWritten,true);
+            for (int i = start; i < end; i++)
+              printArrayItem(ret_string,i,printIndex,info.getEnumLabel(dummy[i + nbRead]),true);
           }
           break;
 

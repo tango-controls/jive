@@ -37,6 +37,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   DevicePollingPanel   devicePollingPanel;
   DeviceEventPanel     deviceEventPanel;
   DeviceAttributePanel deviceAttributePanel;
+  DevicePipePanel      devicePipePanel;
   DeviceLoggingPanel   deviceLoggingPanel;
   SingleAttributePanel singleAttributePanel;
 
@@ -153,6 +154,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     devicePollingPanel = new DevicePollingPanel();
     deviceEventPanel = new DeviceEventPanel();
     deviceAttributePanel = new DeviceAttributePanel();
+    devicePipePanel = new DevicePipePanel();
     deviceLoggingPanel = new DeviceLoggingPanel();
     singleAttributePanel = new SingleAttributePanel();
     splitPane.setRightComponent(defaultPanel);
@@ -1128,6 +1130,11 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       for(i=0;i<source.length;i++) nodes[i] = (TaskAttributeNode)source[i];
       deviceAttributePanel.setSource(nodes);
       splitPane.setRightComponent(deviceAttributePanel);
+    } else if(nodeClass == TaskPipeNode.class) {
+      TaskPipeNode[] nodes = new TaskPipeNode[source.length];
+      for(i=0;i<source.length;i++) nodes[i] = (TaskPipeNode)source[i];
+      devicePipePanel.setSource(nodes);
+      splitPane.setRightComponent(devicePipePanel);
     } else if(nodeClass == TaskLoggingNode.class) {
       TaskLoggingNode[] nodes = new TaskLoggingNode[source.length];
       for(i=0;i<source.length;i++) nodes[i] = (TaskLoggingNode)source[i];
