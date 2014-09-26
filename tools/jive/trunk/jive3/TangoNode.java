@@ -119,6 +119,7 @@ abstract class TangoNode extends DefaultMutableTreeNode {
    final static ImageIcon hdbcfgicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/hdbleaf.gif"));
    final static ImageIcon alarmicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/alarms.gif"));
    final static ImageIcon eventicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/event.gif"));
+   final static ImageIcon pipeicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/pipe.gif"));
 
 
    public TangoNodeRenderer() {}

@@ -141,6 +141,7 @@ public class TreePanelAlias extends TreePanel {
       add(new TaskPollingNode(db,devName));
       add(new TaskEventNode(db,devName));
       add(new TaskAttributeNode(db,devName));
+      add(new TaskPipeNode(db,devName));
       add(new AttributeNode(devName));
       add(new TaskLoggingNode(db,devName));
     }
