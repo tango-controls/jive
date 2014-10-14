@@ -1,8 +1,7 @@
 #!/bin/sh
 JAVALIB=/segfs/tango/release/java/lib;
 JAVABIN=/segfs/tango/release/java/appli;
-#CLASSPATH=$JAVALIB/TangORB.jar:$JAVABIN/atkpanel.jar:$JAVALIB/ATKWidget.jar:$JAVALIB/ATKCore.jar:$JAVABIN/LogViewer.jar:$JAVALIB/log4j.jar:$JAVABIN/Astor.jar:$JAVABIN/tool_panels.jar:.
-CLASSPATH=/segfs/tango/javaapi/build-tangorb/TangORB-9.0.0_beta1.jar:$JAVABIN/atkpanel.jar:$JAVALIB/ATKWidget.jar:$JAVALIB/ATKCore.jar:$JAVABIN/LogViewer.jar:$JAVALIB/log4j.jar:$JAVABIN/Astor.jar:$JAVABIN/tool_panels.jar:.
+CLASSPATH=$JAVALIB/TangORB.jar:$JAVABIN/atkpanel.jar:$JAVALIB/ATKWidget.jar:$JAVALIB/ATKCore.jar:$JAVABIN/LogViewer.jar:$JAVALIB/log4j.jar:$JAVABIN/Astor.jar:$JAVABIN/tool_panels.jar:.
 export CLASSPATH
 echo $CLASSPATH
 echo   Compiling Jive ...
