@@ -74,17 +74,8 @@
     </orderEntry>
     <orderEntry type="module-library">
       <library>
-        <CLASSES />
-        <JAVADOC />
-        <SOURCES>
-          <root url="file://$MODULE_DIR$" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../javaapi/build-tangorb/TangORB-9.0.0_beta2.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../release/java/lib/TangORB.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

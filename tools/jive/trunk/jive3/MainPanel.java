@@ -63,7 +63,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private boolean running_from_shell;
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 6.0beta ";
+  final static private String appVersion = "Jive 6.0 ";
 
   // General constructor
   public MainPanel() {
