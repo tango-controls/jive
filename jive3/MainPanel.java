@@ -9,7 +9,10 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Vector;
+import java.util.prefs.Preferences;
 
 import fr.esrf.TangoApi.ApiUtil;
 import fr.esrf.TangoApi.Database;
@@ -62,8 +65,13 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
   private boolean running_from_shell;
 
+  // User settings
+  Preferences prefs;
+  private String[] knownTangoHost;
+  private String THID = "TangoHost";
+
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 6.0 ";
+  final static private String appVersion = "Jive 6.2 ";
 
   // General constructor
   public MainPanel() {
@@ -76,6 +84,14 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
    * @param readOnly Read only flag.
    */
   public MainPanel(boolean runningFromShell,boolean readOnly) {
+
+    // Get user settings
+    prefs = Preferences.userRoot().node(this.getClass().getName());
+    knownTangoHost = JiveUtils.makeStringArray(prefs.get(THID,""));
+    if(knownTangoHost.length==1)
+      if(knownTangoHost[0].equals(""))
+        knownTangoHost = new String[0];
+
     running_from_shell = runningFromShell;
     JiveUtils.readOnly = readOnly;
     initComponents();
@@ -85,6 +101,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     navManager = new NavManager(this);
     searchEngine = new SearchEngine(this);
     recordPos = true;
+
   }
 
   // Init componenet
@@ -767,10 +784,24 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
   }
 
+  private boolean isKnowTangoHost(String th) {
+
+    boolean found = false;
+    int i = 0;
+    while(!found&&i<knownTangoHost.length) {
+      found = knownTangoHost[i].equalsIgnoreCase(th);
+      if(!found) i++;
+    }
+    return found;
+
+  }
+
   // Change the TANGO HOST
   private void changeTangoHost() {
 
-    String th = JOptionPane.showInputDialog(this, "Enter tango host (ex gizmo:20000)", "Jive", JOptionPane.QUESTION_MESSAGE);
+    TangoHostDlg dlg = new TangoHostDlg(this,knownTangoHost);
+    String th = dlg.getTangoHost();
+
     if (th != null) {
 
       String[] ths = th.split(":");
@@ -788,7 +819,24 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       }
 
       try {
+
         db = ApiUtil.change_db_obj(ths[0],ths[1]);
+
+        // Add this host the to list (if needed) and save to pref
+
+        if( !isKnowTangoHost(th) ) {
+
+          String[] newTH = new String[knownTangoHost.length+1];
+          for(int i=0;i<knownTangoHost.length;i++) {
+            newTH[i]=knownTangoHost[i];
+          }
+          newTH[knownTangoHost.length] = th;
+          knownTangoHost = newTH;
+          JiveUtils.sortList(knownTangoHost);
+          prefs.put(THID,JiveUtils.stringArrayToString(knownTangoHost));
+
+        }
+
       } catch (DevFailed e) {
         JiveUtils.showTangoError(e);
         db = null;
