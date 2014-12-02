@@ -442,6 +442,9 @@ class CommandPanel extends JPanel implements ActionListener,ListSelectionListene
       console.print("----------------------------------------------------\n");
       console.print("Command: " + device.name() + "/" + cmd + "\n");
       console.print("Duration: " + (t1-t0) + " msec\n");
+      if(arginStr!=null) {
+        console.print("Argin: " + arginStr + "\n");
+      }
       if(ci.out_type==Tango_DEV_VOID) {
         console.print("Command OK\n");
       } else {

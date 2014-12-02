@@ -71,7 +71,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private String THID = "TangoHost";
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 6.2 ";
+  final static private String appVersion = "Jive 6.3 ";
 
   // General constructor
   public MainPanel() {
@@ -300,6 +300,17 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       }
     });
     editMenu.add(clearClipboard);
+
+    editMenu.add(new JSeparator());
+
+    final JCheckBoxMenuItem showSystemProperty = new JCheckBoxMenuItem("Show system property");
+    showSystemProperty.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        JiveUtils.showSystemProperty = showSystemProperty.isSelected();
+        refreshTree();
+      }
+    });
+    editMenu.add(showSystemProperty);
 
     JMenu serverMenu = new JMenu("Tools");
     JMenuItem createServerWz = new JMenuItem("Server Wizard");

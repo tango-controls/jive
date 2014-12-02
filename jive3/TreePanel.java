@@ -441,7 +441,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   // Check if itemName if an item at first level
   public boolean isRootItem(String itemName) {
 
-    TangoNode node = searchNode(root,itemName);
+    TangoNode node = searchNodeStartingWith(root, itemName);
     return (node!=null);
 
   }
@@ -449,15 +449,13 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   // Select a "first level" item
   public TreePath selectRootItem(String itemName) {
 
-    TangoNode node = searchNode(root, itemName);
+    TangoNode node = searchNodeStartingWith(root, itemName);
     TreePath selPath = new TreePath(root);
     selPath = selPath.pathByAddingChild(node);
     tree.setSelectionPath(selPath);
     return selPath;
 
   }
-
-
 
   // Search the tree
   public TangoNode searchNode(TangoNode startNode,String value) {
@@ -470,6 +468,27 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
     while (i < numChild && !found) {
       elem = (TangoNode) treeModel.getChild(startNode, i);
       found = elem.toString().compareToIgnoreCase(value) == 0;
+      if (!found) i++;
+    }
+
+    if(found) {
+      return elem;
+    } else {
+      return null;
+    }
+
+  } 
+  // Search the tree
+  public TangoNode searchNodeStartingWith(TangoNode startNode,String value) {
+
+    int numChild = treeModel.getChildCount(startNode);
+    int i = 0;
+    boolean found = false;
+    TangoNode elem = null;
+
+    while (i < numChild && !found) {
+      elem = (TangoNode) treeModel.getChild(startNode, i);
+      found = elem.toString().toLowerCase().startsWith(value.toLowerCase());
       if (!found) i++;
     }
 

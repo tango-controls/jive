@@ -92,6 +92,7 @@ public class JiveUtils {
   public static File lastFile = null;
   public static Vector savedClass = new Vector();
   public static Insets noMargin = new Insets(0,0,0,0);
+  public static boolean showSystemProperty=false;
 
   // Search options and control
   public static int scan_progress;
@@ -169,14 +170,20 @@ public class JiveUtils {
   }
 
   static public boolean IsSystemItem(String s) {
-    return (s.equals("polled_cmd") ||
-        s.equals("polled_attr") ||
-        s.equals("non_auto_polled_cmd") ||
-        s.equals("non_auto_polled_attr"));
+    if( showSystemProperty )
+      return false;
+    else
+      return (s.equals("polled_cmd") ||
+          s.equals("polled_attr") ||
+          s.equals("non_auto_polled_cmd") ||
+          s.equals("non_auto_polled_attr"));
   }
 
   static public boolean IsLogCfgItem(String s) {
-    return (s.equals("logging_level") ||
+    if( showSystemProperty )
+      return false;
+    else
+      return (s.equals("logging_level") ||
         s.equals("logging_target") ||
         s.equals("current_logging_level") ||
         s.equals("current_logging_target") ||
@@ -185,15 +192,24 @@ public class JiveUtils {
   }
 
   static public boolean IsHdbCfgItem(String s) {
-    return (s.equals("is_archived") ||
-            s.equals("archiving_settings"));
+    if( showSystemProperty )
+      return false;
+    else
+      return (s.equals("is_archived") ||
+              s.equals("archiving_settings"));
   }
 
   static public boolean IsAlarmCfgItem(String s) {
+    if( showSystemProperty )
+      return false;
+    else
       return s.equals("Alarms");
   }
 
   static public boolean IsEventCfgItem(String s) {
+    if( showSystemProperty )
+      return false;
+    else
       return (s.equals("Archive Event") ||
               s.equals("Change Event") ||
               s.equals("Periodic Event"));

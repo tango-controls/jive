@@ -163,7 +163,7 @@ public class MultiLineCellRenderer extends JTextArea implements TableCellRendere
 
     while(!found && i<items.size()) {
       DevItem di = (DevItem)items.get(i);
-      found = (x<di.x-2) && (x>2) && (y>di.y+2) && (y<di.y+di.h-2);
+      found = (x<di.x-2) && (x>2) && (y>di.y+2) && (y<di.y+2+di.h);
       if(!found) i++;
     }
 
