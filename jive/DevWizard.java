@@ -802,7 +802,7 @@ class ClassPanel extends WizardPanel {
 
   public String getDescription() {
     if(allClasses.length==0) {
-      return "Sorry, but the server has no class...\nThe Wizard cannot conitnue.";
+      return "Sorry, but the server has no class...\nThe Wizard cannot continue.";
     } else {
       return "The server has been succesfully started and has "+Integer.toString(allClasses.length)+
              " class(es) . Keep in mind that modifying exiting class property may affect other running server.\n"+
