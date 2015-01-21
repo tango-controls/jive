@@ -152,7 +152,10 @@ public class JiveUtils {
   }
 
   static public boolean IsPollCfgItem(String s) {
-    return s.equals("is_polled") ||
+    if( showSystemProperty )
+      return false;
+    else
+      return s.equals("is_polled") ||
         s.equals("polling_period") ||
         s.equals("poll_old_factor") ||
         s.equals("poll_ring_depth");
@@ -160,12 +163,18 @@ public class JiveUtils {
 
   static public int IsAttCfgItem(String s,int idl) {
 
-    int i = isInsideArray(s,att_prop_default);
-    if(i<0 && idl>=3) {
-      i = isInsideArray(s,att_prop_default_idl3);
-      if(i>=0) i+=att_prop_default.length;
+    if( showSystemProperty )
+      return -1;
+    else {
+
+      int i = isInsideArray(s,att_prop_default);
+      if(i<0 && idl>=3) {
+        i = isInsideArray(s,att_prop_default_idl3);
+        if(i>=0) i+=att_prop_default.length;
+      }
+      return i;
+
     }
-    return i;
 
   }
 
