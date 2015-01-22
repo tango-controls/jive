@@ -1,6 +1,7 @@
 package jive3;
 
 import fr.esrf.Tango.DevFailed;
+import fr.esrf.TangoApi.DbAttribute;
 import fr.esrf.TangoApi.DeviceProxy;
 
 import javax.swing.*;
@@ -115,6 +116,18 @@ public class TreePanelAlias extends TreePanel {
 
     public String toString() {
       return "Attribute properties";
+    }
+
+    public int[] getAction() {
+      return new int[]{TreePanel.ACTION_CREATE_ATTPROP};
+    }
+
+    public void execAction(int actionNumber) {
+      switch(actionNumber) {
+        case TreePanel.ACTION_CREATE_ATTPROP:
+          createEmptyAttributeProperty(devName);
+          break;
+      }
     }
 
     public ImageIcon getIcon() {

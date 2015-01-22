@@ -38,7 +38,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private   boolean          updateOnChange;
 
   // Static action menu
-  public final static int ACTION_NUMBER       = 30;
+  public final static int ACTION_NUMBER       = 31;
 
   public final static int ACTION_COPY          = 0;
   public final static int ACTION_PASTE         = 1;
@@ -70,6 +70,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   public final static int ACTION_THREAD_POLL    = 27;
   public final static int ACTION_VIEW_HISTORY   = 28;
   public final static int ACTION_MOVE_SERVER    = 29;
+  public final static int ACTION_CREATE_ATTPROP = 30;
 
 
   private static TangoNode[] selectedNodes = null;
@@ -105,6 +106,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private static JMenuItem  threadPollMenu;
   private static JMenuItem  viewHistoryMenu;
   private static JMenuItem  moveServerMenu;
+  private static JMenuItem  createAttPropMenu;
 
   static {
     actionMenu = new JPopupMenu();
@@ -319,6 +321,13 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
     moveServerMenu.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
         selectedNodes[0].execAction(ACTION_MOVE_SERVER);
+      }
+    });
+    createAttPropMenu = new JMenuItem("Create attribute property");
+    actionMenu.add(createAttPropMenu);
+    createAttPropMenu.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_CREATE_ATTPROP);
       }
     });
 
@@ -861,6 +870,28 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
       dlg.setVisible(true);
     } catch(DevFailed e) {
       JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  // ---------------------------------------------------------------
+  public void createEmptyAttributeProperty(String devName) {
+
+    String propName = JOptionPane.showInputDialog(invoker, "Name: (attribute/prop_name)" , "Create attribute property", JOptionPane.OK_CANCEL_OPTION | JOptionPane.PLAIN_MESSAGE);
+    if (propName != null) {
+      String[] split = propName.split("/");
+      if(split.length!=2) {
+        JiveUtils.showJiveError("Invalid name syntax\nattribute/prop_name expected");
+      } else {
+        try {
+          DbAttribute dbAtt = new DbAttribute(split[0]);
+          dbAtt.add(split[1],"");
+          db.put_device_attribute_property(devName, dbAtt);
+        } catch (DevFailed e) {
+          JiveUtils.showTangoError(e);
+        }
+        refresh();
+      }
     }
 
   }

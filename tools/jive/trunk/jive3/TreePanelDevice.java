@@ -321,6 +321,18 @@ public class TreePanelDevice extends TreePanel {
         add(new TaskDeviceAttributePropertyNode(self,db,devName,list[i],idl));
     }
 
+    public int[] getAction() {
+      return new int[]{TreePanel.ACTION_CREATE_ATTPROP};
+    }
+
+    public void execAction(int actionNumber) {
+      switch(actionNumber) {
+        case TreePanel.ACTION_CREATE_ATTPROP:
+          createEmptyAttributeProperty(devName);
+          break;
+      }
+    }
+
     public String toString() {
       return "Attribute properties";
     }
