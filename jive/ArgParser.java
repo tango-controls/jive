@@ -39,7 +39,8 @@ public class ArgParser {
     width=0;
     height=0;
 
-    // Done 2 times to initialise nextchar and currentChar
+    // Done 3 times to initialise nextchars and currentChar
+    read_char();
     read_char();
     read_char();
 
@@ -725,6 +726,7 @@ public class ArgParser {
   // ********************************************************************************************
 
   private Reader theStream;
+  private char nextNextChar;
   private char nextChar;
   private char currentChar;
   private boolean backSlashed;
@@ -739,12 +741,14 @@ public class ArgParser {
     try {
       int c = theStream.read();
       currentChar = nextChar;
+      nextChar = nextNextChar;
       if(c<0) {
-        nextChar = 0;
+        nextNextChar = 0;
       } else {
-        nextChar = (char) c;
+        nextNextChar = (char) c;
       }
     } catch (Exception e) {
+      nextNextChar = 0;
       nextChar = 0;
       currentChar = 0;
     }
@@ -772,6 +776,17 @@ public class ArgParser {
 
     /* Treat special character */
     if (currentChar == ',' || currentChar == '[' || currentChar == ']') {
+      ret_word.append(currentChar);
+      read_char();
+      return ret_word.toString();
+    }
+
+    /* Treat char */
+    if(currentChar=='\'' && nextNextChar=='\'') {
+      ret_word.append(currentChar);
+      read_char();
+      ret_word.append(currentChar);
+      read_char();
       ret_word.append(currentChar);
       read_char();
       return ret_word.toString();
@@ -1044,13 +1059,13 @@ public class ArgParser {
     final ArgParser a1 = new ArgParser("true");
     final ArgParser a2 = new ArgParser("7,8,127.123,1e6,57.8");
     final ArgParser a3 = new ArgParser("[1.0,2,3.5] [4,5.7,6] [7,8,127.123] [10.1,11.2,12]");
-    final ArgParser a4 = new ArgParser("toto,\"ta ta\",titi");
+    final ArgParser a4 = new ArgParser("toto,\"ta 'ta\",titi");
     final ArgParser a5 = new ArgParser("[34,5] [toto,\"ta ta\",titi]");
     final ArgParser a6 = new ArgParser("[7,8,-9,16,5700,0x10]");
     final ArgParser a7 = new ArgParser("\"test with \\\" ,quote\"");
     final ArgParser a8 = new ArgParser("\\\"quote\\\"");
     final ArgParser a9 = new ArgParser("\\u0261toto");
-
+    final ArgParser a10 = new ArgParser("'a',' ',0x72,'i'");
 
     try {
       System.out.println(a1.parse_boolean());
@@ -1063,6 +1078,7 @@ public class ArgParser {
       System.out.println(a7.parse_string());
       System.out.println(a8.parse_string());
       System.out.println(a9.parse_string());
+      print_array(a10.parse_char_array());
     } catch (NumberFormatException e) {
       System.out.println("Getting error:" + e);
     }

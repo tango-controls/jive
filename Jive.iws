@@ -288,6 +288,21 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/jive/CommandPanel.java" line="618" class="jive.CommandPanel" package="jive">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="REMOVE_AFTER_HIT" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
     </line_breakpoints>
     <breakpoint_any default_suspend_policy="SuspendAll" default_condition_enabled="true">
       <breakpoint>
@@ -409,16 +424,7 @@
       <file leaf-file-name="MainPanel.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/jive3/MainPanel.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="80" column="5" selection-start="2131" selection-end="2131" vertical-scroll-proportion="0.4025501" vertical-offset="833" max-vertical-offset="19720">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TreePanelAlias.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/jive3/TreePanelAlias.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="120" column="0" selection-start="2932" selection-end="3229" vertical-scroll-proportion="0.0" vertical-offset="1870" max-vertical-offset="3825">
+            <state line="73" column="52" selection-start="2045" selection-end="2045" vertical-scroll-proportion="0.704918" vertical-offset="854" max-vertical-offset="20026">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -426,32 +432,44 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TreePanelServer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/jive3/TreePanelServer.java">
+      <file leaf-file-name="ArgParser.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/jive/ArgParser.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="832" column="0" selection-start="25512" selection-end="25512" vertical-scroll-proportion="0.0" vertical-offset="13391" max-vertical-offset="17986">
+            <state line="1068" column="0" selection-start="27572" selection-end="27572" vertical-scroll-proportion="-691.11536" vertical-offset="0" max-vertical-offset="18411">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TreePanel.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/jive3/TreePanel.java">
+      <file leaf-file-name="Properties.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://C:/Program Files/Java/jdk1.6.0_45/src.zip!/java/util/Properties.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="879" column="0" selection-start="27556" selection-end="27556" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="14569">
+            <state line="323" column="29" selection-start="14017" selection-end="14017" vertical-scroll-proportion="0.0" vertical-offset="4828" max-vertical-offset="18496">
               <folding>
-                <element signature="e#4503#4639#0" expanded="true" />
-                <element signature="e#4632#4633#0" expanded="true" />
+                <element signature="e#0#42052#0" expanded="false" />
+                <element signature="imports" expanded="false" />
+                <element signature="e#39032#39048#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TreePanelDevice.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/jive3/TreePanelDevice.java">
+      <file leaf-file-name="ExecDev.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/jive/ExecDev.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="322" column="0" selection-start="9308" selection-end="9308" vertical-scroll-proportion="0.0" vertical-offset="4942" max-vertical-offset="8551">
+            <state line="22" column="30" selection-start="613" selection-end="613" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1122">
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CommandPanel.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/jive/CommandPanel.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="618" column="34" selection-start="18243" selection-end="18243" vertical-scroll-proportion="-5.423077" vertical-offset="9991" max-vertical-offset="16337">
+              <folding>
+                <element signature="imports" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -505,7 +523,6 @@
         <option value="$PROJECT_DIR$/jive3/DevicePropertyDlg.java" />
         <option value="$PROJECT_DIR$/jive/ExecDev.java" />
         <option value="$PROJECT_DIR$/jive/PipePanel.java" />
-        <option value="$PROJECT_DIR$/jive/ArgParser.java" />
         <option value="$PROJECT_DIR$/jive/AttributePanel.java" />
         <option value="$PROJECT_DIR$/jive3/TangoNode.java" />
         <option value="$PROJECT_DIR$/jive3/TaskPipeNode.java" />
@@ -519,6 +536,7 @@
         <option value="$PROJECT_DIR$/jive3/TreePanelServer.java" />
         <option value="$PROJECT_DIR$/jive3/TreePanelDevice.java" />
         <option value="$PROJECT_DIR$/jive3/TreePanel.java" />
+        <option value="$PROJECT_DIR$/jive/ArgParser.java" />
         <option value="$PROJECT_DIR$/jive3/MainPanel.java" />
       </list>
     </option>
@@ -600,8 +618,8 @@
     <option name="INTEGRATE_REVERSE" value="false" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="198" />
-    <option name="y" value="19" />
+    <option name="x" value="230" />
+    <option name="y" value="53" />
     <option name="width" value="1357" />
     <option name="height" value="995" />
   </component>
@@ -694,6 +712,20 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Jive" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jive" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jive" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
       <pane id="PackagesPane">
@@ -733,7 +765,7 @@
     <property name="options.lastSelected" value="preferences.externalResources" />
     <property name="MemberChooser.sorted" value="false" />
     <property name="recentsLimit" value="5" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../release/java/lib/TangORB.jar!/" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../mstatus/MachineStatus.ipr" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
@@ -748,7 +780,7 @@
     <property name="OverrideImplement.combined" value="true" />
     <property name="OverrideImplement.overriding.sorted" value="false" />
   </component>
-  <component name="RunManager" selected="Application.Jive3">
+  <component name="RunManager" selected="Application.ArgParser">
     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Tests">
       <module name="" />
       <option name="TESTING_TYPE" value="0" />
@@ -918,8 +950,10 @@
       <option name="ENABLE_SWING_INSPECTOR" value="false" />
       <option name="ENV_VARIABLES" />
       <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="" />
+      <module name="Jive" />
       <envs />
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
     <configuration default="false" name="Wizard" type="Application" factoryName="Application">
@@ -1101,7 +1135,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="198" y="19" width="1357" height="995" extended-state="0" />
+    <frame x="230" y="53" width="1357" height="995" extended-state="0" />
     <editor active="false" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1109,9 +1143,8 @@
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290993" sideWeight="0.49962035" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29761904" sideWeight="0.49861303" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.41953233" sideWeight="0.49861303" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.41904762" sideWeight="0.49861303" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4062153" sideWeight="0.19382322" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
@@ -1128,6 +1161,7 @@
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29761904" sideWeight="0.49861303" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="EJB" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
@@ -1244,11 +1278,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/jive/DevWizard.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="339" column="0" selection-start="9440" selection-end="9440" vertical-scroll-proportion="-0.27960527" vertical-offset="5763" max-vertical-offset="21692" />
-      </provider>
-    </entry>
     <entry file="jar://C:/Program Files/Java/jdk1.6.0_45/src.zip!/java/io/StringReader.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="18" column="40" selection-start="342" selection-end="348" vertical-scroll-proportion="-0.13980263" vertical-offset="306" max-vertical-offset="3145" />
@@ -1326,11 +1355,6 @@
         <state line="180" column="0" selection-start="6228" selection-end="6228" vertical-scroll-proportion="0.3319672" vertical-offset="2541" max-vertical-offset="10897" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/jive/ArgParser.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="180" column="0" selection-start="4755" selection-end="4755" vertical-scroll-proportion="0.0" vertical-offset="2822" max-vertical-offset="18139" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/jive3/DevicePollingPanel.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="17" column="13" selection-start="429" selection-end="429" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="8296">
@@ -1406,16 +1430,6 @@
         <state line="48" column="35" selection-start="1478" selection-end="1478" vertical-scroll-proportion="-5.923077" vertical-offset="662" max-vertical-offset="1836" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/jive/CommandPanel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="445" column="0" selection-start="13253" selection-end="13253" vertical-scroll-proportion="13.441121" vertical-offset="0" max-vertical-offset="16337" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/jive/ExecDev.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="33" selection-start="616" selection-end="616" vertical-scroll-proportion="0.20731707" vertical-offset="153" max-vertical-offset="1122" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/jive3/SearchEngine.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="115" column="18" selection-start="2716" selection-end="2716" vertical-scroll-proportion="0.0" vertical-offset="1567" max-vertical-offset="3842">
@@ -1468,9 +1482,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/jive/Clipboard.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="166" column="22" selection-start="3908" selection-end="3908" vertical-scroll-proportion="0.0" vertical-offset="2431" max-vertical-offset="4148">
-          <folding />
-        </state>
+        <state line="166" column="22" selection-start="3908" selection-end="3908" vertical-scroll-proportion="0.0" vertical-offset="2431" max-vertical-offset="4148" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/jive3/DeviceAttributePanel.java">
@@ -1511,9 +1523,7 @@
     <entry file="file://$PROJECT_DIR$/jive3/TreePanelAlias.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="120" column="0" selection-start="2932" selection-end="3229" vertical-scroll-proportion="0.0" vertical-offset="1870" max-vertical-offset="3825">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1534,17 +1544,50 @@
     <entry file="file://$PROJECT_DIR$/jive3/TreePanel.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="879" column="0" selection-start="27556" selection-end="27556" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="14569">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/jive/CommandPanel.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="618" column="34" selection-start="18243" selection-end="18243" vertical-scroll-proportion="-5.423077" vertical-offset="9991" max-vertical-offset="16337">
           <folding>
-            <element signature="e#4503#4639#0" expanded="true" />
-            <element signature="e#4632#4633#0" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/jive/ExecDev.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="22" column="30" selection-start="613" selection-end="613" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1122">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.6.0_45/src.zip!/java/util/Properties.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="323" column="29" selection-start="14017" selection-end="14017" vertical-scroll-proportion="0.0" vertical-offset="4828" max-vertical-offset="18496">
+          <folding>
+            <element signature="e#0#42052#0" expanded="false" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#39032#39048#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/jive/ArgParser.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1068" column="0" selection-start="27572" selection-end="27572" vertical-scroll-proportion="-691.11536" vertical-offset="0" max-vertical-offset="18411">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/jive3/MainPanel.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="80" column="5" selection-start="2131" selection-end="2131" vertical-scroll-proportion="0.4025501" vertical-offset="833" max-vertical-offset="19720">
-          <folding />
+        <state line="73" column="52" selection-start="2045" selection-end="2045" vertical-scroll-proportion="0.704918" vertical-offset="854" max-vertical-offset="20026">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
