@@ -83,7 +83,7 @@ public class ResDlg extends JDialog implements ActionListener {
       FileReader f = new FileReader(fileName);
       while(f.ready()) {
         char c = (char)f.read();
-        if(!warning) warning = c>127 || c<32;
+        if(!warning) warning = c>127;
         sb.append(c);
       }
       f.close();
