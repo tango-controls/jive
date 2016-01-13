@@ -71,7 +71,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private String THID = "TangoHost";
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 6.6 ";
+  final static private String appVersion = "Jive 6.8 ";
 
   // General constructor
   public MainPanel() {
@@ -871,7 +871,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       historyDlg.setDatabase(db, th);
       selectionDlg.setDatabase(db);
       updateTitle(th);
-      defaultPanel.setSource(null);
+      defaultPanel.setSource(null,0);
       splitPane.setRightComponent(defaultPanel);
       ProgressFrame.hideProgress();
       resetSearch();
@@ -1108,7 +1108,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
     // No selection
     if(source==null || source.length==0) {
-      defaultPanel.setSource(null);
+      defaultPanel.setSource(null,0);
       splitPane.setRightComponent(defaultPanel);
       return;
     }
@@ -1205,7 +1205,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       singleAttributePanel.setSource(nodes);
       splitPane.setRightComponent(singleAttributePanel);
     } else {
-      defaultPanel.setSource(source[0]);
+      defaultPanel.setSource(source[0],source.length);
       splitPane.setRightComponent(defaultPanel);
     }
 

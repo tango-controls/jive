@@ -13,8 +13,7 @@ import fr.esrf.TangoApi.Database;
 import fr.esrf.TangoApi.DbAttribute;
 import fr.esrf.TangoApi.DbDatum;
 
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Vector;
 
 public class TangoFileReader {
@@ -59,7 +58,7 @@ public class TangoFileReader {
   // ****************************************************
   // read the next character in the file
   // ****************************************************
-  private void read_char(FileReader f) throws IOException {
+  private void read_char(Reader f) throws IOException {
 
     CurrentChar = NextChar;
     if (f.ready())
@@ -72,7 +71,7 @@ public class TangoFileReader {
   // ****************************************************
   // Go to the next line                                      */
   // ****************************************************
-  private void jump_line(FileReader f) throws IOException {
+  private void jump_line(Reader f) throws IOException {
 
     while (CurrentChar != '\n' && CurrentChar != 0) read_char(f);
     read_char(f);
@@ -81,7 +80,7 @@ public class TangoFileReader {
   // ****************************************************
   // Go to the next significant character
   // ****************************************************
-  private void jump_space(FileReader f) throws IOException {
+  private void jump_space(Reader f) throws IOException {
 
     while (CurrentChar <= 32 && CurrentChar > 0) read_char(f);
   }
@@ -89,7 +88,7 @@ public class TangoFileReader {
   // ****************************************************
   // Read the next word in the file                           */
   // ****************************************************
-  private String read_word(FileReader f) throws IOException {
+  private String read_word(Reader f) throws IOException {
 
     StringBuffer ret_word = new StringBuffer();
 
@@ -170,7 +169,7 @@ public class TangoFileReader {
   // Read the next word in the file
   // And allow / inside
   // ****************************************************
-  private String read_full_word(FileReader f) throws IOException {
+  private String read_full_word(Reader f) throws IOException {
 
     String ret_word = "";
 
@@ -575,7 +574,7 @@ public class TangoFileReader {
   // ****************************************************
   // Parse a resource value
   // ****************************************************
-  private String[] parse_resource_value(FileReader f) throws IOException {
+  private String[] parse_resource_value(Reader f) throws IOException {
 
     int i,lex;
     String[] ret = new String[1024];
@@ -850,7 +849,7 @@ public class TangoFileReader {
   // ****************************************************
   public String parse_res_file(String file_name) {
     
-    FileReader f;
+    Reader f;
     boolean eof = false;
     int lex;
 
@@ -868,6 +867,7 @@ public class TangoFileReader {
     try {
 
       /* OPEN THE FILE                  */
+      //f = new InputStreamReader(new FileInputStream(file_name), "ISO-8859-1");
       f = new FileReader(file_name);
 
       /* CHECK BEGINING OF CONFIG FILE  */

@@ -101,7 +101,7 @@ public class TreePanelAttributeAlias extends TreePanel {
       DeviceProxy ds = new DeviceProxy(devName);
       int idl = ds.get_idl_version();
 
-      add(new TaskDeviceAttributePropertyNode(self,db,devName,aName,idl));
+      add(new TaskDeviceAttributePropertyNode(self,db,devName,aName,idl,false));
       add(new TaskSingleAttributeNode(self,db,devName,attName,idl));
 
     }

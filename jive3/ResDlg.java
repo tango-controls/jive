@@ -16,6 +16,7 @@ import java.io.IOException;
 public class ResDlg extends JDialog implements ActionListener {
 
   private JTextArea   resText;
+  private JLabel      warningLabel;
   private JScrollPane resScrollPane;
   private JButton     loadButton;
   private JButton     cancelButton;
@@ -35,14 +36,36 @@ public class ResDlg extends JDialog implements ActionListener {
     innerPanel.add(resScrollPane,BorderLayout.CENTER);
 
     JPanel buttonPanel = new JPanel();
-    buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+    buttonPanel.setLayout(new GridBagLayout());
 
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbc.weightx = 1.0;
+    gbc.insets.left = 5;
+    gbc.insets.top = 3;
+    gbc.insets.bottom = 3;
+
+    warningLabel = new JLabel("");
+    warningLabel.setForeground(Color.RED);
+    buttonPanel.add(warningLabel,gbc);
+
+    gbc.gridx = 1;
+    gbc.gridy = 0;
+    gbc.weightx = 0.0;
     loadButton = new JButton("Load");
     loadButton.addActionListener(this);
-    buttonPanel.add(loadButton);
+    buttonPanel.add(loadButton,gbc);
+
+    gbc.gridx = 2;
+    gbc.gridy = 0;
+    gbc.weightx = 0.0;
+    gbc.insets.right = 5;
     cancelButton = new JButton("Cancel");
     cancelButton.addActionListener(this);
-    buttonPanel.add(cancelButton);
+    buttonPanel.add(cancelButton,gbc);
+
     innerPanel.add(buttonPanel,BorderLayout.SOUTH);
 
     readFile(fileName);
@@ -53,17 +76,23 @@ public class ResDlg extends JDialog implements ActionListener {
 
   private void readFile(String fileName) {
 
+    boolean warning = false;
+
     try {
       StringBuffer sb = new StringBuffer();
       FileReader f = new FileReader(fileName);
       while(f.ready()) {
-        sb.append((char)f.read());
+        char c = (char)f.read();
+        if(!warning) warning = c>127 || c<32;
+        sb.append(c);
       }
       f.close();
       resText.setText(sb.toString());
     } catch (IOException e) {
       JiveUtils.showJiveError("Cannot read " + fileName + "\n" + e.getMessage());
     }
+
+    if(warning) warningLabel.setText("File contains special char !");
 
   }
 
