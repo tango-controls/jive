@@ -13,6 +13,7 @@ class DefaultPanel extends JPanel implements ActionListener {
   private JPanel      btnPanel;
   private JButton     refreshButton;
   private TangoNode   src = null;
+  private int size;
 
   DefaultPanel()  {
 
@@ -41,8 +42,9 @@ class DefaultPanel extends JPanel implements ActionListener {
     }
   }
 
-  void setSource(TangoNode src) {
+  void setSource(TangoNode src,int size) {
     this.src = src;
+    this.size = size;
     refreshValue();
   }
 
@@ -51,7 +53,9 @@ class DefaultPanel extends JPanel implements ActionListener {
     if (src != null) {
       value.setText(src.getValue());
       value.setCaretPosition(0);
-      Border b = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), src.getTitle());
+      String title = src.getTitle();
+      if(size>1) title += " [" + size + " items]";
+      Border b = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), title);
       valueView.setBorder(b);
     } else {
       value.setText("");

@@ -18,20 +18,25 @@ class TaskDeviceAttributePropertyNode extends PropertyNode {
   private String   devName;
   private String   attributeName;
   private int      idl;
+  private boolean  dbAttribute;
 
-  TaskDeviceAttributePropertyNode(TreePanel parent,Database db,String devName,String attributeName,int idl) {
+  TaskDeviceAttributePropertyNode(TreePanel parent,Database db,String devName,String attributeName,int idl,boolean isDB) {
     this.db = db;
     this.devName = devName;
     this.attributeName = attributeName;
     this.parentPanel = parent;
     this.idl = idl;
+    this.dbAttribute = isDB;
   }
 
   void populateNode() throws DevFailed {
   }
 
   ImageIcon getIcon() {
-    return TangoNodeRenderer.leaficon;
+    if(dbAttribute)
+      return TangoNodeRenderer.uleaficon;
+    else
+      return TangoNodeRenderer.leaficon;
   }
 
   public String toString() {
@@ -40,6 +45,10 @@ class TaskDeviceAttributePropertyNode extends PropertyNode {
 
   String getTitle() {
     return "Device attribute properties";
+  }
+
+  String getDevName() {
+    return devName;
   }
 
   String getName() {
