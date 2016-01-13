@@ -297,7 +297,8 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
       } else if ( source[0] instanceof TaskDeviceAttributePropertyNode ) {
 
         String attName = ((TaskDeviceAttributePropertyNode)source[0]).getAttributeName();
-        parent.historyDlg.viewDeviceAttPropertyHistory(objName,attName,propName);
+        String devName = ((TaskDeviceAttributePropertyNode)source[0]).getDevName();
+        parent.historyDlg.viewDeviceAttPropertyHistory(devName,attName,propName);
         parent.showHistory();
       
       } else if ( source[0] instanceof TaskClassAttributePropertyNode ) {
