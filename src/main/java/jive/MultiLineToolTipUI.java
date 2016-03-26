@@ -3,8 +3,8 @@
  *
  * Author: Albert L. Ting <alt@artisan.com>
  *
- * $Revision$
- * $Id$
+ * $Revision: 9895 $
+ * $Id: MultiLineToolTipUI.java 9895 2004-11-22 17:43:50Z jlpons $
  *
  */
 

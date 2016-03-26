@@ -1,5 +1,6 @@
 package jive3;
 
+import admin.astor.TangoHost;
 import fr.esrf.TangoApi.*;
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevVarLongStringArray;
@@ -844,8 +845,9 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
 
   // ---------------------------------------------------------------
   public void launchLogViewer(String devName) {
-    fr.esrf.logviewer.Main m = new fr.esrf.logviewer.Main(new String[0],true);
-    m.selectDevice(devName);
+    fr.esrf.logviewer.Main.main(new String[0]);
+    //m = new fr.esrf.logviewer.Main(new String[0],true);
+    //m.selectDevice(devName);
   }
 
   // ---------------------------------------------------------------
@@ -863,14 +865,14 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
 
   // ---------------------------------------------------------------
   public void launchPollingThreadsManager(String srvName) {
-
-    try {
-      admin.astor.tools.PoolThreadsManager dlg = new admin.astor.tools.PoolThreadsManager(invoker, srvName);
-      dlg.setTitle("Polling threads manager");
-      dlg.setVisible(true);
-    } catch(DevFailed e) {
-      JiveUtils.showTangoError(e);
-    }
+    throw new UnsupportedOperationException("This is not implemented in mavenized version");
+//    try {
+//      admin.astor.tools.PoolThreadsManager dlg = new admin.astor.tools.PoolThreadsManager(invoker, new TangoHost(srvName, true) ,srvName);
+//      dlg.setTitle("Polling threads manager");
+//      dlg.setVisible(true);
+//    } catch(DevFailed e) {
+//      JiveUtils.showTangoError(e);
+//    }
 
   }
 
