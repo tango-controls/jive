@@ -93,4 +93,27 @@
             <url>https://api.bintray.com/maven/hzgde/hzg-wpn-projects/Jive</url>
         </repository>
     </distributionManagement>
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-hzgde-hzg-wpn-projects</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/hzgde/hzg-wpn-projects</url>
+        </repository>
+            <repository>
+                    <id>soleil</id>
+                    <url>http://www2.synchrotron-soleil.fr/controle/maven2/soleil</url>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>daily</updatePolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                        <updatePolicy>daily</updatePolicy>
+                    </snapshots>
+                </repository>
+    </repositories>
 </project>
