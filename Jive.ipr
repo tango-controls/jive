@@ -494,15 +494,15 @@
         <root url="jar://$MAVEN_REPOSITORY$/org/swinglabs/swingx/1.6/swingx-1.6-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: org.tango:TangORB-javacommon:jacorb_free-0.2-SNAPSHOT">
+    <library name="Maven: org.tango:TangORB-javacommon:jacorb_free-0.2">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/tango/TangORB-javacommon/jacorb_free-0.2-SNAPSHOT/TangORB-javacommon-jacorb_free-0.2-SNAPSHOT.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/tango/TangORB-javacommon/jacorb_free-0.2/TangORB-javacommon-jacorb_free-0.2.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/org/tango/TangORB-javacommon/jacorb_free-0.2-SNAPSHOT/TangORB-javacommon-jacorb_free-0.2-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/tango/TangORB-javacommon/jacorb_free-0.2/TangORB-javacommon-jacorb_free-0.2-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/tango/TangORB-javacommon/jacorb_free-0.2-SNAPSHOT/TangORB-javacommon-jacorb_free-0.2-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/tango/TangORB-javacommon/jacorb_free-0.2/TangORB-javacommon-jacorb_free-0.2-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.tango:TangORB-javadao:7.3.11">
@@ -516,15 +516,15 @@
         <root url="jar://$MAVEN_REPOSITORY$/org/tango/TangORB-javadao/7.3.11/TangORB-javadao-7.3.11-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: org.tango:TangORB:jacorb_free-0.2-SNAPSHOT">
+    <library name="Maven: org.tango:TangORB:jacorb_free-0.2">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/tango/TangORB/jacorb_free-0.2-SNAPSHOT/TangORB-jacorb_free-0.2-SNAPSHOT.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/tango/TangORB/jacorb_free-0.2/TangORB-jacorb_free-0.2.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/org/tango/TangORB/jacorb_free-0.2-SNAPSHOT/TangORB-jacorb_free-0.2-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/tango/TangORB/jacorb_free-0.2/TangORB-jacorb_free-0.2-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/tango/TangORB/jacorb_free-0.2-SNAPSHOT/TangORB-jacorb_free-0.2-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/tango/TangORB/jacorb_free-0.2/TangORB-jacorb_free-0.2-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.zeromq:jeromq:0.3.4">

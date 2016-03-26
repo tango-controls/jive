@@ -82,11 +82,9 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="Maven: org.tango:TangORB:jacorb_free-0.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.tango:TangORB-javacommon:jacorb_free-0.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: org.tango:TangORB:jacorb_free-0.2-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.tango:TangORB:jacorb_free-0.2" level="project" />
     <orderEntry type="library" name="Maven: org.zeromq:jeromq:0.3.4" level="project" />
-    <orderEntry type="library" name="Maven: org.tango:TangORB-javacommon:jacorb_free-0.2-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: org.tango:TangORB-javacommon:jacorb_free-0.2" level="project" />
     <orderEntry type="library" name="Maven: fr.esrf.atk:ATKCore:4.5.26" level="project" />
     <orderEntry type="library" name="Maven: fr.esrf.atk:ATKWidget:4.0.16" level="project" />
     <orderEntry type="library" name="Maven: org.swinglabs:colorchooser:0.0.1" level="project" />

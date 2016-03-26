@@ -77,7 +77,7 @@
                             </descriptorRefs>
                             <archive>
                                 <manifest>
-                                    <mainClass></mainClass>
+                                    <mainClass>jive3.MainPanel</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>
