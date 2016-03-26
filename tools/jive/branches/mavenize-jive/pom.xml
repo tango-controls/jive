@@ -4,7 +4,7 @@
 
     <groupId>org.tango</groupId>
     <artifactId>Jive</artifactId>
-    <version>6.8-SNAPSHOT</version>
+    <version>6.8.jacorb_free</version>
 
     <packaging>jar</packaging>
 
@@ -86,4 +86,11 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray-hzg</id>
+            <url>https://api.bintray.com/maven/hzgde/hzg-wpn-projects/Jive</url>
+        </repository>
+    </distributionManagement>
 </project>
