@@ -9,8 +9,6 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 
@@ -71,7 +69,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private String THID = "TangoHost";
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 6.8 ";
+  final static private String appVersion = "Jive 6.10 ";
 
   // General constructor
   public MainPanel() {
@@ -1232,17 +1230,47 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   }
 
   // Main function
+  static void printUsage() {
+    System.out.println("Usage: jive [-r] [-s server] [-d device]");
+    System.out.println("   -r        Read only mode (No write access to database allowed)");
+    System.out.println("   -s server Open jive and show specified server node (server=ServerName/instance)");
+    System.out.println("   -d device Open jive and show specified device node (device=domain/family/member)");
+    System.exit(0);
+  }
+
   public static void main(String args[]) {
 
     if(args.length==0) {
       new MainPanel(true,false);
     } else {
-      if( args[0].equalsIgnoreCase("-r") ) {
-        new MainPanel(true,true);
-      } else {
-        System.out.println("Usage: jive [-r]");
-        System.out.println("   -r  Read only mode (No write access to database allowed)");
+      boolean readOnly = false;
+      int i = 0;
+      String server = null;
+      String device = null;
+      while(i<args.length) {
+
+        if(args[i].equalsIgnoreCase("-r")) {
+          readOnly = true;
+        } else if(args[i].equalsIgnoreCase("-s")) {
+          i++;
+          if(i>=args.length)
+            printUsage();
+          server = args[i];
+        } else if(args[i].equalsIgnoreCase("-d")) {
+          i++;
+          if(i>=args.length)
+            printUsage();
+          device = args[i];
+        }
+        i++;
+
       }
+      MainPanel p = new MainPanel(true,readOnly);
+      if(server!=null)
+        p.goToServerFullNode(server);
+      if(device!=null)
+        p.goToDeviceNode(device);
+
     }
 
   }

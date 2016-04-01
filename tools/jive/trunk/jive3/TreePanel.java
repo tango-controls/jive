@@ -897,6 +897,19 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   }
 
   // ---------------------------------------------------------------
+  public void putAttributeProperty(String devName, String attName, String propName, String value) {
+
+    try {
+      DbAttribute att = new DbAttribute(attName);
+      att.add(propName, JiveUtils.makeStringArray(value));
+      db.put_device_attribute_property(devName, att);
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  // ---------------------------------------------------------------
   public void mousePressed(MouseEvent e) {
 
     TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());

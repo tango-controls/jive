@@ -835,14 +835,41 @@ public class TreePanelServer extends TreePanel {
     }
 
     public int[] getAction() {
-      return new int[]{TreePanel.ACTION_CREATE_ATTPROP};
+      return new int[] {
+          TreePanel.ACTION_COPY,
+          TreePanel.ACTION_PASTE,
+          TreePanel.ACTION_CREATE_ATTPROP
+      };
     }
 
     public void execAction(int actionNumber) {
       switch(actionNumber) {
+
         case TreePanel.ACTION_CREATE_ATTPROP:
           createEmptyAttributeProperty(devName);
           break;
+
+        case TreePanel.ACTION_COPY:
+          // Copy all attribute property to the clipboard
+          int nbAtt = getChildCount();
+          JiveUtils.the_clipboard.clear();
+          for(int i=0;i<nbAtt;i++) {
+            TaskDeviceAttributePropertyNode node = (TaskDeviceAttributePropertyNode)getChildAt(i);
+            String[][] props = node.getProperties();
+            for(int j=0;j<props.length;j++)
+              JiveUtils.the_clipboard.add(props[j][0],node.getAttributeName(),props[j][1]);
+          }
+          break;
+
+        case TreePanel.ACTION_PASTE:
+          for(int i=0;i<JiveUtils.the_clipboard.getAttPropertyLength();i++) {
+            putAttributeProperty( devName,
+                JiveUtils.the_clipboard.getAttName(i),
+                JiveUtils.the_clipboard.getAttPropertyName(i),
+                JiveUtils.the_clipboard.getAttPropertyValue(i));
+          }
+          break;
+
       }
     }
 
