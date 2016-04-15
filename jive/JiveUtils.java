@@ -1090,6 +1090,7 @@ public class JiveUtils {
       node = (TangoTreeNode) path.getLastPathComponent();
     }
 
+    /*
     if (sdlg.showDlg()) {
 
       String[] devices = sdlg.getDeviceNames();
@@ -1114,6 +1115,7 @@ public class JiveUtils {
       }
 
     }
+    */
 
   }
 
@@ -1507,10 +1509,12 @@ public class JiveUtils {
 
       case 5: // ------ Create server
 
+        /*
         sdlg = new ServerDlg(parent);
         sdlg.setValidFields(true, true);
         sdlg.setDefaults("", "");
         showServerDlg(sdlg, path, model, tree);
+        */
         return true;
 
       case 6: // ------ Create new property
@@ -1534,11 +1538,14 @@ public class JiveUtils {
 
       case 8: // ------ Add a class to an existing server
 
+        /*
         sdlg = new ServerDlg(parent);
         sdlg.setValidFields(false, true);
         sdlg.setDefaults(node.getParent().toString() + "/" + node.toString(), "");
         showServerDlg(sdlg, path, model, tree);
+        */
         return true;
+
 
       case 9: // ------ Rename
         return rename(path,tree,model,bounds);

@@ -18,7 +18,7 @@ import fr.esrf.Tango.DevFailed;
 import fr.esrf.tangoatk.widget.util.ATKConstant;
 import fr.esrf.tangoatk.widget.util.ATKGraphicsUtils;
 
-public class MainPanel extends JFrame implements ChangeListener,NavigationListener {
+public class MainPanel extends JFrame implements ChangeListener,NavigationListener,IServerAction {
 
   private Database db;
 
@@ -59,6 +59,9 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   //Search stuff
   SearchEngine          searchEngine;
 
+  // Inner panel
+  JPanel innerPanel;
+
   private String lastResOpenedDir = ".";
 
   private boolean running_from_shell;
@@ -69,7 +72,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private String THID = "TangoHost";
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 6.10 ";
+  final static private String appVersion = "Jive 6.11 ";
 
   // General constructor
   public MainPanel() {
@@ -105,7 +108,9 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   // Init componenet
   private void initComponents() {
 
-    getContentPane().setLayout(new BorderLayout());
+    innerPanel = new JPanel();
+    innerPanel.setLayout(new BorderLayout());
+
     MultiLineToolTipUI.initialize();
 
     // *************************************************************
@@ -162,7 +167,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     treePane.add("Property",propertyTreePanel);
     treePane.addChangeListener(this);
     splitPane.setLeftComponent(treePane);
-    getContentPane().add(splitPane, BorderLayout.CENTER);
+    innerPanel.add(splitPane, BorderLayout.CENTER);
     defaultPanel = new DefaultPanel();
     propertyPanel = new PropertyPanel();
     propertyPanel.setParent(this);
@@ -197,11 +202,11 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       lockPanel.add(lockLabel);
       upPanel.add(lockPanel,BorderLayout.NORTH);
       upPanel.add(navBar,BorderLayout.SOUTH);
-      getContentPane().add(upPanel,BorderLayout.NORTH);
+      innerPanel.add(upPanel, BorderLayout.NORTH);
 
     } else {
 
-      getContentPane().add(navBar,BorderLayout.NORTH);
+      innerPanel.add(navBar, BorderLayout.NORTH);
 
     }
 
@@ -411,8 +416,9 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
     });
 
-    ImageIcon icon = new ImageIcon(getClass().getResource("/jive/jive.jpg"));
+    ImageIcon icon = new ImageIcon(getClass().getResource("/jive/jive.png"));
     setIconImage(icon.getImage());
+    setContentPane(innerPanel);
 
   }
 
@@ -630,53 +636,54 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   }
 
   // Create a server
+  public void doJob(String server,String classname,String[] devices) {
+
+    // Add devices
+    try {
+
+      // Check that device is not already existing
+      Vector exDevices = new Vector();
+      for (int i = 0; i < devices.length; i++) {
+        try {
+          db.import_device(devices[i]);
+        } catch(DevFailed e) {
+          continue;
+        }
+        exDevices.add(devices[i]);
+      }
+
+      if(exDevices.size()>0) {
+        String message = "Warning, following device(s) already declared:\n";
+        for(int i=0;i<exDevices.size();i++)
+          message += "   " + exDevices.get(i) + "\n";
+        message += "Do you want to continue ?";
+
+        if( JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION )
+          return;
+      }
+
+      for (int i = 0; i < devices.length; i++) {
+        db.add_device(devices[i], classname, server);
+      }
+
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+    refreshTree();
+    serverTreePanel.selectFullServer(server);
+
+  }
+
   private void createServer() {
 
     ServerDlg sdlg = new ServerDlg(this);
     sdlg.setValidFields(true, true);
     sdlg.setDefaults("", "");
-    if (sdlg.showDlg()) {
-
-      String[] devices = sdlg.getDeviceNames();
-      String server = sdlg.getServerName();
-      String classname = sdlg.getClassName();
-
-      // Add devices
-      try {
-
-        // Check that device is not already existing
-        Vector exDevices = new Vector();
-        for (int i = 0; i < devices.length; i++) {
-          try {
-            db.import_device(devices[i]);
-          } catch(DevFailed e) {
-            continue;
-          }
-          exDevices.add(devices[i]);
-        }
-
-        if(exDevices.size()>0) {
-          String message = "Warning, following device(s) already declared:\n";
-          for(int i=0;i<exDevices.size();i++)
-            message += "   " + exDevices.get(i) + "\n";
-          message += "Do you want to continue ?";
-
-          if( JOptionPane.showConfirmDialog(this,message,"Confirmation",JOptionPane.YES_NO_OPTION)!=JOptionPane.YES_OPTION )
-            return;
-        }
-
-        for (int i = 0; i < devices.length; i++) {
-          db.add_device(devices[i], classname, server);
-        }
-
-      } catch (DevFailed e) {
-        JiveUtils.showTangoError(e);
-      }
-
-      refreshTree();
-      serverTreePanel.selectFullServer(server);
-
-    }
+    sdlg.setServerList( serverTreePanel.getServerList() );
+    sdlg.setClassList( classTreePanel.getClassList() );
+    ATKGraphicsUtils.centerFrame(innerPanel,sdlg);
+    sdlg.setVisible(true);
 
   }
 
@@ -1261,6 +1268,9 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
           if(i>=args.length)
             printUsage();
           device = args[i];
+        } else {
+          System.out.println("Invalid option " + args[i]);
+          printUsage();
         }
         i++;
 

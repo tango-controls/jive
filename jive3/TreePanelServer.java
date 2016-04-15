@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import fr.esrf.tangoatk.widget.util.ATKGraphicsUtils;
 import jive.JiveUtils;
 import jive.ServerDlg;
 import jive.DevWizard;
@@ -27,6 +28,7 @@ public class TreePanelServer extends TreePanel {
   // Filtering stuff
   String  serverFilterString="*";
   Pattern serverPattern=null;
+  String[] serverList;
 
   public TreePanelServer(MainPanel parent) {
 
@@ -144,20 +146,24 @@ public class TreePanelServer extends TreePanel {
     return serverFilterString;
   }
 
+  public String[] getServerList() {
+    return serverList;
+  }
+
   // ---------------------------------------------------------------
 
   class RootNode extends TangoNode {
 
     void populateNode() throws DevFailed {
-      String[] list = db.get_server_name_list();
-      for (int i = 0; i < list.length; i++) {
+      serverList = db.get_server_name_list();
+      for (int i = 0; i < serverList.length; i++) {
         if( serverPattern!=null ) {
-          Matcher matcher =  serverPattern.matcher(list[i].toLowerCase());
-          if( matcher.find() && matcher.start()==0 && matcher.end()==list[i].length() ) {
-            add(new ServerNode(list[i]));
+          Matcher matcher =  serverPattern.matcher(serverList[i].toLowerCase());
+          if( matcher.find() && matcher.start()==0 && matcher.end()==serverList[i].length() ) {
+            add(new ServerNode(serverList[i]));
           }
         } else {
-          add(new ServerNode(list[i]));
+          add(new ServerNode(serverList[i]));
         }
       }
     }
@@ -257,7 +263,7 @@ public class TreePanelServer extends TreePanel {
 
   // ---------------------------------------------------------------
 
-  class InstanceNode extends TangoNode {
+  class InstanceNode extends TangoNode implements IServerAction {
 
     private String server;
     private String instance;
@@ -421,27 +427,12 @@ public class TreePanelServer extends TreePanel {
         // ----------------------------------------------------------------------------
         case ACTION_ADDCLASS:
 
-          ServerDlg sdlg = new ServerDlg(invoker);
+          ServerDlg sdlg = new ServerDlg(this);
+          sdlg.setClassList(invoker.classTreePanel.getClassList());
           sdlg.setValidFields(false, true);
           sdlg.setDefaults(server + "/" + instance, "");
-          if(sdlg.showDlg()) {
-
-            String[] devices = sdlg.getDeviceNames();
-            String server = sdlg.getServerName();
-            String classname = sdlg.getClassName();
-
-            // Add devices
-            try {
-              for (int i = 0; i < devices.length; i++)
-                db.add_device(devices[i], classname, server);
-            } catch (DevFailed e) {
-              JiveUtils.showTangoError(e);
-            }
-
-            refresh();
-            selectClass(classname,server);
-
-          }
+          ATKGraphicsUtils.centerFrame(invoker.innerPanel,sdlg);
+          sdlg.setVisible(true);
           break;
 
         // ----------------------------------------------------------------------------
@@ -531,6 +522,22 @@ public class TreePanelServer extends TreePanel {
           break;
 
       }
+
+    }
+
+    // IServerAction (Call by ServerDlg)
+    public void doJob(String server, String classname, String[] devices) {
+
+      // Add devices
+      try {
+        for (int i = 0; i < devices.length; i++)
+          db.add_device(devices[i], classname, server);
+      } catch (DevFailed e) {
+        JiveUtils.showTangoError(e);
+      }
+
+      refresh();
+      selectClass(classname,server);
 
     }
 
@@ -670,7 +677,7 @@ public class TreePanelServer extends TreePanel {
 
   // ---------------------------------------------------------------
 
-  class ClassNode extends TangoNode {
+  class ClassNode extends TangoNode implements IServerAction {
 
     private String server;
     private String instance;
@@ -762,27 +769,11 @@ public class TreePanelServer extends TreePanel {
         // ----------------------------------------------------------------------------
         case ACTION_ADDDEVICE:
 
-          ServerDlg sdlg = new ServerDlg(invoker);
+          ServerDlg sdlg = new ServerDlg(this);
           sdlg.setValidFields(false, false);
           sdlg.setDefaults(server + "/" + instance, className);
-          if(sdlg.showDlg()) {
-
-            String[] devices = sdlg.getDeviceNames();
-            String server = sdlg.getServerName();
-            String classname = sdlg.getClassName();
-
-            // Add devices
-            try {
-              for (int i = 0; i < devices.length; i++)
-                db.add_device(devices[i], classname, server);
-            } catch (DevFailed e) {
-              JiveUtils.showTangoError(e);
-            }
-
-            refresh();
-            selectClass(classname,server);
-
-          }
+          ATKGraphicsUtils.centerFrame(invoker.innerPanel, sdlg);
+          sdlg.setVisible(true);
           break;
 
         // ----------------------------------------------------------------------------
@@ -793,6 +784,22 @@ public class TreePanelServer extends TreePanel {
           break;
 
       }
+
+    }
+
+    // IServerAction (Call by ServerDlg)
+    public void doJob(String server, String classname, String[] devices) {
+
+      // Add devices
+      try {
+        for (int i = 0; i < devices.length; i++)
+          db.add_device(devices[i], classname, server);
+      } catch (DevFailed e) {
+        JiveUtils.showTangoError(e);
+      }
+
+      refresh();
+      selectClass(classname,server);
 
     }
 

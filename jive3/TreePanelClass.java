@@ -21,6 +21,7 @@ public class TreePanelClass extends TreePanel {
   // Filtering stuff
   String  classFilterString="*";
   Pattern classPattern=null;
+  String[] classList;
 
   public TreePanelClass(MainPanel parent) {
 
@@ -65,21 +66,24 @@ public class TreePanelClass extends TreePanel {
     return classFilterString;
   }
 
+  public String[] getClassList() {
+    return classList;
+  }
 
   // ---------------------------------------------------------------
 
   class RootNode extends TangoNode {
 
     void populateNode() throws DevFailed {
-      String[] list = db.get_class_list("*");
-      for (int i = 0; i < list.length; i++) {
+      classList = db.get_class_list("*");
+      for (int i = 0; i < classList.length; i++) {
         if( classPattern!=null ) {
-          Matcher matcher =  classPattern.matcher(list[i].toLowerCase());
-          if( matcher.find() && matcher.start()==0 && matcher.end()==list[i].length() ) {
-            add(new ClassNode(list[i]));
+          Matcher matcher =  classPattern.matcher(classList[i].toLowerCase());
+          if( matcher.find() && matcher.start()==0 && matcher.end()==classList[i].length() ) {
+            add(new ClassNode(classList[i]));
           }
         } else {
-          add(new ClassNode(list[i]));
+          add(new ClassNode(classList[i]));
         }
       }
     }

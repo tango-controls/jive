@@ -1,21 +1,22 @@
 package jive;
 
+
+import jive3.IServerAction;
+import jive3.JTextTips;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 
 /**
  *
  * @author  pons
  */
 
-public class ServerDlg extends JDialog {
+public class ServerDlg extends JFrame {
 
-  private JTextField serverText;
-  private JTextField classText;
+  private JTextTips serverText;
+  private JTextTips classText;
   private JTextArea deviceText;
   private JScrollPane deviceView;
   private JButton ok;
@@ -23,21 +24,16 @@ public class ServerDlg extends JDialog {
 
   private JPanel jp;
 
-  boolean ret_value = false;
   private final static Color backColor = new Color(240,240,240);
+  private final IServerAction okAction;
 
   // Construction without predefined values
-  public ServerDlg(Frame parent) {
-    super(parent, true);
-    getContentPane().setLayout(null);
+  public ServerDlg(IServerAction action) {
 
-    addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent evt) {
-        ret_value = false;
-        setVisible(false);
-        dispose();
-      }
-    });
+    okAction = action;
+
+    getContentPane().setLayout(null);
+    getContentPane().setPreferredSize(new Dimension(400,280));
 
     setTitle("Create/Edit a server");
 
@@ -46,12 +42,12 @@ public class ServerDlg extends JDialog {
     jp.setBorder(BorderFactory.createLoweredBevelBorder());
     getContentPane().add(jp);
 
-    serverText = new JTextField();
+    serverText = new JTextTips();
     serverText.setEditable(true);
     serverText.setBackground(backColor);
     serverText.setBorder(BorderFactory.createTitledBorder("Server  (ServerName/Instance)"));
 
-    classText = new JTextField();
+    classText = new JTextTips();
     classText.setEditable(true);
     classText.setBackground(backColor);
     classText.setBorder(BorderFactory.createTitledBorder("Class"));
@@ -82,26 +78,27 @@ public class ServerDlg extends JDialog {
     ok.setBounds(5, 248, 150, 27);
     cancel.setBounds(315, 248, 80, 27);
 
-    cancel.addMouseListener(new MouseAdapter() {
-      public void mouseClicked(MouseEvent evt) {
-        ret_value = false;
-        setVisible(false);
-        dispose();
-      }
-    });
+    cancel.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            setVisible(false);
+            dispose();
+          }
+        }
+    );
 
-    ok.addMouseListener(new MouseAdapter() {
-      public void mouseClicked(MouseEvent evt) {
+    ok.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
         // Check if server name has a correct format
-        String s = serverText.getText();
-        if (s.indexOf('/') == -1) {
+        String serverName = serverText.getText();
+        if (serverName.indexOf('/') == -1) {
           JiveUtils.showJiveError("Server name must be entered as Name/Instance");
           return;
-        } else if (s.indexOf('/') != s.lastIndexOf('/')) {
+        } else if (serverName.indexOf('/') != serverName.lastIndexOf('/')) {
           JiveUtils.showJiveError("Server name must be entered as Name/Instance");
           return;
         } else {
-          ret_value = true;
+          okAction.doJob(serverName, getClassName(), getDeviceNames());
         }
 
         setVisible(false);
@@ -111,20 +108,22 @@ public class ServerDlg extends JDialog {
 
   }
 
+  public void setServerList(String[] list) {
+    serverText.setTips(list);
+  }
+
+  public void setClassList(String[] list) {
+    classText.setTips(list);
+  }
+
   public void setValidFields(boolean s, boolean c) {
     serverText.setEditable(s);
     classText.setEditable(c);
   }
 
   public void setDefaults(String s, String c) {
-    serverText.setText(s);
-    classText.setText(c);
-  }
-
-  public boolean showDlg() {
-    JiveUtils.centerDialog(this,400,280);
-    setVisible(true);
-    return ret_value;
+    serverText.setTextInternal(s);
+    classText.setTextInternal(c);
   }
 
   public String getServerName() {
@@ -139,7 +138,7 @@ public class ServerDlg extends JDialog {
 
     String value = deviceText.getText();
     String[] splitted = value.split("\n");
-    String[] ret = new String[1];
+    String[] ret;
     int i,j;
 
     for (i = 0, j = 0; i < splitted.length; i++) {
