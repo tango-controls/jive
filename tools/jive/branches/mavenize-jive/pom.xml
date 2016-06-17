@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.tango</groupId>
@@ -89,8 +90,9 @@
 
     <distributionManagement>
         <repository>
-            <id>bintray-hzg</id>
-            <url>https://api.bintray.com/maven/hzgde/hzg-wpn-projects/Jive</url>
+            <id>bintray-ingvord</id>
+            <name>ingvord-maven</name>
+            <url>https://api.bintray.com/maven/ingvord/maven/Jive/;publish=1</url>
         </repository>
     </distributionManagement>
 
@@ -99,21 +101,21 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-            <id>bintray-hzgde-hzg-wpn-projects</id>
-            <name>bintray</name>
-            <url>http://dl.bintray.com/hzgde/hzg-wpn-projects</url>
+            <id>bintray-ingvord</id>
+            <name>bintray-ingvord</name>
+            <url>http://dl.bintray.com/ingvord/maven</url>
         </repository>
-            <repository>
-                    <id>soleil</id>
-                    <url>http://www2.synchrotron-soleil.fr/controle/maven2/soleil</url>
-                    <releases>
-                        <enabled>true</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                    </releases>
-                    <snapshots>
-                        <enabled>true</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                    </snapshots>
-                </repository>
+        <repository>
+            <id>soleil</id>
+            <url>http://www2.synchrotron-soleil.fr/controle/maven2/soleil</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
     </repositories>
 </project>
