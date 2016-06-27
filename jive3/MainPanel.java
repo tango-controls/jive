@@ -72,7 +72,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private String THID = "TangoHost";
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 6.11 ";
+  final static private String appVersion = "Jive 6.12 ";
 
   // General constructor
   public MainPanel() {
@@ -695,11 +695,16 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     filterDlg.setFilter(serverTreePanel.getFilter());
     if( filterDlg.showDialog() ) {
       // Apply filter
-      serverTreePanel.applyFilter(filterDlg.getFilterText());
-      serverTreePanel.refresh();
-      resetSearch();
+      filterServer(filterDlg.getFilterText());
     }
 
+  }
+
+  public void filterServer(String filter) {
+    serverTreePanel.applyFilter(filter);
+    serverTreePanel.refresh();
+    resetSearch();
+    serverTreePanel.revalidate();
   }
 
   // Filter device
@@ -710,11 +715,16 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     filterDlg.setFilter(deviceTreePanel.getFilter());
     if( filterDlg.showDialog() ) {
       // Apply filter
-      deviceTreePanel.applyFilter(filterDlg.getFilterText());
-      deviceTreePanel.refresh();
-      resetSearch();
+      filterDevice(filterDlg.getFilterText());
     }
 
+  }
+
+  public void filterDevice(String filter) {
+    deviceTreePanel.applyFilter(filter);
+    deviceTreePanel.refresh();
+    resetSearch();
+    deviceTreePanel.revalidate();
   }
 
   // Filter class
@@ -725,11 +735,16 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     filterDlg.setFilter(classTreePanel.getFilter());
     if( filterDlg.showDialog() ) {
       // Apply filter
-      classTreePanel.applyFilter(filterDlg.getFilterText());
-      classTreePanel.refresh();
-      resetSearch();
+      filterClass(filterDlg.getFilterText());
     }
 
+  }
+
+  public void filterClass(String filter) {
+    classTreePanel.applyFilter(filter);
+    classTreePanel.refresh();
+    resetSearch();
+    classTreePanel.revalidate();
   }
 
   // Filter alias
@@ -740,11 +755,16 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     filterDlg.setFilter(aliasTreePanel.getFilter());
     if( filterDlg.showDialog() ) {
       // Apply filter
-      aliasTreePanel.applyFilter(filterDlg.getFilterText());
-      aliasTreePanel.refresh();
-      resetSearch();
+      filterAlias(filterDlg.getFilterText());
     }
 
+  }
+
+  public void filterAlias(String filter) {
+    aliasTreePanel.applyFilter(filter);
+    aliasTreePanel.refresh();
+    resetSearch();
+    aliasTreePanel.revalidate();
   }
 
   // Filter attribute alias
@@ -755,11 +775,16 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     filterDlg.setFilter(attributeAliasTreePanel.getFilter());
     if( filterDlg.showDialog() ) {
       // Apply filter
-      attributeAliasTreePanel.applyFilter(filterDlg.getFilterText());
-      attributeAliasTreePanel.refresh();
-      resetSearch();
+      filterAttributeAlias(filterDlg.getFilterText());
     }
 
+  }
+
+  public void filterAttributeAlias(String filter) {
+    attributeAliasTreePanel.applyFilter(filter);
+    attributeAliasTreePanel.refresh();
+    resetSearch();
+    attributeAliasTreePanel.revalidate();
   }
 
   // Filter property
@@ -770,11 +795,16 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     filterDlg.setFilter(propertyTreePanel.getFilter());
     if( filterDlg.showDialog() ) {
       // Apply filter
-      propertyTreePanel.applyFilter(filterDlg.getFilterText());
-      propertyTreePanel.refresh();
-      resetSearch();
+      filterProperty(filterDlg.getFilterText());
     }
 
+  }
+
+  public void filterProperty(String filter) {
+    propertyTreePanel.applyFilter(filterDlg.getFilterText());
+    propertyTreePanel.refresh();
+    resetSearch();
+    propertyPanel.revalidate();
   }
 
   // Create a server using the wizard
@@ -1242,6 +1272,12 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     System.out.println("   -r        Read only mode (No write access to database allowed)");
     System.out.println("   -s server Open jive and show specified server node (server=ServerName/instance)");
     System.out.println("   -d device Open jive and show specified device node (device=domain/family/member)");
+    System.out.println("   -fs filter Default server filter");
+    System.out.println("   -fd filter Default device filter");
+    System.out.println("   -fc filter Default class filter");
+    System.out.println("   -fa filter Default alias filter");
+    System.out.println("   -faa filter Default attribute alias filter");
+    System.out.println("   -fp filter Default property filter");
     System.exit(0);
   }
 
@@ -1254,6 +1290,13 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       int i = 0;
       String server = null;
       String device = null;
+      String fs = null;
+      String fd = null;
+      String fc = null;
+      String fa = null;
+      String faa = null;
+      String fp = null;
+
       while(i<args.length) {
 
         if(args[i].equalsIgnoreCase("-r")) {
@@ -1268,6 +1311,36 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
           if(i>=args.length)
             printUsage();
           device = args[i];
+        } else if(args[i].equalsIgnoreCase("-fs")) {
+          i++;
+          if(i>=args.length)
+            printUsage();
+          fs = args[i];
+        } else if(args[i].equalsIgnoreCase("-fd")) {
+          i++;
+          if(i>=args.length)
+            printUsage();
+          fd = args[i];
+        } else if(args[i].equalsIgnoreCase("-fc")) {
+          i++;
+          if(i>=args.length)
+            printUsage();
+          fc = args[i];
+        } else if(args[i].equalsIgnoreCase("-fa")) {
+          i++;
+          if(i>=args.length)
+            printUsage();
+          fa = args[i];
+        } else if(args[i].equalsIgnoreCase("-faa")) {
+          i++;
+          if(i>=args.length)
+            printUsage();
+          faa = args[i];
+        } else if(args[i].equalsIgnoreCase("-fp")) {
+          i++;
+          if(i>=args.length)
+            printUsage();
+          fp = args[i];
         } else {
           System.out.println("Invalid option " + args[i]);
           printUsage();
@@ -1280,6 +1353,18 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
         p.goToServerFullNode(server);
       if(device!=null)
         p.goToDeviceNode(device);
+      if(fs!=null)
+        p.filterServer(fs);
+      if(fd!=null)
+        p.filterDevice(fd);
+      if(fc!=null)
+        p.filterClass(fc);
+      if(fa!=null)
+        p.filterAlias(fa);
+      if(faa!=null)
+        p.filterAttributeAlias(faa);
+      if(fp!=null)
+        p.filterProperty(fp);
 
     }
 
