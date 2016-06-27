@@ -17,7 +17,7 @@ import java.util.Vector;
 class TipPopup implements MouseMotionListener,MouseListener {
 
   String[] items;
-  JButton text;
+  JLabel text;
   JScrollPane textView;
   JTextTips parent;
   Popup popup;
@@ -26,26 +26,23 @@ class TipPopup implements MouseMotionListener,MouseListener {
   int[] globalIdx = null;
   boolean visible = false;
   String prefix;
+  int compWidth;
 
   TipPopup(JTextTips parent) {
 
     this.parent = parent;
-    text = new JButton();
+    text = new JLabel();
     text.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 3));
     text.setBackground(new Color(245, 245, 250));
     text.setHorizontalAlignment(SwingConstants.LEFT);
     text.setOpaque(true);
     hFont = (int)(ATKGraphicsUtils.measureString("ABC",text.getFont()).getHeight()+0.5) + 1;
 
-    // Remove default mouse listener
-    MouseListener[] l =  text.getMouseListeners();
-    for(int i=0;i<l.length;i++)
-      text.removeMouseListener(l[i]);
-
     text.addMouseMotionListener(this);
     text.addMouseListener(this);
 
     textView = new JScrollPane(text);
+    textView.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
   }
 
@@ -103,7 +100,8 @@ class TipPopup implements MouseMotionListener,MouseListener {
 
     StringBuffer str = new StringBuffer();
     str.append("<html>\n");
-    str.append("<body><table cellpadding=\"0\" cellspacing=\"0\">\n");
+    str.append("<body>\n");
+    str.append("<table cellpadding=\"0\" cellspacing=\"0\" width=\""+compWidth+"px\">\n");
 
     for(int i=0;i<items.length;i++) {
       if(items[i].toLowerCase().startsWith(prefixLw)) {
@@ -146,6 +144,7 @@ class TipPopup implements MouseMotionListener,MouseListener {
     if(visible) {
       Rectangle r = new Rectangle();
       parent.getBounds(r);
+      compWidth = r.width;
       int h = text.getPreferredSize().height+10;
       if(h>150) h = 150;
       textView.setPreferredSize(new Dimension(r.width,h));
