@@ -105,6 +105,15 @@
                                         <prefix>/usr/share/jdeb/lib</prefix>
                                     </mapper>
                                 </data>
+                                <data>
+                                    <src>${project.basedir}/src/bash/Jive</src>
+                                    <type>file</type>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <filemode>755</filemode>
+                                        <prefix>/usr/bin</prefix>
+                                    </mapper>
+                                </data>
                             </dataSet>
                         </configuration>
                     </execution>
