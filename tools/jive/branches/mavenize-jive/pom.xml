@@ -5,7 +5,7 @@
 
     <groupId>org.tango</groupId>
     <artifactId>Jive</artifactId>
-    <version>6.8_jacorb_free-0.3-SNAPSHOT</version>
+    <version>6.8.jacorb_free-0.2</version>
 
     <packaging>jar</packaging>
 
