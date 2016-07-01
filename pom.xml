@@ -5,7 +5,7 @@
 
     <groupId>org.tango</groupId>
     <artifactId>Jive</artifactId>
-    <version>6.9.jacorb_free-SNAPSHOT</version>
+    <version>6.8_jacorb_free-0.3-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -81,6 +81,31 @@
                                     <mainClass>jive3.MainPanel</mainClass>
                                 </manifest>
                             </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.vafer</groupId>
+                <artifactId>jdeb</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jdeb</goal>
+                        </goals>
+                        <configuration>
+                            <dataSet>
+                                <data>
+                                    <src>${project.build.directory}/${project.build.finalName}.jar</src>
+                                    <type>file</type>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/usr/share/jdeb/lib</prefix>
+                                    </mapper>
+                                </data>
+                            </dataSet>
                         </configuration>
                     </execution>
                 </executions>
