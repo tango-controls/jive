@@ -119,6 +119,31 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <executions>
+                    <execution>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>curl</executable>
+                    <!-- optional -->
+                    <workingDirectory>${project.build.directory}</workingDirectory>
+                    <arguments>
+                        <argument>-T</argument>
+                        <!-- TODO change version -->
+                        <argument>Jive_6.8.jacorb+free+0.2_all.deb</argument>
+                        <argument>-uingvord:${bintray.ingvord.apikey}</argument>
+                        <argument>https://api.bintray.com/content/ingvord/deb/Jive/6.8.jacorb+free+0.2/pool/main/j/jive/Jive_6.8.jacorb+free+0.2_all.deb</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
