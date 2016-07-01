@@ -1,0 +1,10 @@
+Package: [[name]]
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Depends: jdk (>= 1.5)
+Maintainer: Igor Khokhriakov <igor.khokhriakov@hzg.de>
+Description: Tango Controls Jive
+Distribution: experimental
+Depends: default-jre | java6-runtime
