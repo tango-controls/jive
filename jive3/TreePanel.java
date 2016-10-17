@@ -38,7 +38,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private   boolean          updateOnChange;
 
   // Static action menu
-  public final static int ACTION_NUMBER       = 31;
+  public final static int ACTION_NUMBER       = 32;
 
   public final static int ACTION_COPY          = 0;
   public final static int ACTION_PASTE         = 1;
@@ -71,6 +71,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   public final static int ACTION_VIEW_HISTORY   = 28;
   public final static int ACTION_MOVE_SERVER    = 29;
   public final static int ACTION_CREATE_ATTPROP = 30;
+  public final static int ACTION_RESTART_SERVER = 31;
 
 
   private static TangoNode[] selectedNodes = null;
@@ -107,6 +108,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private static JMenuItem  viewHistoryMenu;
   private static JMenuItem  moveServerMenu;
   private static JMenuItem  createAttPropMenu;
+  private static JMenuItem  restartServerMenu;
 
   static {
     actionMenu = new JPopupMenu();
@@ -328,6 +330,13 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
     createAttPropMenu.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
         selectedNodes[0].execAction(ACTION_CREATE_ATTPROP);
+      }
+    });
+    restartServerMenu = new JMenuItem("Restart Server");
+    actionMenu.add(restartServerMenu);
+    restartServerMenu.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_RESTART_SERVER);
       }
     });
 
