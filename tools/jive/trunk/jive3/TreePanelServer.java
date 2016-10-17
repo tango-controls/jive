@@ -267,6 +267,8 @@ public class TreePanelServer extends TreePanel {
 
     private String server;
     private String instance;
+    private boolean controlled = false;
+    private String  hostName = "";
 
     InstanceNode(String server, String instance) {
       this.server = server;
@@ -329,6 +331,12 @@ public class TreePanelServer extends TreePanel {
 
         DbServInfo info = db.get_server_info(server + "/" + instance);
         result = info.toString();
+        controlled = info.controlled;
+        int idx = info.host.indexOf('.');
+        if(idx!=-1)
+          hostName = info.host.substring(0,idx);
+        else
+          hostName = info.host;
 
       } catch (DevFailed e) {
 
@@ -349,12 +357,30 @@ public class TreePanelServer extends TreePanel {
     }
 
     int[] getAction() {
+
       if (JiveUtils.readOnly)
         return new int[]{ACTION_TESTADMIN,
                 ACTION_SAVESERVER
         };
-      else
-        return new int[]{ACTION_RENAME,
+      else {
+
+        if( controlled ) {
+
+          return new int[]{ACTION_RENAME,
+              ACTION_DELETE,
+              ACTION_ADDCLASS,
+              ACTION_TESTADMIN,
+              ACTION_SAVESERVER,
+              ACTION_CLASSWIZ,
+              ACTION_UNEXPORT,
+              ACTION_DEV_DEPEND,
+              ACTION_THREAD_POLL,
+              ACTION_MOVE_SERVER,
+              ACTION_RESTART_SERVER};
+
+        } else {
+
+          return new int[]{ACTION_RENAME,
                 ACTION_DELETE,
                 ACTION_ADDCLASS,
                 ACTION_TESTADMIN,
@@ -363,8 +389,12 @@ public class TreePanelServer extends TreePanel {
                 ACTION_UNEXPORT,
                 ACTION_DEV_DEPEND,
                 ACTION_THREAD_POLL,
-                ACTION_MOVE_SERVER
-        };
+                ACTION_MOVE_SERVER};
+
+        }
+
+      }
+
     }
 
     void execAction(int actionNumber) {
@@ -520,6 +550,65 @@ public class TreePanelServer extends TreePanel {
             JiveUtils.showTangoError(e);
           }
           break;
+
+        // ----------------------------------------------------------------------------
+        case ACTION_RESTART_SERVER:
+
+          // Restart a controlled server
+          try {
+
+            String starterName = "tango/admin/" + hostName;
+            DeviceProxy starter = new DeviceProxy(starterName);
+            stopServer(starter);
+            DeviceData argin = new DeviceData();
+            argin.insert(server + "/" + instance);
+            starter.command_inout("DevStart",argin);
+
+          } catch (DevFailed e) {
+            JiveUtils.showTangoError(e);
+          }
+
+          break;
+
+      }
+
+    }
+
+    public void stopServer(DeviceProxy starter) throws DevFailed {
+
+      String srvName = server+"/"+instance;
+      // Get list of running server
+      DeviceData argin = new DeviceData();
+      argin.insert(false);
+      DeviceData argout = starter.command_inout("DevGetRunningServers",argin);
+      String[] list = argout.extractStringArray();
+      boolean running = JiveUtils.isInsideArray(srvName,list) >= 0;
+
+      if( running ) {
+
+        // Stop it
+        argin.insert(srvName);
+        starter.command_inout("DevStop", argin);
+
+        // Wait for completion
+        int nbTry = 3;
+        while( running && nbTry>0 ) {
+
+          JiveUtils.sleep(1000);
+          argin.insert(false);
+          argout = starter.command_inout("DevGetStopServers",argin);
+          list = argout.extractStringArray();
+          running = JiveUtils.isInsideArray(srvName,list) < 0;
+          nbTry--;
+          if( running && nbTry==0 ) {
+            int ok = JOptionPane.showConfirmDialog(null,srvName + " is still running.\nSend Hard kill ?","Question",JOptionPane.YES_NO_OPTION);
+            if( ok==JOptionPane.YES_OPTION ) {
+              argin.insert(srvName);
+              starter.command_inout("HardKillServer",argin);
+              nbTry=1;
+            }
+          }
+        }
 
       }
 
