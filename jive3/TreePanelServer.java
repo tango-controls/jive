@@ -4,12 +4,14 @@ import javax.swing.*;
 import javax.swing.tree.TreePath;
 
 import fr.esrf.Tango.DevFailed;
+import fr.esrf.Tango.DevState;
 import fr.esrf.TangoApi.*;
 
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -574,33 +576,50 @@ public class TreePanelServer extends TreePanel {
 
     }
 
+    public DevState getServerState(DeviceProxy starter,String serverName) throws DevFailed {
+
+      DevState retState = DevState.UNKNOWN;
+      DeviceAttribute att = starter.read_attribute("Servers");
+      String[] list = att.extractStringArray();
+
+      for (String line : list) {
+        StringTokenizer stk = new StringTokenizer(line);
+        String name = stk.nextToken();
+        String st = stk.nextToken();
+        String str_ctrl = stk.nextToken();
+        if (str_ctrl.equals("1") && name.equalsIgnoreCase(serverName)) {
+          if(st.equalsIgnoreCase("FAULT")) {
+            retState = DevState.OFF;
+          } else {
+            retState = DevState.ON;
+          }
+        }
+      }
+
+      return retState;
+
+    }
+
     public void stopServer(DeviceProxy starter) throws DevFailed {
 
       String srvName = server+"/"+instance;
-      // Get list of running server
-      DeviceData argin = new DeviceData();
-      argin.insert(false);
-      DeviceData argout = starter.command_inout("DevGetRunningServers",argin);
-      String[] list = argout.extractStringArray();
-      boolean running = JiveUtils.isInsideArray(srvName,list) >= 0;
+      DevState srvState = getServerState(starter,srvName);
 
-      if( running ) {
+      if( srvState==DevState.ON ) {
 
         // Stop it
+        DeviceData argin = new DeviceData();
         argin.insert(srvName);
         starter.command_inout("DevStop", argin);
 
         // Wait for completion
-        int nbTry = 3;
-        while( running && nbTry>0 ) {
+        int nbTry = 5;
+        while( srvState==DevState.ON && nbTry>0 ) {
 
           JiveUtils.sleep(1000);
-          argin.insert(false);
-          argout = starter.command_inout("DevGetStopServers",argin);
-          list = argout.extractStringArray();
-          running = JiveUtils.isInsideArray(srvName,list) < 0;
+          srvState = getServerState(starter,srvName);
           nbTry--;
-          if( running && nbTry==0 ) {
+          if(  srvState==DevState.ON && nbTry==0 ) {
             int ok = JOptionPane.showConfirmDialog(null,srvName + " is still running.\nSend Hard kill ?","Question",JOptionPane.YES_NO_OPTION);
             if( ok==JOptionPane.YES_OPTION ) {
               argin.insert(srvName);
