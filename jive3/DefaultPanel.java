@@ -1,5 +1,7 @@
 package jive3;
 
+import jive.JiveUtils;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -8,7 +10,7 @@ import java.awt.event.ActionEvent;
 
 class DefaultPanel extends JPanel implements ActionListener {
 
-  private JTextArea   value;
+  private JEditorPane value;
   private JScrollPane valueView;
   private JPanel      btnPanel;
   private JButton     refreshButton;
@@ -18,11 +20,11 @@ class DefaultPanel extends JPanel implements ActionListener {
   DefaultPanel()  {
 
     setLayout(new BorderLayout());
-    value = new JTextArea();
+    value = new JEditorPane();
     value.setEditable(false);
     value.setDragEnabled(true);
-    value.setFont(new Font("Monospaced",Font.PLAIN,11));
     value.setBorder(BorderFactory.createLoweredBevelBorder());
+    value.setContentType("text/html");
     valueView = new JScrollPane(value);
     Border b = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"...");
     valueView.setBorder(b);
@@ -48,17 +50,30 @@ class DefaultPanel extends JPanel implements ActionListener {
     refreshValue();
   }
 
+  public void setText(String str) {
+
+    StringBuffer strBuff = new StringBuffer();
+
+    strBuff.append("<html><body>\n" +
+                   "<div style='white-space:nowrap; font-family:\"Monospaced\"; font-size:9px;'><pre>\n");
+    strBuff.append(str);
+    strBuff.append("</pre></div></body></html>\n");
+
+    value.setText(strBuff.toString());
+
+  }
+
   private void refreshValue() {
 
     if (src != null) {
-      value.setText(src.getValue());
+      setText(src.getValue());
       value.setCaretPosition(0);
       String title = src.getTitle();
       if(size>1) title += " [" + size + " items]";
       Border b = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), title);
       valueView.setBorder(b);
     } else {
-      value.setText("");
+      setText("");
       value.setCaretPosition(0);
       Border b = BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "...");
       valueView.setBorder(b);

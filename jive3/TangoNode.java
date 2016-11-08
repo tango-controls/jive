@@ -91,6 +91,11 @@ abstract class TangoNode extends DefaultMutableTreeNode {
 
   }
 
+  // Return value displayed in the Tree
+  public String getDisplayValue() {
+    return toString();
+  }
+
 }
 
 /**
@@ -98,31 +103,34 @@ abstract class TangoNode extends DefaultMutableTreeNode {
  */
  class TangoNodeRenderer extends DefaultTreeCellRenderer {
 
-   final static ImageIcon hosticon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/host_big.gif"));
-   final static ImageIcon devicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/device.gif"));
-   final static ImageIcon deviconbig = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/device_big.gif"));
-   final static ImageIcon propiconbig = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/property_big.gif"));
-   final static ImageIcon aliasiconbig = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/alias_big.gif"));
-   final static ImageIcon srvicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/server.gif"));
-   final static ImageIcon srviconbig = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/server_big.gif"));
-   final static ImageIcon classicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/class.gif"));
-   final static ImageIcon uclassicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/uclass.gif"));
-   final static ImageIcon classiconbig = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/class_big.gif"));
-   final static ImageIcon leaficon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/leaf.gif"));
-   final static ImageIcon uleaficon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/uleaf.gif"));
-   final static ImageIcon leafcfgicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/leafcfg.gif"));
-   final static ImageIcon leaflogicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/logleaf.gif"));
-   final static ImageIcon cmdicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/command.gif"));
-   final static ImageIcon atticon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/attribute.gif"));
-   final static ImageIcon attcfgicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/attleaf.gif"));
-   final static ImageIcon uattcfgicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/uattleaf.gif"));
-   final static ImageIcon hdbcfgicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/hdbleaf.gif"));
-   final static ImageIcon alarmicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/alarms.gif"));
-   final static ImageIcon eventicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/event.gif"));
-   final static ImageIcon pipeicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/pipe.gif"));
+  final static ImageIcon hosticon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/host_big.gif"));
+  final static ImageIcon devicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/device.gif"));
+  final static ImageIcon deviconbig = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/device_big.gif"));
+  final static ImageIcon propiconbig = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/property_big.gif"));
+  final static ImageIcon aliasiconbig = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/alias_big.gif"));
+  final static ImageIcon srvicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/server.gif"));
+  final static ImageIcon srviconbig = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/server_big.gif"));
+  final static ImageIcon classicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/class.gif"));
+  final static ImageIcon uclassicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/uclass.gif"));
+  final static ImageIcon classiconbig = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/class_big.gif"));
+  final static ImageIcon leaficon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/leaf.gif"));
+  final static ImageIcon uleaficon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/uleaf.gif"));
+  final static ImageIcon leafcfgicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/leafcfg.gif"));
+  final static ImageIcon leaflogicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/logleaf.gif"));
+  final static ImageIcon cmdicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/command.gif"));
+  final static ImageIcon atticon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/attribute.gif"));
+  final static ImageIcon attcfgicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/attleaf.gif"));
+  final static ImageIcon uattcfgicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/uattleaf.gif"));
+  final static ImageIcon hdbcfgicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/hdbleaf.gif"));
+  final static ImageIcon alarmicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/alarms.gif"));
+  final static ImageIcon eventicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/event.gif"));
+  final static ImageIcon pipeicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/pipe.gif"));
+  final static ImageIcon hostcollectionicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/host_collection.gif"));
+  final static ImageIcon hostsmallicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/host_small.gif"));
+  final static ImageIcon levelicon = new ImageIcon(TangoNodeRenderer.class.getResource("/jive/level_icon.gif"));
 
 
-   public TangoNodeRenderer() {}
+  public TangoNodeRenderer() {}
 
    public Component getTreeCellRendererComponent(
        JTree tree,
@@ -141,6 +149,7 @@ abstract class TangoNode extends DefaultMutableTreeNode {
      TangoNode node = (TangoNode)value;
      ImageIcon icon = node.getIcon();
      if( icon!=null ) setIcon(icon);
+     setText(node.getDisplayValue());
 
      return this;
    }

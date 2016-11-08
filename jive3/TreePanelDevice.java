@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 
+import fr.esrf.tangoatk.core.DeviceFactory;
 import fr.esrf.tangoatk.widget.util.ATKGraphicsUtils;
 import jive.DevWizard;
 import jive.JiveUtils;
