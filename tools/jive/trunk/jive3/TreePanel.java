@@ -18,6 +18,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.*;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Vector;
 
 import jive.JiveUtils;
@@ -38,7 +40,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private   boolean          updateOnChange;
 
   // Static action menu
-  public final static int ACTION_NUMBER       = 32;
+  public final static int ACTION_NUMBER       = 40;
 
   public final static int ACTION_COPY          = 0;
   public final static int ACTION_PASTE         = 1;
@@ -71,8 +73,15 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   public final static int ACTION_VIEW_HISTORY   = 28;
   public final static int ACTION_MOVE_SERVER    = 29;
   public final static int ACTION_CREATE_ATTPROP = 30;
-  public final static int ACTION_RESTART_SERVER = 31;
-
+  public final static int ACTION_START_SERVER   = 31;
+  public final static int ACTION_STOP_SERVER    = 32;
+  public final static int ACTION_RESTART_SERVER = 33;
+  public final static int ACTION_START_LEVEL    = 34;
+  public final static int ACTION_STOP_LEVEL     = 35;
+  public final static int ACTION_START_HOST     = 36;
+  public final static int ACTION_STOP_HOST      = 37;
+  public final static int ACTION_CH_HOST_USAGE  = 38;
+  public final static int ACTION_GO_TO_STATER   = 39;
 
   private static TangoNode[] selectedNodes = null;
   static         File       lastFile = null;
@@ -108,7 +117,15 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private static JMenuItem  viewHistoryMenu;
   private static JMenuItem  moveServerMenu;
   private static JMenuItem  createAttPropMenu;
+  private static JMenuItem  startServerMenu;
+  private static JMenuItem  stopServerMenu;
   private static JMenuItem  restartServerMenu;
+  private static JMenuItem  startLevelMenu;
+  private static JMenuItem  stopLevelMenu;
+  private static JMenuItem  startHostMenu;
+  private static JMenuItem  stopHostMenu;
+  private static JMenuItem  chHostUsageMenu;
+  private static JMenuItem  goToStarterMenu;
 
   static {
     actionMenu = new JPopupMenu();
@@ -332,11 +349,67 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
         selectedNodes[0].execAction(ACTION_CREATE_ATTPROP);
       }
     });
+    startServerMenu = new JMenuItem("Start Server");
+    actionMenu.add(startServerMenu);
+    startServerMenu.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_START_SERVER);
+      }
+    });
+    stopServerMenu = new JMenuItem("Stop Server");
+    actionMenu.add(stopServerMenu);
+    stopServerMenu.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_STOP_SERVER);
+      }
+    });
     restartServerMenu = new JMenuItem("Restart Server");
     actionMenu.add(restartServerMenu);
     restartServerMenu.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
         selectedNodes[0].execAction(ACTION_RESTART_SERVER);
+      }
+    });
+    startLevelMenu = new JMenuItem("Start all servers (Level)");
+    actionMenu.add(startLevelMenu);
+    startLevelMenu.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_START_LEVEL);
+      }
+    });
+    stopLevelMenu = new JMenuItem("Stop all servers (Level)");
+    actionMenu.add(stopLevelMenu);
+    stopLevelMenu.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_STOP_LEVEL);
+      }
+    });
+    startHostMenu = new JMenuItem("Start all servers (Host)");
+    actionMenu.add(startHostMenu);
+    startHostMenu.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_START_HOST);
+      }
+    });
+    stopHostMenu = new JMenuItem("Stop all servers (Host)");
+    actionMenu.add(stopHostMenu);
+    stopHostMenu.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_STOP_HOST);
+      }
+    });
+    chHostUsageMenu = new JMenuItem("Edit Host Usage");
+    actionMenu.add(chHostUsageMenu);
+    chHostUsageMenu.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_CH_HOST_USAGE);
+      }
+    });
+    goToStarterMenu = new JMenuItem("Go to Starter Node");
+    actionMenu.add(goToStarterMenu);
+    goToStarterMenu.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_GO_TO_STATER);
       }
     });
 
@@ -914,6 +987,137 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
       db.put_device_attribute_property(devName, att);
     } catch (DevFailed e) {
       JiveUtils.showTangoError(e);
+    }
+
+  }
+
+  // ---------------------------------------------------------------
+  void saveServerData(FileWriter fw,String srvName) throws IOException {
+
+    int i,j,k,l;
+
+    boolean prtOut;
+
+    try {
+
+      JiveUtils.savedClass.clear();
+
+      String[] class_list = db.get_server_class_list(srvName);
+
+      for (i = 0; i < class_list.length; i++) {
+
+        String[] prop_list;
+        String[] att_list;
+        DbAttribute lst[];
+
+        // Device declaration and resource
+
+        fw.write("#---------------------------------------------------------\n");
+        fw.write("# SERVER " + srvName + ", " + class_list[i] + " device declaration\n");
+        fw.write("#---------------------------------------------------------\n\n");
+
+        String[] dev_list = db.get_device_name(srvName, class_list[i]);
+        JiveUtils.printFormatedRes(srvName + "/DEVICE/" + class_list[i] + ": ", dev_list, fw);
+        fw.write("\n");
+
+        for (l = 0; l < dev_list.length; l++) {
+
+          prop_list = db.get_device_property_list(dev_list[l], "*");
+          if (prop_list.length > 0) {
+            fw.write("\n# --- " + dev_list[l] + " properties\n\n");
+            for (j = 0; j < prop_list.length; j++) {
+              String[] value = db.get_device_property(dev_list[l], prop_list[j]).extractStringArray();
+              if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
+              JiveUtils.printFormatedRes(dev_list[l] + "->" + prop_list[j] + ": ", value, fw);
+            }
+          }
+
+          try {
+
+            att_list = db.get_device_attribute_list(dev_list[l]);
+            lst = db.get_device_attribute_property(dev_list[l], att_list);
+            prtOut = false;
+            for (k = 0; k < lst.length; k++) {
+              prop_list = lst[k].get_property_list();
+              for (j = 0; j < prop_list.length; j++) {
+                if (!prtOut) {
+                  fw.write("\n# --- " + dev_list[l] + " attribute properties\n\n");
+                  prtOut = true;
+                }
+                if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
+                String[] value = lst[k].get_value(j);
+                JiveUtils.printFormatedRes(dev_list[l] + "/" + att_list[k] + "->" + prop_list[j] + ": ", value, fw);
+              }
+            }
+
+          } catch (DevFailed e) {
+
+            JiveUtils.showJiveError("Attribute properties for " + dev_list[l] + " has not been saved !\n"
+                + e.errors[0].desc);
+
+          }
+
+        }
+
+        fw.write("\n");
+
+        // We save class properties only once
+        if( !JiveUtils.isSavedClass(class_list[i]) ) {
+
+          fw.write("#---------------------------------------------------------\n");
+          fw.write("# CLASS " + class_list[i] + " properties\n");
+          fw.write("#---------------------------------------------------------\n\n");
+
+          prop_list = db.get_class_property_list(class_list[i], "*");
+          for (j = 0; j < prop_list.length; j++) {
+            String[] value = db.get_class_property(class_list[i], prop_list[j]).extractStringArray();
+            if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
+            JiveUtils.printFormatedRes("CLASS/" + class_list[i] + "->" + prop_list[j] + ": ", value, fw);
+          }
+
+          att_list = db.get_class_attribute_list(class_list[i], "*");
+          lst = db.get_class_attribute_property(class_list[i], att_list);
+          prtOut = false;
+          for (k = 0; k < lst.length; k++) {
+            prop_list = lst[k].get_property_list();
+            for (j = 0; j < prop_list.length; j++) {
+              if(!prtOut) {
+                fw.write("\n# CLASS " + class_list[i] + " attribute properties\n\n");
+                prtOut=true;
+              }
+              if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
+              String[] value = lst[k].get_value(j);
+              JiveUtils.printFormatedRes("CLASS/" + class_list[i] + "/" + att_list[k] + "->" + prop_list[j] + ": ", value, fw);
+            }
+          }
+
+          fw.write("\n");
+
+          // Mark class as saved
+          JiveUtils.addSavedClass(class_list[i]);
+
+        }
+
+      }
+
+      // Save admin server data
+      String[] prop_list;
+      String admDevName = "dserver/" + srvName;
+
+      prop_list = db.get_device_property_list(admDevName, "*");
+      if (prop_list.length > 0) {
+        fw.write("\n# --- " + admDevName + " properties\n\n");
+        for (j = 0; j < prop_list.length; j++) {
+          String[] value = db.get_device_property(admDevName, prop_list[j]).extractStringArray();
+          if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
+          JiveUtils.printFormatedRes(admDevName + "->" + prop_list[j] + ": ", value, fw);
+        }
+      }
+
+    } catch (DevFailed e) {
+
+      JiveUtils.showTangoError(e);
+
     }
 
   }

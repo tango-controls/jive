@@ -651,7 +651,7 @@ public class ArgParser {
 
     Properties prop = new Properties();
     try {
-      prop.load(new StringBufferInputStream("x=" + w + "\n"));
+      prop.load(new StringReader("x=" + w + "\n"));
       String decoded = prop.getProperty("x");
       return decoded;
     } catch( Exception ex ) {

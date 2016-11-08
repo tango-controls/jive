@@ -9,6 +9,7 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 
@@ -25,12 +26,29 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   JTabbedPane       treePane;
   JSplitPane        splitPane;
   JPanel            lockPanel;
-  TreePanelServer   serverTreePanel = null;
-  TreePanelDevice   deviceTreePanel = null;
-  TreePanelClass    classTreePanel = null;
-  TreePanelAlias    aliasTreePanel = null;
-  TreePanelAttributeAlias attributeAliasTreePanel = null;
-  TreePanelFreeProperty propertyTreePanel = null;
+  int               panelMask;
+
+  // Trees
+  class TreePanelRecord {
+
+    String    name;
+    String    tabName;
+    TreePanel treePanel;
+    boolean   display;
+
+    TreePanelRecord(TreePanel t,Database db,String tabName,String name,String treeName) {
+      t.setDatabase(db);
+      this.treePanel = t;
+      this.tabName = tabName;
+      this.name = name;
+      this.treePanel.tree.setName(treeName);
+      this.display = true;
+    }
+
+  }
+
+  ArrayList<TreePanelRecord> treePanels;
+  int nbPanels;
 
   // Right panels
   DefaultPanel         defaultPanel;
@@ -72,7 +90,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private String THID = "TangoHost";
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 6.14 ";
+  final static private String appVersion = "Jive 7.0 ";
 
   // General constructor
   public MainPanel() {
@@ -85,6 +103,12 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
    * @param readOnly Read only flag.
    */
   public MainPanel(boolean runningFromShell,boolean readOnly) {
+    this(runningFromShell, readOnly, 126);
+  }
+
+  public MainPanel(boolean runningFromShell,boolean readOnly,int panelMask) {
+
+    this.panelMask = panelMask;
 
     // Get user settings
     prefs = Preferences.userRoot().node(this.getClass().getName());
@@ -137,37 +161,6 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     // *************************************************************
     // Create widget
     // *************************************************************
-
-    splitPane = new JSplitPane();
-    splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-    serverTreePanel = new TreePanelServer(this);
-    serverTreePanel.setDatabase(db);
-    deviceTreePanel = new TreePanelDevice(this);
-    deviceTreePanel.setDatabase(db);
-    classTreePanel = new TreePanelClass(this);
-    classTreePanel.setDatabase(db);
-    aliasTreePanel = new TreePanelAlias(this);
-    aliasTreePanel.setDatabase(db);
-    attributeAliasTreePanel = new TreePanelAttributeAlias(this);
-    attributeAliasTreePanel.setDatabase(db);
-    propertyTreePanel = new TreePanelFreeProperty(this);
-    propertyTreePanel.setDatabase(db);
-    historyDlg = new PropertyHistoryDlg();
-    historyDlg.setDatabase(db,tangoHost);
-    selectionDlg = new SelectionDlg();
-    selectionDlg.setDatabase(db);
-    treePane = new JTabbedPane();
-    treePane.setMinimumSize(new Dimension(365,0));
-    treePane.setFont(ATKConstant.labelFont);
-    treePane.add("Server", serverTreePanel);
-    treePane.add("Device", deviceTreePanel);
-    treePane.add("Class",classTreePanel);
-    treePane.add("Alias",aliasTreePanel);
-    treePane.add("Att. Alias",attributeAliasTreePanel);
-    treePane.add("Property",propertyTreePanel);
-    treePane.addChangeListener(this);
-    splitPane.setLeftComponent(treePane);
-    innerPanel.add(splitPane, BorderLayout.CENTER);
     defaultPanel = new DefaultPanel();
     propertyPanel = new PropertyPanel();
     propertyPanel.setParent(this);
@@ -177,6 +170,48 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     devicePipePanel = new DevicePipePanel();
     deviceLoggingPanel = new DeviceLoggingPanel();
     singleAttributePanel = new SingleAttributePanel();
+
+    splitPane = new JSplitPane();
+    splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+
+    treePanels = new ArrayList<TreePanelRecord>();
+
+    if(isCollectionPanelVisible())
+      treePanels.add( new TreePanelRecord(new TreePanelHostCollection(this),db,"Collection","Collection:","COLLECTION") );
+    if(isServerPanelVisible())
+      treePanels.add( new TreePanelRecord(new TreePanelServer(this),db,"Server","Server:","SERVER") );
+    if(isDevicePanelVisible())
+      treePanels.add( new TreePanelRecord(new TreePanelDevice(this),db,"Device","Device:","DEVICE") );
+    if(isClassPanelVisible())
+      treePanels.add( new TreePanelRecord(new TreePanelClass(this),db,"Class","Class:","CLASS") );
+    if(isDevAliasPanelVisible())
+      treePanels.add( new TreePanelRecord(new TreePanelAlias(this),db,"Alias","Alias:","DEV-ALIAS") );
+    if(isAttAliasPanelVisible())
+      treePanels.add( new TreePanelRecord(new TreePanelAttributeAlias(this),db,"Att. Alias","AttAlias:","ATT-ALIAS") );
+    if(isFreePropertyPanelVisible())
+      treePanels.add( new TreePanelRecord(new TreePanelFreeProperty(this),db,"Property","FreeProperty:","PROPERTY") );
+
+    treePane = new JTabbedPane();
+    treePane.setFont(ATKConstant.labelFont);
+    treePane.addChangeListener(this);
+    splitPane.setLeftComponent(treePane);
+    nbPanels = treePanels.size();
+    for(int i=0;i<nbPanels;i++)
+      treePane.add(treePanels.get(i).tabName,treePanels.get(i).treePanel);
+
+    int minWidth = 0;
+    for(int i=0;i<nbPanels;i++) {
+      Dimension d = ATKGraphicsUtils.measureString(treePanels.get(i).tabName,ATKConstant.labelFont);
+      minWidth += 24 + d.width;
+    }
+    if(minWidth<250) minWidth = 250;
+    treePane.setMinimumSize(new Dimension(minWidth, 0));
+
+    historyDlg = new PropertyHistoryDlg();
+    historyDlg.setDatabase(db, tangoHost);
+    selectionDlg = new SelectionDlg();
+    selectionDlg.setDatabase(db);
+    innerPanel.add(splitPane, BorderLayout.CENTER);
     splitPane.setRightComponent(defaultPanel);
 
     navBar = new NavigationBar();
@@ -422,6 +457,28 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
   }
 
+  public boolean isCollectionPanelVisible() {
+    return (panelMask & 0x1) != 0;
+  }
+  public boolean isServerPanelVisible() {
+    return (panelMask & 0x2) != 0;
+  }
+  public boolean isDevicePanelVisible() {
+    return (panelMask & 0x4) != 0;
+  }
+  public boolean isClassPanelVisible() {
+    return (panelMask & 0x8) != 0;
+  }
+  public boolean isDevAliasPanelVisible() {
+    return (panelMask & 0x10) != 0;
+  }
+  public boolean isAttAliasPanelVisible() {
+    return (panelMask & 0x20) != 0;
+  }
+  public boolean isFreePropertyPanelVisible() {
+    return (panelMask & 0x40) != 0;
+  }
+
   //**************************************************************
   // Navigation listener
   //**************************************************************
@@ -432,19 +489,10 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
     recordPos = false;
 
-    if(tree==serverTreePanel.tree) {
-      treePane.setSelectedComponent(serverTreePanel);
-    } else if (tree==deviceTreePanel.tree) {
-      treePane.setSelectedComponent(deviceTreePanel);
-    } else if (tree==classTreePanel.tree) {
-      treePane.setSelectedComponent(classTreePanel);
-    } else if (tree==aliasTreePanel.tree) {
-      treePane.setSelectedComponent(aliasTreePanel);
-    } else if (tree==attributeAliasTreePanel.tree) {
-      treePane.setSelectedComponent(attributeAliasTreePanel);
-    } else if (tree==propertyTreePanel.tree) {
-      treePane.setSelectedComponent(propertyTreePanel);
-    }
+    for(int i=0;i<nbPanels;i++)
+      if(tree==treePanels.get(i).treePanel.tree)
+        treePane.setSelectedComponent(treePanels.get(i).treePanel);
+
     // Work around X11 bug
     treePane.getSelectedComponent().setVisible(true);
 
@@ -489,31 +537,14 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     // Check if we have a link
     if(pathToSelect!=null) {
       String treeName = pathToSelect.getPathComponent(0).toString();
-      if(treeName.equals("Server:")) {
-        serverTreePanel.selectPath(pathToSelect);
-        treePane.setSelectedComponent(serverTreePanel);
-        treePane.getSelectedComponent().setVisible(true);
-      } else if(treeName.equals("Device:")) {
-        deviceTreePanel.selectPath(pathToSelect);
-        treePane.setSelectedComponent(deviceTreePanel);
-        treePane.getSelectedComponent().setVisible(true);
-      } else if(treeName.equals("Class:")) {
-        classTreePanel.selectPath(pathToSelect);
-        treePane.setSelectedComponent(classTreePanel);
-        treePane.getSelectedComponent().setVisible(true);
-      } else if(treeName.equals("Alias:")) {
-        aliasTreePanel.selectPath(pathToSelect);
-        treePane.setSelectedComponent(aliasTreePanel);
-        treePane.getSelectedComponent().setVisible(true);
-      } else if(treeName.equals("AttAlias:")) {
-        attributeAliasTreePanel.selectPath(pathToSelect);
-        treePane.setSelectedComponent(attributeAliasTreePanel);
-        treePane.getSelectedComponent().setVisible(true);
-      } else if(treeName.equals("FreeProperty:")) {
-        propertyTreePanel.selectPath(pathToSelect);
-        treePane.setSelectedComponent(propertyTreePanel);
-        treePane.getSelectedComponent().setVisible(true);
-      }
+
+      for(int i=0;i<nbPanels;i++)
+        if( treePanels.get(i).name.equals(treeName) ) {
+          treePanels.get(i).treePanel.selectPath(pathToSelect);
+          treePane.setSelectedComponent(treePanels.get(i).treePanel);
+          treePane.getSelectedComponent().setVisible(true);
+        }
+
       resetSearch();
       return;
     }
@@ -521,25 +552,11 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     // Search
     String searchText = src.getSearchText();
 
-    if( searchText.startsWith("Server:/") ) {
-      searchText = searchText.substring(8);
-      treePane.setSelectedComponent(serverTreePanel);
-    } else if ( searchText.startsWith("Device:/") ) {
-      searchText = searchText.substring(8);
-      treePane.setSelectedComponent(deviceTreePanel);
-    } else if ( searchText.startsWith("Class:/") ) {
-      searchText = searchText.substring(7);
-      treePane.setSelectedComponent(classTreePanel);
-    } else if ( searchText.startsWith("Alias:/") ) {
-      searchText = searchText.substring(7);
-      treePane.setSelectedComponent(aliasTreePanel);
-    } else if ( searchText.startsWith("AttAlias:/") ) {
-      searchText = searchText.substring(10);
-      treePane.setSelectedComponent(attributeAliasTreePanel);
-    } else if ( searchText.startsWith("FreeProperty:/") ) {
-      searchText = searchText.substring(14);
-      treePane.setSelectedComponent(propertyTreePanel);
-    }
+    for(int i=0;i<nbPanels;i++)
+      if( searchText.startsWith(treePanels.get(i).name) ) {
+        searchText = searchText.substring(treePanels.get(i).name.length());
+        treePane.setSelectedComponent(treePanels.get(i).treePanel);
+      }
 
     treePane.getSelectedComponent().setVisible(true);
     TreePanel selected = (TreePanel)treePane.getSelectedComponent();
@@ -562,7 +579,8 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     if( JiveUtils.isDeviceName(searchText) ) {
       if( searchText.startsWith("tango:") )
         searchText = searchText.substring(6);
-      if( deviceTreePanel.isDomain(fieldnames[0])) {
+
+      if( getDeviceTreePanel().isDomain(fieldnames[0])) {
         TangoNode focusedNode = goToDeviceFullNode(searchText);
         if(focusedNode!=null) {
           searchEngine.setSearchText(searchText);
@@ -574,7 +592,8 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
     // Fast server search
     if( JiveUtils.isFullServerName(searchText) ) {
-      if( serverTreePanel.isServer(fieldnames[0]) ) {
+
+      if( getServerTreePanel().isServer(fieldnames[0]) ) {
         TangoNode focusedNode = goToServerFullNode(searchText);
         if( focusedNode == null ) {
           // Try to go to server root
@@ -616,6 +635,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
     String newProp = JOptionPane.showInputDialog(this, "Enter property object name", "Jive", JOptionPane.QUESTION_MESSAGE);
     if (newProp != null) {
+      TreePanelFreeProperty propertyTreePanel = getPropertyTreePanel();
       propertyTreePanel.addProperty(newProp);
       treePane.setSelectedComponent(propertyTreePanel);
       propertyTreePanel.setVisible(true);
@@ -671,7 +691,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     }
 
     refreshTree();
-    serverTreePanel.selectFullServer(server);
+    getServerTreePanel().selectFullServer(server);
 
   }
 
@@ -680,8 +700,8 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     ServerDlg sdlg = new ServerDlg(this);
     sdlg.setValidFields(true, true);
     sdlg.setDefaults("", "");
-    sdlg.setServerList( serverTreePanel.getServerList() );
-    sdlg.setClassList( classTreePanel.getClassList() );
+    sdlg.setServerList( getServerTreePanel().getServerList() );
+    sdlg.setClassList( getClassTreePanel().getClassList() );
     ATKGraphicsUtils.centerFrame(innerPanel,sdlg);
     sdlg.setVisible(true);
 
@@ -692,7 +712,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
     if(filterDlg==null) filterDlg = new FilterDlg(this);
     filterDlg.setLabelName("Server filter");
-    filterDlg.setFilter(serverTreePanel.getFilter());
+    filterDlg.setFilter(getServerTreePanel().getFilter());
     if( filterDlg.showDialog() ) {
       // Apply filter
       filterServer(filterDlg.getFilterText());
@@ -701,6 +721,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   }
 
   public void filterServer(String filter) {
+    TreePanelServer serverTreePanel = getServerTreePanel();
     serverTreePanel.applyFilter(filter);
     serverTreePanel.refresh();
     resetSearch();
@@ -712,7 +733,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
     if(filterDlg==null) filterDlg = new FilterDlg(this);
     filterDlg.setLabelName("Device filter");
-    filterDlg.setFilter(deviceTreePanel.getFilter());
+    filterDlg.setFilter(getDeviceTreePanel().getFilter());
     if( filterDlg.showDialog() ) {
       // Apply filter
       filterDevice(filterDlg.getFilterText());
@@ -721,6 +742,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   }
 
   public void filterDevice(String filter) {
+    TreePanelDevice deviceTreePanel = getDeviceTreePanel();
     deviceTreePanel.applyFilter(filter);
     deviceTreePanel.refresh();
     resetSearch();
@@ -732,7 +754,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
     if(filterDlg==null) filterDlg = new FilterDlg(this);
     filterDlg.setLabelName("Class filter");
-    filterDlg.setFilter(classTreePanel.getFilter());
+    filterDlg.setFilter(getClassTreePanel().getFilter());
     if( filterDlg.showDialog() ) {
       // Apply filter
       filterClass(filterDlg.getFilterText());
@@ -741,6 +763,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   }
 
   public void filterClass(String filter) {
+    TreePanelClass classTreePanel = getClassTreePanel();
     classTreePanel.applyFilter(filter);
     classTreePanel.refresh();
     resetSearch();
@@ -752,7 +775,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
     if(filterDlg==null) filterDlg = new FilterDlg(this);
     filterDlg.setLabelName("Alias filter");
-    filterDlg.setFilter(aliasTreePanel.getFilter());
+    filterDlg.setFilter(getAliasTreePanel().getFilter());
     if( filterDlg.showDialog() ) {
       // Apply filter
       filterAlias(filterDlg.getFilterText());
@@ -761,6 +784,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   }
 
   public void filterAlias(String filter) {
+    TreePanelAlias aliasTreePanel = getAliasTreePanel();
     aliasTreePanel.applyFilter(filter);
     aliasTreePanel.refresh();
     resetSearch();
@@ -772,7 +796,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
     if(filterDlg==null) filterDlg = new FilterDlg(this);
     filterDlg.setLabelName("Att. Alias filter");
-    filterDlg.setFilter(attributeAliasTreePanel.getFilter());
+    filterDlg.setFilter(getAttributeAliasTreePanel().getFilter());
     if( filterDlg.showDialog() ) {
       // Apply filter
       filterAttributeAlias(filterDlg.getFilterText());
@@ -781,6 +805,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   }
 
   public void filterAttributeAlias(String filter) {
+    TreePanelAttributeAlias attributeAliasTreePanel = getAttributeAliasTreePanel();
     attributeAliasTreePanel.applyFilter(filter);
     attributeAliasTreePanel.refresh();
     resetSearch();
@@ -792,7 +817,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
     if(filterDlg==null) filterDlg = new FilterDlg(this);
     filterDlg.setLabelName("Property filter");
-    filterDlg.setFilter(propertyTreePanel.getFilter());
+    filterDlg.setFilter(getPropertyTreePanel().getFilter());
     if( filterDlg.showDialog() ) {
       // Apply filter
       filterProperty(filterDlg.getFilterText());
@@ -801,10 +826,11 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   }
 
   public void filterProperty(String filter) {
+    TreePanelFreeProperty propertyTreePanel = getPropertyTreePanel();
     propertyTreePanel.applyFilter(filterDlg.getFilterText());
     propertyTreePanel.refresh();
     resetSearch();
-    propertyPanel.revalidate();
+    propertyTreePanel.revalidate();
   }
 
   // Create a server using the wizard
@@ -891,24 +917,19 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
         db=null;
       }
 
+      // Change database on trees
       ProgressFrame.displayProgress("Refresh in progress");
-      serverTreePanel.setDatabase(db);
-      ProgressFrame.setProgress("Refreshing...", 20);
-      deviceTreePanel.setDatabase(db);
-      ProgressFrame.setProgress("Refreshing...", 40);
-      classTreePanel.setDatabase(db);
-      ProgressFrame.setProgress("Refreshing...", 60);
-      aliasTreePanel.setDatabase(db);
-      attributeAliasTreePanel.setDatabase(db);
-      ProgressFrame.setProgress("Refreshing...", 80);
-      propertyTreePanel.setDatabase(db);
-      ProgressFrame.setProgress("Refreshing...", 100);
+      for(int i=0;i<nbPanels;i++) {
+        treePanels.get(i).treePanel.setDatabase(db);
+        ProgressFrame.setProgress("Refreshing...", (int) (100.0 * (double)(i+1) / (double)nbPanels));
+      }
+      ProgressFrame.hideProgress();
+
       historyDlg.setDatabase(db, th);
       selectionDlg.setDatabase(db);
       updateTitle(th);
-      defaultPanel.setSource(null,0);
+      defaultPanel.setSource(null, 0);
       splitPane.setRightComponent(defaultPanel);
-      ProgressFrame.hideProgress();
       resetSearch();
 
     }
@@ -923,26 +944,63 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
   }
 
+  private void refreshTreePanel() {
+
+    ProgressFrame.displayProgress("Refresh in progress");
+    for(int i=0;i<nbPanels;i++) {
+      treePanels.get(i).treePanel.refresh();
+      ProgressFrame.setProgress("Refreshing...", (int) (100.0 * (double)(i+1) / (double)nbPanels));
+    }
+    ProgressFrame.hideProgress();
+
+  }
+
   // Refresh all trees
   private void refreshTree() {
 
-    ProgressFrame.displayProgress("Refresh in progress");
-    serverTreePanel.refresh();
-    ProgressFrame.setProgress("Refreshing...", 20);
-    deviceTreePanel.refresh();
-    ProgressFrame.setProgress("Refreshing...", 40);
-    classTreePanel.refresh();
-    ProgressFrame.setProgress("Refreshing...", 60);
-    aliasTreePanel.refresh();
-    attributeAliasTreePanel.refresh();
-    ProgressFrame.setProgress("Refreshing...", 70);
-    attributeAliasTreePanel.refresh();
-    ProgressFrame.setProgress("Refreshing...",80);
-    propertyTreePanel.refresh();
+    refreshTreePanel();
     updateTabbedPane();
     resetSearch();
 
-    ProgressFrame.hideProgress();
+  }
+
+  TreePanelHostCollection getHsotCollectionTreePanel() {
+    return (TreePanelHostCollection)getInstanceOf(TreePanelHostCollection.class);
+  }
+  TreePanelServer getServerTreePanel() {
+    return (TreePanelServer)getInstanceOf(TreePanelServer.class);
+  }
+  TreePanelDevice getDeviceTreePanel() {
+    return (TreePanelDevice)getInstanceOf(TreePanelDevice.class);
+  }
+  TreePanelClass getClassTreePanel() {
+    return (TreePanelClass)getInstanceOf(TreePanelClass.class);
+  }
+  TreePanelAlias getAliasTreePanel() {
+    return (TreePanelAlias)getInstanceOf(TreePanelAlias.class);
+  }
+  TreePanelAttributeAlias getAttributeAliasTreePanel() {
+    return (TreePanelAttributeAlias)getInstanceOf(TreePanelAttributeAlias.class);
+  }
+  TreePanelFreeProperty getPropertyTreePanel() {
+    return (TreePanelFreeProperty)getInstanceOf(TreePanelAttributeAlias.class);
+  }
+
+  // Get panel of given class
+  private TreePanel getInstanceOf(Class _class) {
+
+    boolean found = false;
+    int i=0;
+    while(!found && i<nbPanels) {
+      found = treePanels.get(i).treePanel.getClass() == _class;
+      if(!found) i++;
+    }
+
+    if(!found)
+      return null;
+    else
+      return treePanels.get(i).treePanel;
+
   }
 
   // Load a property file in the database
@@ -1037,20 +1095,32 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
   // Select a device and show the device tree panel
   public void goToDeviceNode(String devName) {
-    deviceTreePanel.selectDevice(devName);
-    treePane.setSelectedComponent(deviceTreePanel);
-    // Work around X11 bug
-    treePane.getSelectedComponent().setVisible(true);
-  }
 
-  private TangoNode goToDeviceFullNode(String devName) {
-    TangoNode selected = deviceTreePanel.selectDevice(devName);
-    if( selected!=null ) {
+    if(isDevicePanelVisible()) {
+      TreePanelDevice deviceTreePanel = getDeviceTreePanel();
+      deviceTreePanel.selectDevice(devName);
       treePane.setSelectedComponent(deviceTreePanel);
       // Work around X11 bug
       treePane.getSelectedComponent().setVisible(true);
     }
-    return selected;
+
+  }
+
+  private TangoNode goToDeviceFullNode(String devName) {
+
+    if (isDevicePanelVisible()) {
+      TreePanelDevice deviceTreePanel = getDeviceTreePanel();
+      TangoNode selected = deviceTreePanel.selectDevice(devName);
+      if (selected != null) {
+        treePane.setSelectedComponent(deviceTreePanel);
+        // Work around X11 bug
+        treePane.getSelectedComponent().setVisible(true);
+      }
+      return selected;
+    } else {
+      return null;
+    }
+
   }
 
   // Select a server and show the server tree panel
@@ -1060,24 +1130,38 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
   // Select a server and show the server tree panel
   public TangoNode goToServerFullNode(String srvName) {
-    TangoNode selected = serverTreePanel.selectFullServer(srvName);
-    if( selected!=null ) {
-      treePane.setSelectedComponent(serverTreePanel);
-      // Work around X11 bug
-      treePane.getSelectedComponent().setVisible(true);
+
+    if (isServerPanelVisible()) {
+      TreePanelServer serverTreePanel = getServerTreePanel();
+      TangoNode selected = serverTreePanel.selectFullServer(srvName);
+      if (selected != null) {
+        treePane.setSelectedComponent(serverTreePanel);
+        // Work around X11 bug
+        treePane.getSelectedComponent().setVisible(true);
+      }
+      return selected;
+    } else {
+      return null;
     }
-    return selected;
+
   }
 
   // Select a server and show the server tree panel
   public TangoNode goToServerRootNode(String srvName) {
-    TangoNode selected = serverTreePanel.selectServerRoot(srvName);
-    if( selected!=null ) {
-      treePane.setSelectedComponent(serverTreePanel);
-      // Work around X11 bug
-      treePane.getSelectedComponent().setVisible(true);
+
+    if (isServerPanelVisible()) {
+      TreePanelServer serverTreePanel = getServerTreePanel();
+      TangoNode selected = serverTreePanel.selectServerRoot(srvName);
+      if (selected != null) {
+        treePane.setSelectedComponent(serverTreePanel);
+        // Work around X11 bug
+        treePane.getSelectedComponent().setVisible(true);
+      }
+      return selected;
+    } else {
+      return null;
     }
-    return selected;
+
   }
 
   // Tabbed pane listener
@@ -1089,26 +1173,8 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
   private void updateTabbedPane() {
 
-    switch(treePane.getSelectedIndex()) {
-      case 0:
-        serverTreePanel.refreshValues();
-        break;
-      case 1:
-        deviceTreePanel.refreshValues();
-        break;
-      case 2:
-        classTreePanel.refreshValues();
-        break;
-      case 3:
-        aliasTreePanel.refreshValues();
-        break;
-      case 4:
-        attributeAliasTreePanel.refreshValues();
-        break;
-      case 5:
-        propertyTreePanel.refreshValues();
-        break;
-    }
+    TreePanel p = (TreePanel)(treePane.getSelectedComponent());
+    p.refreshValues();
 
   }
 
@@ -1148,39 +1214,9 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       return;
     }
 
-
-    switch (treePane.getSelectedIndex()) {
-      case 0:
-        serverTreePanel.tree.setName("SERVER");
-        if (recordPos) navManager.recordPath(serverTreePanel.tree);
-        navBar.addLink(serverTreePanel.tree.getSelectionPath());
-        break;
-      case 1:
-        deviceTreePanel.tree.setName("DEVICE");
-        if (recordPos) navManager.recordPath(deviceTreePanel.tree);
-        navBar.addLink(deviceTreePanel.tree.getSelectionPath());
-        break;
-      case 2:
-        classTreePanel.tree.setName("CLASS");
-        if (recordPos) navManager.recordPath(classTreePanel.tree);
-        navBar.addLink(classTreePanel.tree.getSelectionPath());
-        break;
-      case 3:
-        aliasTreePanel.tree.setName("DEV-ALIAS");
-        if (recordPos) navManager.recordPath(aliasTreePanel.tree);
-        navBar.addLink(aliasTreePanel.tree.getSelectionPath());
-        break;
-      case 4:
-        attributeAliasTreePanel.tree.setName("ATT-ALIAS");
-        if (recordPos) navManager.recordPath(attributeAliasTreePanel.tree);
-        navBar.addLink(attributeAliasTreePanel.tree.getSelectionPath());
-        break;
-      case 5:
-        propertyTreePanel.tree.setName("PROPERTY");
-        if (recordPos) navManager.recordPath(propertyTreePanel.tree);
-        navBar.addLink(propertyTreePanel.tree.getSelectionPath());
-        break;
-    }
+    TreePanel p = (TreePanel)treePane.getSelectedComponent();
+    if(recordPos) navManager.recordPath(p.tree);
+    navBar.addLink(p.tree.getSelectionPath());
 
     navBar.enableBack(navManager.canGoBackward());
     navBar.enableForward(navManager.canGoForward());
@@ -1268,7 +1304,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
   // Main function
   static void printUsage() {
-    System.out.println("Usage: jive [-r] [-s server] [-d device]");
+    System.out.println("Usage: jive [-r] [-s server] [-d device] [-fxx filter] [-p panel]");
     System.out.println("   -r        Read only mode (No write access to database allowed)");
     System.out.println("   -s server Open jive and show specified server node (server=ServerName/instance)");
     System.out.println("   -d device Open jive and show specified device node (device=domain/family/member)");
@@ -1278,14 +1314,18 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     System.out.println("   -fa filter Default alias filter");
     System.out.println("   -faa filter Default attribute alias filter");
     System.out.println("   -fp filter Default property filter");
+    System.out.println("   -p panelmask (1=Collection 2=Server 4=Device 8=Class 16=DevAlias 32=AttAlias 64=FreeProperty"); 
     System.exit(0);
   }
 
   public static void main(String args[]) {
 
     if(args.length==0) {
+
       new MainPanel(true,false);
+
     } else {
+
       boolean readOnly = false;
       int i = 0;
       String server = null;
@@ -1296,6 +1336,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       String fa = null;
       String faa = null;
       String fp = null;
+      int pmask = 126;
 
       while(i<args.length) {
 
@@ -1341,6 +1382,11 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
           if(i>=args.length)
             printUsage();
           fp = args[i];
+        } else if(args[i].equalsIgnoreCase("-p")) {
+          i++;
+          if(i>=args.length)
+            printUsage();
+          pmask = Integer.parseInt(args[i]);
         } else {
           System.out.println("Invalid option " + args[i]);
           printUsage();
@@ -1348,7 +1394,8 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
         i++;
 
       }
-      MainPanel p = new MainPanel(true,readOnly);
+
+      MainPanel p = new MainPanel(true,readOnly,pmask);
       if(server!=null)
         p.goToServerFullNode(server);
       if(device!=null)

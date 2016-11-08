@@ -22,11 +22,14 @@ public class ThreadDlg extends JDialog {
   private JProgressBar progressBar;
   private boolean hasProgress;
   private JLabel animationLabel;
+  private String title;
 
   // Construction
   public ThreadDlg(Frame parent, String title, boolean progress, Thread process) {
 
     super(parent, true);
+
+    this.title = title;
     getContentPane().setLayout(null);
     okButton = new JButton("Stop");
     okButton.addActionListener(new ActionListener() {
@@ -96,6 +99,10 @@ public class ThreadDlg extends JDialog {
     JiveUtils.centerDialog(this,210,80);
     setVisible(true);
 
+  }
+
+  public void setMessage(String msg) {
+    textArea.setText(title + "  "  + msg);
   }
   
   public void hideDlg() {

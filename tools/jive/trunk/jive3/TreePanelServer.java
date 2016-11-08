@@ -251,7 +251,7 @@ public class TreePanelServer extends TreePanel {
 
           }
 
-          // Refresh the tree
+          // Refresh the tre
           refresh();
           selectServerRoot(newName);
 
@@ -269,8 +269,6 @@ public class TreePanelServer extends TreePanel {
 
     private String server;
     private String instance;
-    private boolean controlled = false;
-    private String  hostName = "";
 
     InstanceNode(String server, String instance) {
       this.server = server;
@@ -333,12 +331,6 @@ public class TreePanelServer extends TreePanel {
 
         DbServInfo info = db.get_server_info(server + "/" + instance);
         result = info.toString();
-        controlled = info.controlled;
-        int idx = info.host.indexOf('.');
-        if(idx!=-1)
-          hostName = info.host.substring(0,idx);
-        else
-          hostName = info.host;
 
       } catch (DevFailed e) {
 
@@ -366,22 +358,6 @@ public class TreePanelServer extends TreePanel {
         };
       else {
 
-        if( controlled ) {
-
-          return new int[]{ACTION_RENAME,
-              ACTION_DELETE,
-              ACTION_ADDCLASS,
-              ACTION_TESTADMIN,
-              ACTION_SAVESERVER,
-              ACTION_CLASSWIZ,
-              ACTION_UNEXPORT,
-              ACTION_DEV_DEPEND,
-              ACTION_THREAD_POLL,
-              ACTION_MOVE_SERVER,
-              ACTION_RESTART_SERVER};
-
-        } else {
-
           return new int[]{ACTION_RENAME,
                 ACTION_DELETE,
                 ACTION_ADDCLASS,
@@ -393,7 +369,6 @@ public class TreePanelServer extends TreePanel {
                 ACTION_THREAD_POLL,
                 ACTION_MOVE_SERVER};
 
-        }
 
       }
 
@@ -460,7 +435,7 @@ public class TreePanelServer extends TreePanel {
         case ACTION_ADDCLASS:
 
           ServerDlg sdlg = new ServerDlg(this);
-          sdlg.setClassList(invoker.classTreePanel.getClassList());
+          sdlg.setClassList(invoker.getClassTreePanel().getClassList());
           sdlg.setValidFields(false, true);
           sdlg.setDefaults(server + "/" + instance, "");
           ATKGraphicsUtils.centerFrame(invoker.innerPanel,sdlg);
@@ -493,7 +468,7 @@ public class TreePanelServer extends TreePanel {
                   resFile = new FileWriter(lastFile.getAbsolutePath());
                   Date date = new Date(System.currentTimeMillis());
                   resFile.write("#\n# Resource backup , created " + date + "\n#\n\n");
-                  saveServerData(resFile);
+                  saveServerData(resFile,server+"/"+instance);
                   resFile.close();
                 } catch (IOException e) {
                   JiveUtils.showJiveError("Failed to create resource file !\n" + e.getMessage());
@@ -553,82 +528,6 @@ public class TreePanelServer extends TreePanel {
           }
           break;
 
-        // ----------------------------------------------------------------------------
-        case ACTION_RESTART_SERVER:
-
-          // Restart a controlled server
-          try {
-
-            String starterName = "tango/admin/" + hostName;
-            DeviceProxy starter = new DeviceProxy(starterName);
-            stopServer(starter);
-            DeviceData argin = new DeviceData();
-            argin.insert(server + "/" + instance);
-            starter.command_inout("DevStart",argin);
-
-          } catch (DevFailed e) {
-            JiveUtils.showTangoError(e);
-          }
-
-          break;
-
-      }
-
-    }
-
-    public DevState getServerState(DeviceProxy starter,String serverName) throws DevFailed {
-
-      DevState retState = DevState.UNKNOWN;
-      DeviceAttribute att = starter.read_attribute("Servers");
-      String[] list = att.extractStringArray();
-
-      for (String line : list) {
-        StringTokenizer stk = new StringTokenizer(line);
-        String name = stk.nextToken();
-        String st = stk.nextToken();
-        String str_ctrl = stk.nextToken();
-        if (str_ctrl.equals("1") && name.equalsIgnoreCase(serverName)) {
-          if(st.equalsIgnoreCase("FAULT")) {
-            retState = DevState.OFF;
-          } else {
-            retState = DevState.ON;
-          }
-        }
-      }
-
-      return retState;
-
-    }
-
-    public void stopServer(DeviceProxy starter) throws DevFailed {
-
-      String srvName = server+"/"+instance;
-      DevState srvState = getServerState(starter,srvName);
-
-      if( srvState==DevState.ON ) {
-
-        // Stop it
-        DeviceData argin = new DeviceData();
-        argin.insert(srvName);
-        starter.command_inout("DevStop", argin);
-
-        // Wait for completion
-        int nbTry = 5;
-        while( srvState==DevState.ON && nbTry>0 ) {
-
-          JiveUtils.sleep(1000);
-          srvState = getServerState(starter,srvName);
-          nbTry--;
-          if(  srvState==DevState.ON && nbTry==0 ) {
-            int ok = JOptionPane.showConfirmDialog(null,srvName + " is still running.\nSend Hard kill ?","Question",JOptionPane.YES_NO_OPTION);
-            if( ok==JOptionPane.YES_OPTION ) {
-              argin.insert(srvName);
-              starter.command_inout("HardKillServer",argin);
-              nbTry=1;
-            }
-          }
-        }
-
       }
 
     }
@@ -649,136 +548,6 @@ public class TreePanelServer extends TreePanel {
 
     }
 
-    void saveServerData(FileWriter fw) throws IOException {
-
-      int i,j,k,l;
-
-      String srvName = server + "/" + instance;
-      boolean prtOut;
-
-      try {
-
-        JiveUtils.savedClass.clear();
-
-        String[] class_list = db.get_server_class_list(srvName);
-
-        for (i = 0; i < class_list.length; i++) {
-
-          String[] prop_list;
-          String[] att_list;
-          DbAttribute lst[];
-
-          // Device declaration and resource
-
-          fw.write("#---------------------------------------------------------\n");
-          fw.write("# SERVER " + srvName + ", " + class_list[i] + " device declaration\n");
-          fw.write("#---------------------------------------------------------\n\n");
-
-          String[] dev_list = db.get_device_name(srvName, class_list[i]);
-          JiveUtils.printFormatedRes(srvName + "/DEVICE/" + class_list[i] + ": ", dev_list, fw);
-          fw.write("\n");
-
-          for (l = 0; l < dev_list.length; l++) {
-
-            prop_list = db.get_device_property_list(dev_list[l], "*");
-            if (prop_list.length > 0) {
-              fw.write("\n# --- " + dev_list[l] + " properties\n\n");
-              for (j = 0; j < prop_list.length; j++) {
-                String[] value = db.get_device_property(dev_list[l], prop_list[j]).extractStringArray();
-                if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
-                JiveUtils.printFormatedRes(dev_list[l] + "->" + prop_list[j] + ": ", value, fw);
-              }
-            }
-
-            try {
-
-              att_list = db.get_device_attribute_list(dev_list[l]);
-              lst = db.get_device_attribute_property(dev_list[l], att_list);
-              prtOut = false;
-              for (k = 0; k < lst.length; k++) {
-                prop_list = lst[k].get_property_list();
-                for (j = 0; j < prop_list.length; j++) {
-                  if (!prtOut) {
-                    fw.write("\n# --- " + dev_list[l] + " attribute properties\n\n");
-                    prtOut = true;
-                  }
-                  if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
-                  String[] value = lst[k].get_value(j);
-                  JiveUtils.printFormatedRes(dev_list[l] + "/" + att_list[k] + "->" + prop_list[j] + ": ", value, fw);
-                }
-              }
-
-            } catch (DevFailed e) {
-
-              JiveUtils.showJiveError("Attribute properties for " + dev_list[l] + " has not been saved !\n"
-                                      + e.errors[0].desc);
-
-            }
-
-          }
-
-          fw.write("\n");
-          
-          // We save class properties only once
-          if( !JiveUtils.isSavedClass(class_list[i]) ) {
-
-            fw.write("#---------------------------------------------------------\n");
-            fw.write("# CLASS " + class_list[i] + " properties\n");
-            fw.write("#---------------------------------------------------------\n\n");
-
-            prop_list = db.get_class_property_list(class_list[i], "*");
-            for (j = 0; j < prop_list.length; j++) {
-              String[] value = db.get_class_property(class_list[i], prop_list[j]).extractStringArray();
-              if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
-              JiveUtils.printFormatedRes("CLASS/" + class_list[i] + "->" + prop_list[j] + ": ", value, fw);
-            }
-
-            att_list = db.get_class_attribute_list(class_list[i], "*");
-            lst = db.get_class_attribute_property(class_list[i], att_list);
-            prtOut = false;
-            for (k = 0; k < lst.length; k++) {
-              prop_list = lst[k].get_property_list();
-              for (j = 0; j < prop_list.length; j++) {
-                if(!prtOut) {
-                  fw.write("\n# CLASS " + class_list[i] + " attribute properties\n\n");
-                  prtOut=true;
-                }
-                if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
-                String[] value = lst[k].get_value(j);
-                JiveUtils.printFormatedRes("CLASS/" + class_list[i] + "/" + att_list[k] + "->" + prop_list[j] + ": ", value, fw);
-              }
-            }
-
-            fw.write("\n");
-
-            // Mark class as saved
-            JiveUtils.addSavedClass(class_list[i]);
-
-          }
-
-        }
-
-        // Save admin server data
-        String[] prop_list;
-        String admDevName = "dserver/" + srvName;
-
-        prop_list = db.get_device_property_list(admDevName, "*");
-        if (prop_list.length > 0) {
-          fw.write("\n# --- " + admDevName + " properties\n\n");
-          for (j = 0; j < prop_list.length; j++) {
-            String[] value = db.get_device_property(admDevName, prop_list[j]).extractStringArray();
-            if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
-            JiveUtils.printFormatedRes(admDevName + "->" + prop_list[j] + ": ", value, fw);
-          }
-        }
-
-      } catch (DevFailed e) {
-
-        JiveUtils.showTangoError(e);
-
-      }
-
-    }
 
 
   }
@@ -790,21 +559,27 @@ public class TreePanelServer extends TreePanel {
     private String server;
     private String instance;
     private String className;
+    private String[] devList = new String[0];
 
     ClassNode(String server,String instance,String className) {
       this.server = server;
       this.instance = instance;
       this.className = className;
+      try {
+        devList = db.get_device_name(server+"/"+instance , className);
+      } catch (DevFailed e) {}
     }
 
     void populateNode() throws DevFailed {
-      String[] list = db.get_device_name(server+"/"+instance , className);
-      for (int i = 0; i < list.length; i++)
-        add(new DeviceServerNode(server,instance,className,list[i]));
+      for (int i = 0; i < devList.length; i++)
+        add(new DeviceServerNode(server,instance,className,devList[i]));
     }
 
     ImageIcon getIcon() {
-      return TangoNodeRenderer.classicon;
+      if(devList.length==0)
+        return TangoNodeRenderer.uclassicon;
+      else
+        return TangoNodeRenderer.classicon;
     }
 
     public String toString() {

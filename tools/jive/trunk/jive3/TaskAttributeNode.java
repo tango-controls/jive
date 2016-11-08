@@ -659,29 +659,12 @@ public class TaskAttributeNode extends TangoNode {
 
   // -- Alias ----------------------------------------------------------------
 
-  public String get_alias_attribute(String fullAttName) throws DevFailed {
-
-    // Get the alias of an attribute
-    DeviceData argin = new DeviceData();
-    String request = "select alias from attribute_alias where name='" + fullAttName + "'";
-    argin.insert(request);
-    DeviceData argout = db.command_inout("DbMySqlSelect",argin);
-
-    DevVarLongStringArray arg = argout.extractLongStringArray();
-    if(arg.svalue.length==1) {
-      if(arg.lvalue[0]!=0) return arg.svalue[0];
-    }
-
-    return "None";
-
-  }
-
   void setAlias(int idx,String value) {
 
     try {
       String fullAttName = devName + "/" + getAttName(idx);
       if( value.equalsIgnoreCase("none") || value.length()==0 ) {
-        String currentAlias = get_alias_attribute(fullAttName);
+        String currentAlias = db.get_alias_from_attribute(fullAttName);
         db.delete_attribute_alias(currentAlias);
       } else {
         db.put_attribute_alias(fullAttName,value);
@@ -696,7 +679,7 @@ public class TaskAttributeNode extends TangoNode {
 
     try {
       String fullAttName = devName + "/" + getAttName(idx);
-      return get_alias_attribute(fullAttName);
+      return db.get_alias_from_attribute(fullAttName);
     } catch (DevFailed e) {
     }
 

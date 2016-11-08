@@ -94,7 +94,7 @@ public class TreePanelAttributeAlias extends TreePanel {
 
     void populateNode() throws DevFailed {
 
-      if(attName==null) attName = db.get_attribute_alias(aliasName);
+      if(attName==null) attName = db.get_attribute_from_alias(aliasName);
       int aslash = attName.lastIndexOf("/");
       String devName = attName.substring(0,aslash);
       String aName = attName.substring(aslash+1);
@@ -121,7 +121,7 @@ public class TreePanelAttributeAlias extends TreePanel {
     public void goToDeviceNode() {
 
       try {
-        if(attName==null) attName = db.get_attribute_alias(aliasName);
+        if(attName==null) attName = db.get_attribute_from_alias(aliasName);
         int aslash = attName.lastIndexOf("/");
         String devName = attName.substring(0,aslash);
         invoker.goToDeviceNode(devName);
@@ -154,7 +154,7 @@ public class TreePanelAttributeAlias extends TreePanel {
 
       if( attName==null ) {
         try {
-          attName = db.get_attribute_alias(aliasName);
+          attName = db.get_attribute_from_alias(aliasName);
         } catch(DevFailed e) {
           JiveUtils.showTangoError(e);
         }

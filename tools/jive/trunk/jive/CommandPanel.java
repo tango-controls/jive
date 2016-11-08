@@ -706,6 +706,7 @@ class CommandPanel extends JPanel implements ActionListener,ListSelectionListene
         ret_string.append(Double.toString(data.extractDouble()));
         ret_string.append("\n");
         break;
+      case Tango_CONST_DEV_STRING:
       case Tango_DEV_STRING:
         ret_string.append(data.extractString());
         ret_string.append("\n");
