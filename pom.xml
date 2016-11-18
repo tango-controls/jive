@@ -23,14 +23,14 @@
             <version>9.1.2</version>
         </dependency>
         <dependency>
-            <groupId>org.tango</groupId>
+            <groupId>org.tango.atk</groupId>
             <artifactId>ATKCore</artifactId>
-            <version>9.1.14</version>
+            <version>9.1.15</version>
         </dependency>
         <dependency>
-            <groupId>org.tango</groupId>
+            <groupId>org.tango.atk</groupId>
             <artifactId>ATKWidget</artifactId>
-            <version>9.1.14</version>
+            <version>9.1.15</version>
         </dependency>
         <dependency>
             <groupId>org.tango.gui</groupId>
