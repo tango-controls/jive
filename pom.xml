@@ -25,32 +25,54 @@
         <dependency>
             <groupId>org.tango.atk</groupId>
             <artifactId>ATKCore</artifactId>
-            <version>9.1.15</version>
+            <version>9.1.16</version>
         </dependency>
         <dependency>
             <groupId>org.tango.atk</groupId>
             <artifactId>ATKWidget</artifactId>
-            <version>9.1.15</version>
+            <version>9.1.16</version>
         </dependency>
         <dependency>
             <groupId>org.tango.gui</groupId>
             <artifactId>ToolPanels</artifactId>
             <version>3.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.tango.gui</groupId>
+                    <artifactId>Jive</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.tango.gui</groupId>
             <artifactId>LogViewer</artifactId>
-            <version>2.0.2</version>
+            <version>2.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.tango.gui</groupId>
             <artifactId>Astor</artifactId>
             <version>7.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.tango.gui</groupId>
+                    <artifactId>Jive</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.tango.gui</groupId>
             <artifactId>ATKPanel</artifactId>
-            <version>5.5</version>
+            <version>5.6</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.tango.atk</groupId>
+                    <artifactId>ATKCore</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.tango.atk</groupId>
+                    <artifactId>ATKWidget</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
