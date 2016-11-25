@@ -10,9 +10,9 @@
     <packaging>jar</packaging>
 
     <scm>
-        <connection>scm:git:git@github.com:tango-controls/atk-tuning.git</connection>
-        <developerConnection>scm:git:git@github.com:tango-controls/atk-tuning.git</developerConnection>
-        <url>https://github.com/tango-controls/atk-tuning</url>
+        <connection>scm:git:git@github.com:tango-controls/jive.git</connection>
+        <developerConnection>scm:git:git@github.com:tango-controls/jive.git</developerConnection>
+        <url>https://github.com/tango-controls/jive</url>
         <tag>HEAD</tag>
     </scm>
 
