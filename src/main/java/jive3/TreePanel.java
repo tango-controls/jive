@@ -40,7 +40,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private   boolean          updateOnChange;
 
   // Static action menu
-  public final static int ACTION_NUMBER       = 40;
+  public final static int ACTION_NUMBER       = 42;
 
   public final static int ACTION_COPY          = 0;
   public final static int ACTION_PASTE         = 1;
@@ -82,6 +82,8 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   public final static int ACTION_STOP_HOST      = 37;
   public final static int ACTION_CH_HOST_USAGE  = 38;
   public final static int ACTION_GO_TO_STATER   = 39;
+  public final static int ACTION_CH_LEVEL       = 40;
+  public final static int ACTION_TERMINAL       = 41;
 
   private static TangoNode[] selectedNodes = null;
   static         File       lastFile = null;
@@ -126,6 +128,8 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private static JMenuItem  stopHostMenu;
   private static JMenuItem  chHostUsageMenu;
   private static JMenuItem  goToStarterMenu;
+  private static JMenuItem  chLevelMenu;
+  private static JMenuItem  terminalMenu;
 
   static {
     actionMenu = new JPopupMenu();
@@ -412,6 +416,20 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
         selectedNodes[0].execAction(ACTION_GO_TO_STATER);
       }
     });
+    chLevelMenu = new JMenuItem("Change Level");
+    actionMenu.add(chLevelMenu);
+    chLevelMenu.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_CH_LEVEL);
+      }
+    });
+    terminalMenu = new JMenuItem("Open terminal");
+    actionMenu.add(terminalMenu);
+    terminalMenu.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_TERMINAL);
+      }
+    });
 
   }
 
@@ -665,12 +683,12 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
 
       DeviceProxy ds = new DeviceProxy(devName);
 
-      result = "- Device Info ----------------------------------------\n\n";
+      result = "<b>Device Info</b>\n<hr>\n";
 
       result += ds.get_info().toString();
 
       // Append Polling status
-      result += "\n\n- Polling Status -------------------------------------\n\n";
+      result += "\n\n<b>Polling Status</b>\n<hr>\n";
       String[] pi = ds.polling_status();
       for (i = 0; i < pi.length; i++) result += (pi[i] + "\n\n");
 

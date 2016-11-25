@@ -5,11 +5,9 @@ import fr.esrf.tangoatk.widget.util.ATKConstant;
 import fr.esrf.tangoatk.widget.util.ATKGraphicsUtils;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 
 
-@SuppressWarnings("MagicConstant")
 public class ServerInfoDlg extends javax.swing.JDialog {
 
   public static final int RET_CANCEL = JOptionPane.CANCEL_OPTION;

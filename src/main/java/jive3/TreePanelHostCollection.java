@@ -25,6 +25,8 @@ import java.util.StringTokenizer;
  */
 public class TreePanelHostCollection extends TreePanel {
 
+  public static int NB_LEVELS = 5;
+
   public TreePanelHostCollection(MainPanel parent) {
 
     this.invoker = parent;
@@ -87,7 +89,7 @@ public class TreePanelHostCollection extends TreePanel {
       case DevState._FAULT:
         return "<font color=\"red\">FAULT</font>";
       default:
-        return "<font color=\"grey\">UNKNOWN</font>";
+        return "<font color=\"red\">Not responding</font>";
     }
 
   }
@@ -381,6 +383,7 @@ public class TreePanelHostCollection extends TreePanel {
     private String host;
     private String hostUsage = "";
     private DeviceProxy starter = null;
+    private String hostInfo = "";
     private String[] allHostServers;
     private String starterName;
 
@@ -399,6 +402,16 @@ public class TreePanelHostCollection extends TreePanel {
         JiveUtils.showTangoError(e);
       }
 
+      // Get info from hostInfo
+      try {
+        DeviceProxy hI = new DeviceProxy("host/info/" + host);
+        String arch = hI.read_attribute("kernelVersion").extractString();
+        String ht = hI.read_attribute("hostType").extractString();
+        String os = hI.read_attribute("osDistribution").extractString();
+        hostInfo = ht + " " + os + " (" + arch + ")";
+      } catch (DevFailed e) {
+      }
+
     }
 
     void populateNode() throws DevFailed {
@@ -409,7 +422,14 @@ public class TreePanelHostCollection extends TreePanel {
       DeviceData argout = db.command_inout("DbGetHostServersInfo", argin);
       String[] arg = argout.extractStringArray();
 
-      Integer[] allLevels = new Integer[]{1,2,3,4,5,6,7,8,0};
+      DbDatum da = db.get_class_property("Starter","NbStartupLevels");
+      if(!da.is_empty()) NB_LEVELS = da.extractLong();
+
+      Integer[] allLevels = new Integer[NB_LEVELS+1];
+      for(int i=1;i<=NB_LEVELS;i++)
+        allLevels[i-1] = i;
+      allLevels[NB_LEVELS] = 0;
+
       ArrayList<String> allHS = new ArrayList<String>();
 
       for(int level:allLevels) {
@@ -447,11 +467,17 @@ public class TreePanelHostCollection extends TreePanel {
 
       StringBuffer result = new StringBuffer();
 
+      if(hostInfo.length()>0) {
+        result.append("<b>");
+        result.append(hostInfo);
+        result.append("</b>\n\n");
+      }
+
       int count = getChildCount();
       for(int i=0;i<count;i++) {
         LevelNode l = (LevelNode)getChildAt(i);
-        result.append("<b>"+l.toString()+"</b>");
-        result.append("\n");
+        result.append("<b>"+l.toString()+"</b>\n");
+        result.append("<hr>\n");
         result.append(l.getValue(true));
         result.append("\n");
       }
@@ -480,7 +506,8 @@ public class TreePanelHostCollection extends TreePanel {
           ACTION_START_HOST,
           ACTION_STOP_HOST,
           ACTION_CH_HOST_USAGE,
-          ACTION_GO_TO_STATER
+          ACTION_GO_TO_STATER,
+          ACTION_TERMINAL
       };
     }
 
@@ -532,6 +559,16 @@ public class TreePanelHostCollection extends TreePanel {
         // ----------------------------------------------------------------------------
         case ACTION_GO_TO_STATER:
           invoker.goToServerNode("Starter/"+host);
+          break;
+
+        // ----------------------------------------------------------------------------
+        case ACTION_TERMINAL:
+          JSSHTerminal.MainPanel terminal;
+          terminal = new JSSHTerminal.MainPanel(host,"dserver","dev-server",80,24,500);
+          terminal.setX11Forwarding(true);
+          terminal.setExitOnClose(false);
+          ATKGraphicsUtils.centerFrameOnScreen(terminal);
+          terminal.setVisible(true);
           break;
 
       }
@@ -731,6 +768,10 @@ public class TreePanelHostCollection extends TreePanel {
       return TangoNodeRenderer.srvicon;
     }
 
+    DevState getState() throws DevFailed {
+      return getServerState(getStarter(),new String[]{server})[0];
+    }
+
     String getValue() {
 
       String result = "";
@@ -739,7 +780,7 @@ public class TreePanelHostCollection extends TreePanel {
 
       try {
 
-        DevState serverState = getServerState(getStarter(),new String[]{server})[0];
+        DevState serverState = getState();
         result = server + ": " + getServerStateString(serverState) + "\n";
 
         result += "-- Log ------------------------------\n";
@@ -778,7 +819,8 @@ public class TreePanelHostCollection extends TreePanel {
             ACTION_MOVE_SERVER,
             ACTION_RESTART_SERVER,
             ACTION_START_SERVER,
-            ACTION_STOP_SERVER
+            ACTION_STOP_SERVER,
+            ACTION_CH_LEVEL,
         };
 
     }
@@ -936,6 +978,67 @@ public class TreePanelHostCollection extends TreePanel {
             JiveUtils.showTangoError(e);
           }
           refreshValues();
+
+          break;
+
+        // ----------------------------------------------------------------------------
+        case ACTION_CH_LEVEL:
+
+          DbServer dbs;
+          DbServInfo info = null;
+
+          try {
+            dbs = new DbServer(server);
+            info = dbs.get_info();
+          } catch (DevFailed e) {
+            JiveUtils.showTangoError(e);
+            return;
+          }
+
+          ServerInfoDlg dlg = new ServerInfoDlg(invoker);
+          if (dlg.showDialog(info) == ServerInfoDlg.RET_OK) {
+
+            try {
+              info = dlg.getSelection();
+              if (info != null) {
+
+                info.host = host;
+                if (info.startup_level == 0)
+                  info.controlled = false;
+                dbs.put_info(info);
+
+                refresh();
+                selectServer(collection, host, info.startup_level, server);
+
+              } else {
+
+                //	Check if Server is stopped
+                if (getState() == DevState.ON) {
+                  JiveUtils.showJiveError("Stop " + server + "  Server before !");
+                  return;
+                }
+
+                //	Remove Server info in database
+                dbs.put_info(new DbServInfo(server, host, false, 0));
+
+                //	Register devices on empty host and un export.
+                String[] deviceName = dbs.get_device_class_list();
+                for (int i = 0; i < deviceName.length; i += 2) {
+                  db.export_device(new DbDevExportInfo(deviceName[i], "", "", ""));
+                  db.unexport_device(deviceName[i]);
+                }
+                  
+                refresh();
+                selectHost(collection, host);
+
+              }
+
+
+            } catch (DevFailed e) {
+              JiveUtils.showTangoError(e);
+            }
+
+          }
 
           break;
 

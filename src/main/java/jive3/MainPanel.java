@@ -90,7 +90,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private String THID = "TangoHost";
 
   // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 7.0 ";
+  final static private String appVersion = "Jive 7.3 ";
 
   // General constructor
   public MainPanel() {
