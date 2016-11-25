@@ -18,6 +18,11 @@
     <dependencies>
         <dependency>
             <groupId>org.tango</groupId>
+            <artifactId>JSSHTerminal</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.tango</groupId>
             <artifactId>TangORB</artifactId>
             <version>9.1.2</version>
         </dependency>
