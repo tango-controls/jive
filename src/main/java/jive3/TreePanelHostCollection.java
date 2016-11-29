@@ -564,7 +564,17 @@ public class TreePanelHostCollection extends TreePanel {
         // ----------------------------------------------------------------------------
         case ACTION_TERMINAL:
           JSSHTerminal.MainPanel terminal;
-          terminal = new JSSHTerminal.MainPanel(host,"dserver","dev-server",80,24,500);
+          String defaultUser = "dserver";
+          String defaultPassword = "dev-server";
+          try {
+            DbDatum dd = db.get_property("Astor","RloginUser");
+            if(!dd.is_empty())
+              defaultUser = dd.extractString();
+            dd = db.get_property("Astor","RloginPassword");
+            if(!dd.is_empty())
+              defaultPassword = dd.extractString();
+          } catch (DevFailed e) {}
+          terminal = new JSSHTerminal.MainPanel(host,defaultUser,defaultPassword,80,24,500);
           terminal.setX11Forwarding(true);
           terminal.setExitOnClose(false);
           ATKGraphicsUtils.centerFrameOnScreen(terminal);

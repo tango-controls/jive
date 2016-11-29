@@ -89,8 +89,8 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private String[] knownTangoHost;
   private String THID = "TangoHost";
 
-  // Relase number (Let a space after the release number)
-  final static private String appVersion = "Jive 7.3 ";
+  // Relase number
+  static private String appVersion = "Jive";
 
   // General constructor
   public MainPanel() {
@@ -109,6 +109,13 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   public MainPanel(boolean runningFromShell,boolean readOnly,int panelMask) {
 
     this.panelMask = panelMask;
+
+    // Get version from manifest
+    String VERSION = "-.-";
+    Package p = getClass().getPackage();
+    if(p!=null) VERSION = p.getImplementationVersion();
+    if( VERSION==null ) VERSION = "-.-";
+    appVersion +=  " " + VERSION;
 
     // Get user settings
     prefs = Preferences.userRoot().node(this.getClass().getName());
