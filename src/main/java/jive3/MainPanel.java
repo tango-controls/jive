@@ -90,7 +90,8 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private String THID = "TangoHost";
 
   // Relase number
-  static private String appVersion = "Jive";
+  public static final String DEFAULT_VERSION = "-.-";
+  public static final String VERSION = getVersion();
 
   // General constructor
   public MainPanel() {
@@ -109,13 +110,6 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   public MainPanel(boolean runningFromShell,boolean readOnly,int panelMask) {
 
     this.panelMask = panelMask;
-
-    // Get version from manifest
-    String VERSION = "-.-";
-    Package p = getClass().getPackage();
-    if(p!=null) VERSION = p.getImplementationVersion();
-    if( VERSION==null ) VERSION = "-.-";
-    appVersion +=  " " + VERSION;
 
     // Get user settings
     prefs = Preferences.userRoot().node(this.getClass().getName());
@@ -852,7 +846,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   // Update the title bar
   private void updateTitle(String tangoHost) {
 
-    String title = new String(appVersion);
+    String title = new String("Jive " + VERSION);
     if (JiveUtils.readOnly) {
         title += "(Read Only)";
     }
@@ -1307,6 +1301,15 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     int x = (scrsize.width - appsize.width) / 2;
     int y = (scrsize.height - appsize.height) / 2;
     setBounds(x, y, appsize.width, appsize.height);
+  }
+
+  private static String getVersion(){
+    Package p = MainPanel.class.getPackage();
+
+    //if version is set in MANIFEST.mf
+    if(p.getImplementationVersion() != null) return p.getImplementationVersion();
+
+    return DEFAULT_VERSION;
   }
 
   // Main function
