@@ -6,6 +6,8 @@ import fr.esrf.Tango.DevVarLongStringArray;
 import fr.esrf.tangoatk.widget.util.ATKGraphicsUtils;
 
 import javax.swing.*;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.DefaultTreeModel;
@@ -28,7 +30,7 @@ import jive.ExecDev;
 /**
  * An abstract class for tree panel.
  */
-public abstract class TreePanel extends JPanel implements TreeSelectionListener,MouseListener {
+public abstract class TreePanel extends JPanel implements TreeSelectionListener,MouseListener,TreeExpansionListener {
 
   protected JTree            tree;
   protected JScrollPane      treeView = null;
@@ -40,7 +42,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private   boolean          updateOnChange;
 
   // Static action menu
-  public final static int ACTION_NUMBER       = 42;
+  public final static int ACTION_NUMBER       = 43;
 
   public final static int ACTION_COPY          = 0;
   public final static int ACTION_PASTE         = 1;
@@ -84,6 +86,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   public final static int ACTION_GO_TO_STATER   = 39;
   public final static int ACTION_CH_LEVEL       = 40;
   public final static int ACTION_TERMINAL       = 41;
+  public final static int ACTION_NEW_SERVERS    = 42;
 
   private static TangoNode[] selectedNodes = null;
   static         File       lastFile = null;
@@ -130,6 +133,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private static JMenuItem  goToStarterMenu;
   private static JMenuItem  chLevelMenu;
   private static JMenuItem  terminalMenu;
+  private static JMenuItem  newServersMenu;
 
   static {
     actionMenu = new JPopupMenu();
@@ -430,6 +434,13 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
         selectedNodes[0].execAction(ACTION_TERMINAL);
       }
     });
+    newServersMenu = new JMenuItem("Start new servers");
+    actionMenu.add(newServersMenu);
+    newServersMenu.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_NEW_SERVERS);
+      }
+    });
 
   }
 
@@ -455,6 +466,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
     treeView = new JScrollPane(tree);
     add(treeView, BorderLayout.CENTER);
     updateOnChange = true;
+    tree.addTreeExpansionListener(this);
 
   }
 
@@ -704,6 +716,12 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
     return result;
 
   }
+
+  // ---------------------------------------------------------------
+
+  public void treeExpanded(TreeExpansionEvent event) {}
+
+  public void treeCollapsed(TreeExpansionEvent event) {}
 
   // ---------------------------------------------------------------
 

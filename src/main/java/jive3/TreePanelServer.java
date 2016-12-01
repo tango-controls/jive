@@ -575,6 +575,10 @@ public class TreePanelServer extends TreePanel {
         add(new DeviceServerNode(server,instance,className,devList[i]));
     }
 
+    public boolean isLeaf() {
+      return devList.length == 0;
+    }
+
     ImageIcon getIcon() {
       if(devList.length==0)
         return TangoNodeRenderer.uclassicon;

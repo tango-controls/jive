@@ -91,7 +91,7 @@ class TipPopup implements MouseMotionListener,MouseListener {
 
   int buildText() {
 
-    if(items==null || items.length==0)
+    if(items==null || items.length==0 || prefix.length()==0)
       return 0;
 
     String prefixLw = prefix.toLowerCase();

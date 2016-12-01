@@ -11,6 +11,7 @@ import jive.ServerDlg;
 import jive.ThreadDlg;
 
 import javax.swing.*;
+import javax.swing.event.TreeExpansionEvent;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.io.FileWriter;
@@ -274,6 +275,19 @@ public class TreePanelHostCollection extends TreePanel {
     return devNode;
   }
 
+  public void treeExpanded(TreeExpansionEvent event) {
+
+    TangoNode expanded = (TangoNode)event.getPath().getLastPathComponent();
+    if(expanded instanceof HostNode) {
+      // Expand level node when HostNode is expanded
+      for(int i=0;i<expanded.getChildCount();i++) {
+        TangoNode nd = (TangoNode)expanded.getChildAt(i);
+        tree.expandPath(nd.getCompletePath());
+      }
+    }
+
+  }
+
 // ---------------------------------------------------------------
 
   class RootNode extends TangoNode {
@@ -507,6 +521,7 @@ public class TreePanelHostCollection extends TreePanel {
           ACTION_STOP_HOST,
           ACTION_CH_HOST_USAGE,
           ACTION_GO_TO_STATER,
+          ACTION_NEW_SERVERS,
           ACTION_TERMINAL
       };
     }
@@ -562,10 +577,22 @@ public class TreePanelHostCollection extends TreePanel {
           break;
 
         // ----------------------------------------------------------------------------
+        case ACTION_NEW_SERVERS:
+          StartServerDlg dlg = new StartServerDlg(db,host,starter,invoker);
+          try {
+            dlg.setServerList(db.get_server_list());
+            ATKGraphicsUtils.centerFrameOnScreen(dlg);
+            dlg.setVisible(true);
+          } catch (DevFailed e) {
+            JiveUtils.showTangoError(e);
+          }
+          break;
+
+        // ----------------------------------------------------------------------------
         case ACTION_TERMINAL:
           JSSHTerminal.MainPanel terminal;
-          String defaultUser = "dserver";
-          String defaultPassword = "dev-server";
+          String defaultUser = null;
+          String defaultPassword = null;
           try {
             DbDatum dd = db.get_property("Astor","RloginUser");
             if(!dd.is_empty())
@@ -574,11 +601,16 @@ public class TreePanelHostCollection extends TreePanel {
             if(!dd.is_empty())
               defaultPassword = dd.extractString();
           } catch (DevFailed e) {}
-          terminal = new JSSHTerminal.MainPanel(host,defaultUser,defaultPassword,80,24,500);
-          terminal.setX11Forwarding(true);
-          terminal.setExitOnClose(false);
-          ATKGraphicsUtils.centerFrameOnScreen(terminal);
-          terminal.setVisible(true);
+
+          if(defaultUser!=null) {
+            terminal = new JSSHTerminal.MainPanel(host,defaultUser,defaultPassword,80,24,500);
+            terminal.setX11Forwarding(true);
+            terminal.setExitOnClose(false);
+            ATKGraphicsUtils.centerFrameOnScreen(terminal);
+            terminal.setVisible(true);
+          } else {
+            JiveUtils.showJiveError("No username !\nAStor/RloginUser free property not defined.");
+          }
           break;
 
       }
@@ -1100,6 +1132,10 @@ public class TreePanelHostCollection extends TreePanel {
     void populateNode() throws DevFailed {
       for (int i = 0; i < devList.length; i++)
         add(new DeviceServerNode(collection,host,level,server,className,devList[i]));
+    }
+
+    public boolean isLeaf() {
+      return devList.length == 0;
     }
 
     ImageIcon getIcon() {
