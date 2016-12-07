@@ -850,6 +850,7 @@ public class TreePanelServer extends TreePanel {
 
         // ----------------------------------------------------------------------------
         case ACTION_COPY:
+          JiveUtils.the_clipboard.clear();
           JiveUtils.copyDeviceProperties(db,devName);
           break;
 
