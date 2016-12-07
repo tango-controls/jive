@@ -135,6 +135,8 @@ class TaskDeviceAttributePropertyNode extends PropertyNode {
 
       case TreePanel.ACTION_PASTE:
 
+        JiveUtils.the_clipboard.parse();
+
         // Paste attribute property
         for(int i=0;i<JiveUtils.the_clipboard.getAttPropertyLength();i++)
           setProperty(JiveUtils.the_clipboard.getAttPropertyName(i),

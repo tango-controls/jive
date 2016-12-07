@@ -1343,6 +1343,8 @@ public class JiveUtils {
 
     try {
 
+      JiveUtils.the_clipboard.parse();
+
       // Paste object property into a device
       if ((node.type == 3) && (node.level == 5) && (node.toString().equals("PROPERTY"))) {
         String devname = node.getDevname(1);

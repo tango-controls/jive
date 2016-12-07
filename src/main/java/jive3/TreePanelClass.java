@@ -92,6 +92,9 @@ public class TreePanelClass extends TreePanel {
       return "Class:";
     }
 
+    void execAction(int number) {
+    }
+
   }
 
   // ---------------------------------------------------------------
@@ -112,6 +115,9 @@ public class TreePanelClass extends TreePanel {
 
     public String toString() {
       return className;
+    }
+
+    void execAction(int number) {
     }
 
   }

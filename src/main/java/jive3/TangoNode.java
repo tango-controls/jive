@@ -72,9 +72,7 @@ abstract class TangoNode extends DefaultMutableTreeNode {
   }
 
   // Execute the given action
-  void execAction(int actionNumber) {
-    System.out.println("Warning, TangoNode.execAction("+actionNumber+") hasn't effect.");
-  }
+  abstract void execAction(int actionNumber);
 
   // Return the complete path of the node
   public TreePath getCompletePath() {

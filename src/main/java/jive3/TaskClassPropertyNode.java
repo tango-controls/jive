@@ -31,6 +31,10 @@ class TaskClassPropertyNode extends PropertyNode {
     return "Properties";
   }
 
+  void execAction(int number) {
+    defaultPropertyAction(number);
+  }
+
   String getTitle() {
     return "Class properties";
   }

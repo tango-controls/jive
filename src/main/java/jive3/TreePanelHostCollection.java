@@ -330,6 +330,9 @@ public class TreePanelHostCollection extends TreePanel {
       return "Collection:";
     }
 
+    void execAction(int number) {
+    }
+
   }
 
 // ---------------------------------------------------------------
@@ -385,6 +388,9 @@ public class TreePanelHostCollection extends TreePanel {
 
     int[] getAction() {
       return new int[0];
+    }
+
+    void execAction(int number) {
     }
 
   }
@@ -1315,6 +1321,7 @@ public class TreePanelHostCollection extends TreePanel {
           break;
 
         case TreePanel.ACTION_PASTE:
+          JiveUtils.the_clipboard.parse();
           for(int i=0;i<JiveUtils.the_clipboard.getAttPropertyLength();i++) {
             putAttributeProperty( devName,
                 JiveUtils.the_clipboard.getAttName(i),

@@ -34,6 +34,9 @@ public class TaskEventNode extends TangoNode {
   void populateNode() throws DevFailed {
   }
 
+  void execAction(int number) {
+  }
+
   ImageIcon getIcon() {
     return TangoNodeRenderer.eventicon;
   }

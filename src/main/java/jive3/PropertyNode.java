@@ -29,7 +29,8 @@ abstract public class PropertyNode extends TangoNode {
       return new int[]{TreePanel.ACTION_COPY,TreePanel.ACTION_PASTE,TreePanel.ACTION_VIEW_HISTORY};
   }
 
-  public void execAction(int number) {
+  public void defaultPropertyAction(int number) {
+
     switch(number) {
 
       case TreePanel.ACTION_COPY:
@@ -40,6 +41,7 @@ abstract public class PropertyNode extends TangoNode {
         break;
 
       case TreePanel.ACTION_PASTE:
+        JiveUtils.the_clipboard.parse();
         for(int i=0;i<JiveUtils.the_clipboard.getObjectPropertyLength();i++)
           setProperty(JiveUtils.the_clipboard.getObjectPropertyName(i),
                       JiveUtils.the_clipboard.getObjectPropertyValue(i));
@@ -51,6 +53,7 @@ abstract public class PropertyNode extends TangoNode {
         break;
 
     }
+
   }
 
 }

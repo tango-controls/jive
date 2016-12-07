@@ -664,6 +664,8 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
     int i;
     try {
 
+      JiveUtils.the_clipboard.parse();
+
       // Paste device properties
       for (i = 0; i < JiveUtils.the_clipboard.getObjectPropertyLength(); i++) {
         db.put_device_property(devname,

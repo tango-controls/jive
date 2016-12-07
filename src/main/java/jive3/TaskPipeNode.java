@@ -44,6 +44,9 @@ public class TaskPipeNode extends TangoNode {
     return true;
   }
 
+  void execAction(int number) {
+  }
+
   int getAttributeNumber() {
     if(pipeInfo==null) browsePipeInfo();
     return pipeInfo.size();

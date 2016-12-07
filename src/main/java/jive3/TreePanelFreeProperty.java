@@ -91,6 +91,9 @@ public class TreePanelFreeProperty extends TreePanel {
       return "FreeProperty:";
     }
 
+    void execAction(int number) {
+    }
+
   }
 
 }

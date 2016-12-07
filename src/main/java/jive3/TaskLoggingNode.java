@@ -42,6 +42,9 @@ public class TaskLoggingNode extends TangoNode {
     return true;
   }
 
+  void execAction(int number) {
+  }
+
   // -----------------------------------------
 
   String getCurrentLoggingLevel() {

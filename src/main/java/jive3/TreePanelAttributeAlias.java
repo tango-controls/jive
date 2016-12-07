@@ -79,6 +79,9 @@ public class TreePanelAttributeAlias extends TreePanel {
       return "AttAlias:";
     }
 
+    void execAction(int number) {
+    }
+
   }
 
   // ---------------------------------------------------------------

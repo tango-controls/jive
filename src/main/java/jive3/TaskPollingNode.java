@@ -57,6 +57,9 @@ public class TaskPollingNode extends TangoNode {
     return true;
   }
 
+  void execAction(int number) {
+  }
+
   // --------------------------------------------------------------------
 
   int getCommandNumber() {

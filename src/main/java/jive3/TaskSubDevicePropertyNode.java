@@ -55,6 +55,10 @@ class TaskSubDevicePropertyNode extends PropertyNode {
     return true;
   }
 
+  void execAction(int number) {
+    defaultPropertyAction(number);
+  }
+
   private boolean acceptProperty(String name) {
 
     return !(JiveUtils.IsPollCfgItem(name) ||

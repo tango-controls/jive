@@ -200,7 +200,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     for(int i=0;i<nbPanels;i++)
       treePane.add(treePanels.get(i).tabName,treePanels.get(i).treePanel);
 
-    int minWidth = 0;
+    int minWidth = 5;
     for(int i=0;i<nbPanels;i++) {
       Dimension d = ATKGraphicsUtils.measureString(treePanels.get(i).tabName,ATKConstant.labelFont);
       minWidth += 24 + d.width;

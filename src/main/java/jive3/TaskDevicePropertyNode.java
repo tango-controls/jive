@@ -98,6 +98,40 @@ class TaskDevicePropertyNode extends PropertyNode {
 
   }
 
+  private boolean acceptPropertyForCopy(String name) {
+
+    return !(JiveUtils.IsPollCfgItem(name) ||
+        JiveUtils.IsLogCfgItem(name) ||
+        JiveUtils.IsHdbCfgItem(name) ||
+        JiveUtils.IsSystemItem(name));
+
+  }
+
+  public void execAction(int number) {
+    switch(number) {
+
+      case TreePanel.ACTION_COPY:
+        JiveUtils.the_clipboard.clear();
+        String[][] props = getPropertiesForCopy();
+        for(int i=0;i<props.length;i++)
+          JiveUtils.the_clipboard.add(props[i][0],props[i][1]);
+        break;
+
+      case TreePanel.ACTION_PASTE:
+        JiveUtils.the_clipboard.parse();
+        for(int i=0;i<JiveUtils.the_clipboard.getObjectPropertyLength();i++)
+          setProperty(JiveUtils.the_clipboard.getObjectPropertyName(i),
+              JiveUtils.the_clipboard.getObjectPropertyValue(i));
+        parentPanel.refreshValues();
+        break;
+
+      case TreePanel.ACTION_VIEW_HISTORY:
+        viewHistory();
+        break;
+
+    }
+  }
+
   String[][] getProperties() {
 
     String[][] ret = new String[0][0];
@@ -110,6 +144,38 @@ class TaskDevicePropertyNode extends PropertyNode {
       for (int i = 0; i < plist.length; i++) {
         // Remove config item
         if( acceptProperty(plist[i]) ) {
+          pvec.add(plist[i]);
+          String[] res = db.get_device_property(devName, plist[i]).extractStringArray();
+          pvec.add(JiveUtils.stringArrayToString(res));
+        }
+      }
+
+      ret = new String[pvec.size()/2][2];
+      for(int i=0;i<ret.length;i++) {
+        ret[i][0] = (String)pvec.get(2*i);
+        ret[i][1] = (String)pvec.get(2*i+1);
+      }
+
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    }
+
+    return ret;
+
+  }
+
+  String[][] getPropertiesForCopy() {
+
+    String[][] ret = new String[0][0];
+
+    try {
+
+      String plist[] = db.get_device_property_list(devName, "*");
+      Vector pvec = new Vector();
+
+      for (int i = 0; i < plist.length; i++) {
+        // Remove config item
+        if( acceptPropertyForCopy(plist[i]) ) {
           pvec.add(plist[i]);
           String[] res = db.get_device_property(devName, plist[i]).extractStringArray();
           pvec.add(JiveUtils.stringArrayToString(res));

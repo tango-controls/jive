@@ -114,6 +114,7 @@ class TaskClassAttributePropertyNode extends PropertyNode {
         break;
 
       case TreePanel.ACTION_PASTE:
+        JiveUtils.the_clipboard.parse();
         for(int i=0;i<JiveUtils.the_clipboard.getAttPropertyLength();i++)
           setProperty(JiveUtils.the_clipboard.getAttPropertyName(i),
                       JiveUtils.the_clipboard.getAttPropertyValue(i));

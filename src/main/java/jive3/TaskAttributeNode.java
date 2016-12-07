@@ -42,6 +42,9 @@ public class TaskAttributeNode extends TangoNode {
   void populateNode() throws DevFailed {
   }
 
+  void execAction(int number) {
+  }
+
   ImageIcon getIcon() {
     return TangoNodeRenderer.atticon;
   }

@@ -80,6 +80,9 @@ public class TreePanelAlias extends TreePanel {
       return "Alias:";
     }
 
+    void execAction(int number) {
+    }
+
   }
 
   // ---------------------------------------------------------------

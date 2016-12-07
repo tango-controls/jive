@@ -174,6 +174,9 @@ public class TreePanelServer extends TreePanel {
       return "Server:";
     }
 
+    void execAction(int number) {
+    }
+
   }
 
   // ---------------------------------------------------------------
@@ -756,6 +759,7 @@ public class TreePanelServer extends TreePanel {
           break;
 
         case TreePanel.ACTION_PASTE:
+          JiveUtils.the_clipboard.parse();
           for(int i=0;i<JiveUtils.the_clipboard.getAttPropertyLength();i++) {
             putAttributeProperty( devName,
                 JiveUtils.the_clipboard.getAttName(i),

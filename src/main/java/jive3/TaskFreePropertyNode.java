@@ -23,6 +23,10 @@ class TaskFreePropertyNode extends PropertyNode {
   void populateNode() throws DevFailed {
   }
 
+  void execAction(int number) {
+    defaultPropertyAction(number);
+  }
+
   ImageIcon getIcon() {
     return TangoNodeRenderer.leaficon;
   }
