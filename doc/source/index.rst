@@ -19,5 +19,6 @@ Contents:
    property
    editing
    filtering
+   collection
    command
 
