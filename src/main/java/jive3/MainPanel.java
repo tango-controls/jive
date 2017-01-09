@@ -984,7 +984,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     return (TreePanelAttributeAlias)getInstanceOf(TreePanelAttributeAlias.class);
   }
   TreePanelFreeProperty getPropertyTreePanel() {
-    return (TreePanelFreeProperty)getInstanceOf(TreePanelAttributeAlias.class);
+    return (TreePanelFreeProperty)getInstanceOf(TreePanelFreeProperty.class);
   }
 
   // Get panel of given class
