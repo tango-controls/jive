@@ -27,7 +27,7 @@ public class ProgressFrame extends JFrame {
   }
 
   static public void hideProgress() {
-    if(prgFrame!=null) prgFrame.setVisible(false);
+    if(prgFrame!=null) prgFrame.dispose();
   }
 
   // -------------------------------------------------------
