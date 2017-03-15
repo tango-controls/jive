@@ -53,6 +53,7 @@ public class ProgressFrame extends JFrame {
   }
 
   private void forceRepaint() {
+    setVisible(true);
     Graphics g = getGraphics();
     paint(g);
     g.dispose();
