@@ -1,5 +1,6 @@
 package jive3;
 
+import jive.ArgParser;
 import jive.MultiLineCellEditor;
 import jive.JiveUtils;
 import jive.MultiLineCellRenderer;
@@ -35,6 +36,8 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
   private JMenuItem           deleteMenuItem;
   private JMenuItem           copyMenuItem;
   private JMenuItem           editMenuItem;
+  private JMenuItem           toHexMenuItem;
+  private JMenuItem           toDecMenuItem;
 
   PropertyPanel()  {
 
@@ -106,12 +109,18 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
     deleteMenuItem.addActionListener(this);
     editMenuItem = new JMenuItem("Edit");
     editMenuItem.addActionListener(this);
+    toHexMenuItem = new JMenuItem("Convert to Hexa");
+    toHexMenuItem.addActionListener(this);
+    toDecMenuItem = new JMenuItem("Convert to Decimal");
+    toDecMenuItem.addActionListener(this);
 
     tableMenu.add(copyMenuItem);
     tableMenu.add(deleteMenuItem);
     tableMenu.add(renameMenuItem);
     tableMenu.add(editMenuItem);
     tableMenu.add(historyMenuItem);
+    tableMenu.add(toHexMenuItem);
+    tableMenu.add(toDecMenuItem);
 
   }
 
@@ -209,6 +218,16 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
 
   }
 
+  private String convertToHex(String s) {
+    ArgParser p = new ArgParser(s);
+    return p.convert_to_hex();
+  }
+
+  private String convertToDec(String s) {
+    ArgParser p = new ArgParser(s);
+    return p.convert_to_dec();
+  }
+
   // Action listener -------------------------------------------
 
   public void actionPerformed(ActionEvent e) {
@@ -283,8 +302,34 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
       propertyEditor.setVisible(true);
       refreshValue();
 
-    } else if (src==historyMenuItem) {
-    
+    } else if (src == toHexMenuItem) {
+
+      if( propertyEditor==null )
+        propertyEditor = new PropertyEditorDlg(parent);
+
+      int row = theTable.getSelectedRow();
+      String pName = (String)dm.getValueAt(row,0);
+      String pValue = (String) dm.getValueAt(row, 1);
+      String nValue = convertToHex(pValue);
+      propertyEditor.setSource(source[0],pName,nValue);
+      propertyEditor.setVisible(true);
+      refreshValue();
+
+    } else if (src == toDecMenuItem) {
+
+      if( propertyEditor==null )
+        propertyEditor = new PropertyEditorDlg(parent);
+
+      int row = theTable.getSelectedRow();
+      String pName = (String)dm.getValueAt(row,0);
+      String pValue = (String) dm.getValueAt(row, 1);
+      String nValue = convertToDec(pValue);
+      propertyEditor.setSource(source[0],pName,nValue);
+      propertyEditor.setVisible(true);
+      refreshValue();
+
+    } else if (src == historyMenuItem) {
+
       int row = theTable.getSelectedRow();
       String propName = (String)dm.getValueAt(row,0);
       String objName = source[0].getName();

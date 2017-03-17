@@ -46,6 +46,52 @@ public class ArgParser {
 
   }
 
+  public String convert_to_hex() throws NumberFormatException {
+
+    StringBuffer ret_string = new StringBuffer();
+
+    String word = "";
+    while(word!=null) {
+      word = get_space();
+      ret_string.append(word);
+      word =read_word();
+      if(word!=null) {
+        if(is_integer(word)) {
+          long l = get_long64(word);
+          ret_string.append("0x"+String.format("%X",l));
+       } else {
+          ret_string.append(word);
+        }
+      }
+    }
+
+    return ret_string.toString();
+
+  }
+
+  public String convert_to_dec() throws NumberFormatException {
+
+    StringBuffer ret_string = new StringBuffer();
+
+    String word = "";
+    while(word!=null) {
+      word = get_space();
+      ret_string.append(word);
+      word =read_word();
+      if(word!=null) {
+        if(is_integer(word)) {
+          long l = get_long64(word);
+          ret_string.append(String.format("%d",l));
+        } else {
+          ret_string.append(word);
+        }
+      }
+    }
+
+    return ret_string.toString();
+
+  }
+
   public PipeBlob parse_pipe() throws NumberFormatException {
 
     String blobName = read_word();
@@ -766,6 +812,19 @@ public class ArgParser {
     while (currentChar <= 32 && currentChar > 0) read_char();
   }
 
+  private String get_space() {
+    StringBuffer ret_word = new StringBuffer();
+    while (currentChar <= 32 && currentChar > 0) {
+      ret_word.append(currentChar);
+      read_char();
+    }
+    return ret_word.toString();
+  }
+  
+  private boolean is_special_char(char c) {
+    return c == ',' || c == '[' || c == ']' || c == '(' || c == ')';    
+  }
+
   // ****************************************************
   private String read_word() throws NumberFormatException {
 
@@ -775,7 +834,7 @@ public class ArgParser {
     jump_space();
 
     /* Treat special character */
-    if (currentChar == ',' || currentChar == '[' || currentChar == ']') {
+    if (is_special_char(currentChar)) {
       ret_word.append(currentChar);
       read_char();
       return ret_word.toString();
@@ -808,7 +867,7 @@ public class ArgParser {
     }
 
     /* Treat other word */
-    while (currentChar > 32 && currentChar != '[' && currentChar != ']' && currentChar != ',') {
+    while (currentChar > 32 && !is_special_char(currentChar)) {
       ret_word.append(currentChar);
       read_char();
     }
@@ -962,8 +1021,50 @@ public class ArgParser {
     return get_number(w,"long64",-9223372036854775808L,9223372036854775807L);
   }
 
-  private boolean is_number(char c) {
-    return (c>='0' && c<='9') || c=='-';
+  private boolean is_native_number(String s) {
+
+    int length = s.length();
+    int i=0;
+    boolean ret = true;
+    while( ret && i<length ) {
+      char c = s.charAt(i);
+      ret = (c>='0' && c<='9');
+      i++;
+    }
+
+    return ret;
+
+  }
+
+  private boolean is_native_hex_number(String s) {
+
+    int length = s.length();
+    int i=0;
+    boolean ret = true;
+    while( ret && i<length ) {
+      char c = s.charAt(i);
+      ret = (c>='0' && c<='9') || (c>='a' && c<='f') || (c>='A' && c<='F');
+      i++;
+    }
+
+    return ret;
+
+  }
+
+  private boolean is_integer(String  s) {
+
+    if(s.contains("."))
+      return false;
+
+    if (s.startsWith("0x") || s.startsWith("0X")) {
+      return is_native_hex_number(s.substring(2));
+    }
+
+    if(s.startsWith("-"))
+      return is_native_number(s.substring(1));
+
+    return is_native_number(s);
+
   }
 
   private DevState get_state(String s) throws NumberFormatException {
