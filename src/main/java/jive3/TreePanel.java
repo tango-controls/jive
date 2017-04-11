@@ -42,7 +42,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private   boolean          updateOnChange;
 
   // Static action menu
-  public final static int ACTION_NUMBER       = 43;
+  public final static int ACTION_NUMBER       = 44;
 
   public final static int ACTION_COPY          = 0;
   public final static int ACTION_PASTE         = 1;
@@ -87,6 +87,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   public final static int ACTION_CH_LEVEL       = 40;
   public final static int ACTION_TERMINAL       = 41;
   public final static int ACTION_NEW_SERVERS    = 42;
+  public final static int ACTION_COPY_ATT_SET   = 43;
 
   private static TangoNode[] selectedNodes = null;
   static         File       lastFile = null;
@@ -134,6 +135,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private static JMenuItem  chLevelMenu;
   private static JMenuItem  terminalMenu;
   private static JMenuItem  newServersMenu;
+  private static JMenuItem  copyAttSetMenu;
 
   static {
     actionMenu = new JPopupMenu();
@@ -439,6 +441,13 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
     newServersMenu.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         selectedNodes[0].execAction(ACTION_NEW_SERVERS);
+      }
+    });
+    copyAttSetMenu = new JMenuItem("Copy Setpoints");
+    actionMenu.add(copyAttSetMenu);
+    copyAttSetMenu.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_COPY_ATT_SET);
       }
     });
 

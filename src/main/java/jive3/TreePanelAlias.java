@@ -87,64 +87,6 @@ public class TreePanelAlias extends TreePanel {
 
   // ---------------------------------------------------------------
 
-  class AttributeNode extends TangoNode {
-
-    private String devName;
-
-    AttributeNode(String devName) {
-      this.devName = devName;
-    }
-
-    void populateNode() throws DevFailed {
-
-      String[] list = new String[0];
-      String[] devList = new String[0];
-      String[] dbList = new String[0];
-      int idl = 0; // 0 means that no property will be considered as attribute config.
-      // In other terms , that means that if the device doesn't run , all
-      // attribute properties will appear in the attribute property node.
-      DeviceProxy ds = new DeviceProxy(devName);
-
-      try {
-        devList = ds.get_attribute_list();
-        idl = ds.get_idl_version();
-      } catch( DevFailed e) {
-      }
-      dbList = db.get_device_attribute_list(devName);
-
-      JiveUtils.sortList(list);
-      for(int i=0;i<devList.length;i++)
-        add(new TaskDeviceAttributePropertyNode(self,db,devName,devList[i],idl,false));
-      for(int i=0;i<dbList.length;i++)
-        if(!JiveUtils.contains(devList,dbList[i]))
-          add(new TaskDeviceAttributePropertyNode(self,db,devName,dbList[i],idl,true));
-
-    }
-
-    public String toString() {
-      return "Attribute properties";
-    }
-
-    public int[] getAction() {
-      return new int[]{TreePanel.ACTION_CREATE_ATTPROP};
-    }
-
-    public void execAction(int actionNumber) {
-      switch(actionNumber) {
-        case TreePanel.ACTION_CREATE_ATTPROP:
-          createEmptyAttributeProperty(devName);
-          break;
-      }
-    }
-
-    public ImageIcon getIcon() {
-      return TangoNodeRenderer.atticon;
-    }
-
-  }
-
-  // ---------------------------------------------------------------
-
   class AliasNode extends TangoNode {
 
     private String aliasName = null;
@@ -162,7 +104,7 @@ public class TreePanelAlias extends TreePanel {
       add(new TaskEventNode(db,devName));
       add(new TaskAttributeNode(db,devName));
       add(new TaskPipeNode(db,devName));
-      add(new AttributeNode(devName));
+      add(new AttributeNode(self,devName,db));
       add(new TaskLoggingNode(db,devName));
     }
 
