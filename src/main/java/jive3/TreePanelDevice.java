@@ -386,7 +386,7 @@ public class TreePanelDevice extends TreePanel {
 
         // ----------------------------------------------------------------------------
         case ACTION_MONITORDEV:
-          new atkpanel.MainPanel(devName, false, true, !JiveUtils.readOnly);
+          JiveUtils.launchAtkPanel(devName);
           break;
 
         // ----------------------------------------------------------------------------

@@ -3,6 +3,7 @@ package jive;
 import fr.esrf.TangoApi.*;
 import fr.esrf.Tango.DevFailed;
 import fr.esrf.Tango.DevVarLongStringArray;
+import org.omg.SendingContext.RunTime;
 
 import javax.swing.tree.TreePath;
 import javax.swing.tree.DefaultTreeModel;
@@ -112,6 +113,8 @@ public class JiveUtils {
   //HDB stuff
   public static DeviceProxy hdbManager=null;
   public static boolean     hdbEnabled=false;
+
+  public static String atkPanelCmdLine = null;
 
   // *****************************************************************************************************************
   // Check item type
@@ -691,6 +694,32 @@ public class JiveUtils {
 
       showTangoError(e);
       return null;
+
+    }
+
+  }
+
+  public static void launchAtkPanel(String devName) {
+
+    if( atkPanelCmdLine == null ) {
+      atkPanelCmdLine = System.getProperty("ATKPANEL");
+      if( atkPanelCmdLine == null )
+        atkPanelCmdLine = "";
+    }
+
+    if(atkPanelCmdLine.length()>0) {
+
+      // Launch from shell
+      try {
+        Runtime.getRuntime().exec(atkPanelCmdLine);
+      } catch (IOException e) {
+        JiveUtils.showJiveError("Cannot launch AtkPanel\n"+e.getMessage());
+      }
+
+    } else {
+
+      // Launch inside same JVM
+      new atkpanel.MainPanel(devName, false, true, !JiveUtils.readOnly);
 
     }
 
