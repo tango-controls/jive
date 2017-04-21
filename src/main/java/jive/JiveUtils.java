@@ -711,7 +711,7 @@ public class JiveUtils {
 
       // Launch from shell
       try {
-        Runtime.getRuntime().exec(atkPanelCmdLine);
+        Runtime.getRuntime().exec(atkPanelCmdLine+" "+devName);
       } catch (IOException e) {
         JiveUtils.showJiveError("Cannot launch AtkPanel\n"+e.getMessage());
       }
