@@ -127,6 +127,8 @@
                             <archive>
                                 <manifest>
                                     <mainClass>jive3.MainPanel</mainClass>
+                                    <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                    <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                                 </manifest>
                             </archive>
                         </configuration>
