@@ -22,11 +22,6 @@
             <version>RELEASE</version>
         </dependency>
         <dependency>
-            <groupId>org.tango</groupId>
-            <artifactId>JTangoServer</artifactId>
-            <version>RELEASE</version>
-        </dependency>
-        <dependency>
             <groupId>org.tango.atk</groupId>
             <artifactId>ATKCore</artifactId>
             <version>RELEASE</version>
