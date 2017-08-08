@@ -707,11 +707,18 @@ public class JiveUtils {
         atkPanelCmdLine = "";
     }
 
+    String tgHost = null;
+    try {
+      tgHost = ApiUtil.get_db_obj().get_tango_host();
+    } catch (DevFailed e) {
+      atkPanelCmdLine = "";
+    }
+
     if(atkPanelCmdLine.length()>0) {
 
       // Launch from shell
       try {
-        Runtime.getRuntime().exec(atkPanelCmdLine+" "+devName);
+        Runtime.getRuntime().exec(atkPanelCmdLine+" " + tgHost + " " + devName);
       } catch (IOException e) {
         JiveUtils.showJiveError("Cannot launch AtkPanel\n"+e.getMessage());
       }

@@ -707,8 +707,8 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
       DeviceProxy ds = new DeviceProxy(devName);
 
       result = "<b>Device Info</b>\n<hr>\n";
-
-      result += ds.get_info().toString();
+      DeviceInfo info = ds.get_info();
+      result += info.toString()+"\n";
 
       // Append Polling status
       result += "\n\n<b>Polling Status</b>\n<hr>\n";

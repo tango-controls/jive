@@ -144,6 +144,15 @@
     </build>
 
     <!-- TODO github release -->
+
+    <repositories>
+        <repository>
+            <id>bintray-tango-controls</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/tango-controls/maven</url>
+        </repository>
+    </repositories>
+
     <distributionManagement>
         <repository>
             <id>bintray-tango-controls</id>
