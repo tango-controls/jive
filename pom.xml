@@ -4,7 +4,7 @@
 
     <groupId>org.tango</groupId>
     <artifactId>Jive</artifactId>
-    <version>7.16-SNAPSHOT</version>
+    <version>7.17-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -19,11 +19,6 @@
         <dependency>
             <groupId>org.tango</groupId>
             <artifactId>JSSHTerminal</artifactId>
-            <version>RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.tango</groupId>
-            <artifactId>JTangoServer</artifactId>
             <version>RELEASE</version>
         </dependency>
         <dependency>
@@ -76,7 +71,6 @@
     </dependencies>
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -91,7 +85,7 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.3</version>
                 <configuration>
-                    <useReleaseProfile>false</useReleaseProfile>
+                    <useReleaseProfile>true</useReleaseProfile>
                     <releaseProfiles>release</releaseProfiles>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
@@ -111,37 +105,62 @@
                     </archive>
                 </configuration>
             </plugin>
-
-            <!-- This build fat-far -->
-            <!--
+            <!-- this builds fat jar -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>assembly</id>
+                        <id>executable</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <appendAssemblyId>false</appendAssemblyId>
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
                             <archive>
                                 <manifest>
                                     <mainClass>jive3.MainPanel</mainClass>
+                                    <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                    <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                                 </manifest>
                             </archive>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            -->
-            <!-- This build fat-far -->
-
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <!-- TODO github release -->
 
@@ -159,4 +178,12 @@
             <url>https://api.bintray.com/maven/tango-controls/maven/${project.artifactId}/;publish=1</url>
         </repository>
     </distributionManagement>
+
+    <!-- tango-controls bintray maven repo to resolve dependencies-->
+    <repositories>
+        <repository>
+            <id>bintray-tango-controls-maven</id>
+            <url>http://dl.bintray.com/tango-controls/maven</url>
+        </repository>
+    </repositories>
 </project>
