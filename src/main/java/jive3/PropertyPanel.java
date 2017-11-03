@@ -38,6 +38,7 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
   private JMenuItem           editMenuItem;
   private JMenuItem           toHexMenuItem;
   private JMenuItem           toDecMenuItem;
+  private JMenuItem           descMenuItem;
 
   PropertyPanel()  {
 
@@ -113,12 +114,16 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
     toHexMenuItem.addActionListener(this);
     toDecMenuItem = new JMenuItem("Convert to Decimal");
     toDecMenuItem.addActionListener(this);
+    descMenuItem = new JMenuItem("Show description");
+    descMenuItem.addActionListener(this);
 
     tableMenu.add(copyMenuItem);
     tableMenu.add(deleteMenuItem);
     tableMenu.add(renameMenuItem);
     tableMenu.add(editMenuItem);
     tableMenu.add(historyMenuItem);
+    tableMenu.add(descMenuItem);
+    tableMenu.add(new JSeparator());
     tableMenu.add(toHexMenuItem);
     tableMenu.add(toDecMenuItem);
 
@@ -206,7 +211,7 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
       if(updatedProp[i]) {
         for(int j=0;j<source.length;j++) {
           k++;
-          ProgressFrame.setProgress("Applying " + source[j].getName() + "/" + dm.getValueAt(i,0),
+          if(nb>1) ProgressFrame.setProgress("Applying " + source[j].getName() + "/" + dm.getValueAt(i,0),
                                     (k*100)/nb );
           source[j].setProperty((String)dm.getValueAt(i,0),(String)dm.getValueAt(i,1));
         }
@@ -327,6 +332,12 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
       propertyEditor.setSource(source[0],pName,nValue);
       propertyEditor.setVisible(true);
       refreshValue();
+    } else if (src == descMenuItem ) {
+
+      int row = theTable.getSelectedRow();
+      String pName = (String)dm.getValueAt(row,0);
+      String desc = source[0].getDescription(pName);
+      JOptionPane.showMessageDialog(this,desc,"Descrition",JOptionPane.INFORMATION_MESSAGE);
 
     } else if (src == historyMenuItem) {
 

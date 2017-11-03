@@ -1,6 +1,6 @@
 package jive3;
 
-import fr.esrf.TangoApi.Database;
+import fr.esrf.TangoApi.*;
 import fr.esrf.Tango.DevFailed;
 
 import javax.swing.*;
@@ -67,6 +67,40 @@ class TaskDevicePropertyNode extends PropertyNode {
 
   public boolean isLeaf() {
     return false;
+  }
+
+  public String getDescription(String name) {
+
+    try {
+
+      // Retreive info from the admin device
+      DbDevImportInfo info = db.import_device(devName);
+      String adminDev = "dserver/" + info.server;
+      DeviceProxy ds = new DeviceProxy(adminDev);
+      DeviceData argin = new DeviceData();
+      argin.insert(info.classname);
+      DeviceData argout = ds.command_inout("QueryWizardDevProperty",argin);
+      String[] props = argout.extractStringArray();
+
+      // Search property
+      boolean found = false;
+      int i=0;
+      while(!found && i<props.length) {
+        found = props[i].equalsIgnoreCase(name);
+        if(!found) i+=3;
+      }
+
+      if(!found)
+        return "Property not available in QueryWizardDevProperty";
+
+      return props[i+1] + "\n\nDefault Value:" + props[i+2];
+
+    } catch (DevFailed e) {
+
+      return e.errors[0].desc;
+
+    }
+
   }
 
   private void addToList(Vector v,String s) {

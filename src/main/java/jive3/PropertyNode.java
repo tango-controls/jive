@@ -17,6 +17,10 @@ abstract public class PropertyNode extends TangoNode {
 
   abstract void viewHistory();
 
+  public String getDescription(String name) {
+    return "No description available";
+  }
+
   void rename(String oldName,String value,String newName) {
     deleteProperty(oldName);
     setProperty(newName,value);
