@@ -7,6 +7,7 @@ import javax.swing.*;
 
 import jive.JiveUtils;
 
+import java.io.IOException;
 import java.util.Vector;
 
 // ---------------------------------------------------------------
@@ -72,6 +73,18 @@ class TaskSubDevicePropertyNode extends PropertyNode {
 
     parentPanel.invoker.historyDlg.viewDevicePropertyHistory(devName,subName+"/*");
     parentPanel.invoker.showHistory();
+
+  }
+
+  void saveProperties() {
+
+    try {
+      DbFileWriter.SaveDeviceProperties(devName);
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    } catch (IOException e2) {
+      JiveUtils.showJiveError(e2.getMessage());
+    }
 
   }
 

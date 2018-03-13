@@ -4,6 +4,7 @@ import fr.esrf.Tango.DevFailed;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -107,6 +108,34 @@ public class TreePanelClass extends TreePanel {
       this.className = className;
     }
 
+    int[] getAction() {
+      if(JiveUtils.readOnly)
+        return new int[]{};
+      else
+        return new int[]{
+            ACTION_SAVE_PROP
+        };
+    }
+
+    void execAction(int actionNumber) {
+
+      switch(actionNumber) {
+
+        // ----------------------------------------------------------------------------
+        case ACTION_SAVE_PROP:
+          try {
+            DbFileWriter.SaveAllClassProperties(className);
+          } catch (DevFailed e) {
+            JiveUtils.showTangoError(e);
+          } catch (IOException e2) {
+            JiveUtils.showJiveError(e2.getMessage());
+          }
+          break;
+
+      }
+
+    }
+
     void populateNode() throws DevFailed {
       add(new TaskClassPropertyNode(self,db,className));
       add(new AttributeNode(className));
@@ -115,9 +144,6 @@ public class TreePanelClass extends TreePanel {
 
     public String toString() {
       return className;
-    }
-
-    void execAction(int number) {
     }
 
   }
@@ -150,7 +176,7 @@ public class TreePanelClass extends TreePanel {
       if(JiveUtils.readOnly)
         return new int[0];
       else
-        return new int[] {ACTION_ADDCLASSATT};
+        return new int[] {ACTION_ADDCLASSATT,ACTION_SAVE_PROP};
     }
 
     public void execAction(int action) {
@@ -160,6 +186,16 @@ public class TreePanelClass extends TreePanel {
           if(newName==null) return;
           addAttribute(this,className,newName);
           break;
+        case ACTION_SAVE_PROP:
+          try {
+            DbFileWriter.SaveClassAttributesProperties(className);
+          } catch (DevFailed e) {
+            JiveUtils.showTangoError(e);
+          } catch (IOException e2) {
+            JiveUtils.showJiveError(e2.getMessage());
+          }
+          break;
+
       }
     }
 
@@ -252,7 +288,8 @@ public class TreePanelClass extends TreePanel {
                          ACTION_DEFALIAS,
                          ACTION_GOTOSERVNODE,
                          ACTION_RESTART,
-                         ACTION_LOG_VIEWER
+                         ACTION_LOG_VIEWER,
+                         ACTION_SAVE_PROP
         };
     }
 
@@ -331,6 +368,17 @@ public class TreePanelClass extends TreePanel {
         // ----------------------------------------------------------------------------
         case ACTION_LOG_VIEWER:
           launchLogViewer(devName);
+          break;
+
+        // ----------------------------------------------------------------------------
+        case ACTION_SAVE_PROP:
+          try {
+            DbFileWriter.SaveAllDeviceProperties(devName);
+          } catch (DevFailed e) {
+            JiveUtils.showTangoError(e);
+          } catch (IOException e2) {
+            JiveUtils.showJiveError(e2.getMessage());
+          }
           break;
 
       }

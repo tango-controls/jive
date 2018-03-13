@@ -7,6 +7,8 @@ import javax.swing.*;
 
 import jive.JiveUtils;
 
+import java.io.IOException;
+
 // ---------------------------------------------------------------
 
 class TaskClassPropertyNode extends PropertyNode {
@@ -52,6 +54,18 @@ class TaskClassPropertyNode extends PropertyNode {
     parentPanel.invoker.historyDlg.viewClassPropertyHistory(className,"*");
     parentPanel.invoker.showHistory();
     
+  }
+
+  void saveProperties() {
+
+    try {
+      DbFileWriter.SaveClassProperties(className);
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    } catch (IOException e2) {
+      JiveUtils.showJiveError(e2.getMessage());
+    }
+
   }
 
   String[][] getProperties() {

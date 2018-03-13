@@ -7,6 +7,8 @@ import javax.swing.*;
 
 import jive.JiveUtils;
 
+import java.io.IOException;
+
 // ---------------------------------------------------------------
 
 class TaskFreePropertyNode extends PropertyNode {
@@ -51,6 +53,18 @@ class TaskFreePropertyNode extends PropertyNode {
 
     parentPanel.invoker.historyDlg.viewFreePropertyHistory(objectName,"*");
     parentPanel.invoker.showHistory();
+
+  }
+
+  void saveProperties() {
+
+    try {
+      DbFileWriter.SaveFreeProperties(objectName);
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    } catch (IOException e2) {
+      JiveUtils.showJiveError(e2.getMessage());
+    }
 
   }
 

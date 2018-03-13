@@ -8,6 +8,7 @@ import javax.swing.*;
 
 import jive.JiveUtils;
 
+import java.io.IOException;
 import java.util.Vector;
 
 // ---------------------------------------------------------------
@@ -68,6 +69,18 @@ class TaskDeviceAttributePropertyNode extends PropertyNode {
     parentPanel.invoker.historyDlg.viewDeviceAttPropertyHistory(devName,attributeName,"*");
     parentPanel.invoker.showHistory();
     
+  }
+
+  void saveProperties() {
+
+    try {
+      DbFileWriter.SaveDeviceAttributeProperties(devName, attributeName);
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    } catch (IOException e2) {
+      JiveUtils.showJiveError(e2.getMessage());
+    }
+
   }
 
   String[][] getProperties() {
@@ -152,6 +165,10 @@ class TaskDeviceAttributePropertyNode extends PropertyNode {
 
       case TreePanel.ACTION_VIEW_HISTORY:
         viewHistory();
+        break;
+
+      case TreePanel.ACTION_SAVE_PROP:
+        saveProperties();
         break;
 
     }

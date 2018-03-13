@@ -15,6 +15,9 @@ import java.io.IOException;
 
 import jive.JiveUtils;
 
+/**
+ * Read Database and save server to a File
+ */
 class DbReader {
 
   String srvName;

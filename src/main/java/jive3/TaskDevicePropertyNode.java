@@ -7,6 +7,7 @@ import javax.swing.*;
 
 import jive.JiveUtils;
 
+import java.io.IOException;
 import java.util.Vector;
 
 // ---------------------------------------------------------------
@@ -163,7 +164,23 @@ class TaskDevicePropertyNode extends PropertyNode {
         viewHistory();
         break;
 
+      case TreePanel.ACTION_SAVE_PROP:
+        saveProperties();
+        break;
+
     }
+  }
+
+  void saveProperties() {
+
+    try {
+      DbFileWriter.SaveDeviceProperties(devName);
+    } catch (DevFailed e) {
+      JiveUtils.showTangoError(e);
+    } catch (IOException e2) {
+      JiveUtils.showJiveError(e2.getMessage());
+    }
+
   }
 
   String[][] getProperties() {

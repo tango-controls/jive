@@ -42,7 +42,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private   boolean          updateOnChange;
 
   // Static action menu
-  public final static int ACTION_NUMBER       = 44;
+  public final static int ACTION_NUMBER       = 45;
 
   public final static int ACTION_COPY          = 0;
   public final static int ACTION_PASTE         = 1;
@@ -88,6 +88,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   public final static int ACTION_TERMINAL       = 41;
   public final static int ACTION_NEW_SERVERS    = 42;
   public final static int ACTION_COPY_ATT_SET   = 43;
+  public final static int ACTION_SAVE_PROP      = 44;
 
   private static TangoNode[] selectedNodes = null;
   static         File       lastFile = null;
@@ -136,6 +137,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   private static JMenuItem  terminalMenu;
   private static JMenuItem  newServersMenu;
   private static JMenuItem  copyAttSetMenu;
+  private static JMenuItem  savePropMenu;
 
   static {
     actionMenu = new JPopupMenu();
@@ -448,6 +450,13 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
     copyAttSetMenu.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         selectedNodes[0].execAction(ACTION_COPY_ATT_SET);
+      }
+    });
+    savePropMenu = new JMenuItem("Save properties");
+    actionMenu.add(savePropMenu);
+    savePropMenu.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        selectedNodes[0].execAction(ACTION_SAVE_PROP);
       }
     });
 
@@ -1041,9 +1050,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   // ---------------------------------------------------------------
   void saveServerData(FileWriter fw,String srvName) throws IOException {
 
-    int i,j,k,l;
-
-    boolean prtOut;
+    int i,l;
 
     try {
 
@@ -1052,10 +1059,6 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
       String[] class_list = db.get_server_class_list(srvName);
 
       for (i = 0; i < class_list.length; i++) {
-
-        String[] prop_list;
-        String[] att_list;
-        DbAttribute lst[];
 
         // Device declaration and resource
 
@@ -1069,33 +1072,11 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
 
         for (l = 0; l < dev_list.length; l++) {
 
-          prop_list = db.get_device_property_list(dev_list[l], "*");
-          if (prop_list.length > 0) {
-            fw.write("\n# --- " + dev_list[l] + " properties\n\n");
-            for (j = 0; j < prop_list.length; j++) {
-              String[] value = db.get_device_property(dev_list[l], prop_list[j]).extractStringArray();
-              if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
-              JiveUtils.printFormatedRes(dev_list[l] + "->" + prop_list[j] + ": ", value, fw);
-            }
-          }
+          DbFileWriter.SaveDeviceProperties(dev_list[l], fw);
 
           try {
 
-            att_list = db.get_device_attribute_list(dev_list[l]);
-            lst = db.get_device_attribute_property(dev_list[l], att_list);
-            prtOut = false;
-            for (k = 0; k < lst.length; k++) {
-              prop_list = lst[k].get_property_list();
-              for (j = 0; j < prop_list.length; j++) {
-                if (!prtOut) {
-                  fw.write("\n# --- " + dev_list[l] + " attribute properties\n\n");
-                  prtOut = true;
-                }
-                if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
-                String[] value = lst[k].get_value(j);
-                JiveUtils.printFormatedRes(dev_list[l] + "/" + att_list[k] + "->" + prop_list[j] + ": ", value, fw);
-              }
-            }
+            DbFileWriter.SaveDeviceAttributesProperties(dev_list[l], fw);
 
           } catch (DevFailed e) {
 
@@ -1115,28 +1096,8 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
           fw.write("# CLASS " + class_list[i] + " properties\n");
           fw.write("#---------------------------------------------------------\n\n");
 
-          prop_list = db.get_class_property_list(class_list[i], "*");
-          for (j = 0; j < prop_list.length; j++) {
-            String[] value = db.get_class_property(class_list[i], prop_list[j]).extractStringArray();
-            if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
-            JiveUtils.printFormatedRes("CLASS/" + class_list[i] + "->" + prop_list[j] + ": ", value, fw);
-          }
-
-          att_list = db.get_class_attribute_list(class_list[i], "*");
-          lst = db.get_class_attribute_property(class_list[i], att_list);
-          prtOut = false;
-          for (k = 0; k < lst.length; k++) {
-            prop_list = lst[k].get_property_list();
-            for (j = 0; j < prop_list.length; j++) {
-              if(!prtOut) {
-                fw.write("\n# CLASS " + class_list[i] + " attribute properties\n\n");
-                prtOut=true;
-              }
-              if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
-              String[] value = lst[k].get_value(j);
-              JiveUtils.printFormatedRes("CLASS/" + class_list[i] + "/" + att_list[k] + "->" + prop_list[j] + ": ", value, fw);
-            }
-          }
+          DbFileWriter.SaveClassProperties(class_list[i],fw);
+          DbFileWriter.SaveClassAttributesProperties(class_list[i],fw);
 
           fw.write("\n");
 
@@ -1150,16 +1111,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
       // Save admin server data
       String[] prop_list;
       String admDevName = "dserver/" + srvName;
-
-      prop_list = db.get_device_property_list(admDevName, "*");
-      if (prop_list.length > 0) {
-        fw.write("\n# --- " + admDevName + " properties\n\n");
-        for (j = 0; j < prop_list.length; j++) {
-          String[] value = db.get_device_property(admDevName, prop_list[j]).extractStringArray();
-          if (prop_list[j].indexOf(' ') != -1) prop_list[j] = "\"" + prop_list[j] + "\"";
-          JiveUtils.printFormatedRes(admDevName + "->" + prop_list[j] + ": ", value, fw);
-        }
-      }
+      DbFileWriter.SaveDeviceProperties(admDevName, fw);
 
     } catch (DevFailed e) {
 

@@ -9,9 +9,8 @@ import fr.esrf.TangoApi.DbDevImportInfo;
 import javax.swing.*;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.io.IOException;
 
-import fr.esrf.tangoatk.core.DeviceFactory;
-import fr.esrf.tangoatk.widget.util.ATKGraphicsUtils;
 import jive.DevWizard;
 import jive.JiveUtils;
 
@@ -352,7 +351,8 @@ public class TreePanelDevice extends TreePanel {
                          ACTION_RESTART,
                          ACTION_GOTOADMINNODE,
                          ACTION_LOG_VIEWER,
-                         ACTION_DEVICEWIZ
+                         ACTION_DEVICEWIZ,
+                         ACTION_SAVE_PROP
         };
     }
 
@@ -452,6 +452,17 @@ public class TreePanelDevice extends TreePanel {
             dwdlg.showDeviceWizard(info.server , className , devName);
           } catch(DevFailed e) {
             JiveUtils.showTangoError(e);
+          }
+          break;
+
+        // ----------------------------------------------------------------------------
+        case ACTION_SAVE_PROP:
+          try {
+            DbFileWriter.SaveAllDeviceProperties(devName);
+          } catch (DevFailed e) {
+            JiveUtils.showTangoError(e);
+          } catch (IOException e2) {
+            JiveUtils.showJiveError(e2.getMessage());
           }
           break;
 

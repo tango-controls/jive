@@ -6,6 +6,7 @@ import fr.esrf.TangoApi.DeviceProxy;
 import jive.JiveUtils;
 
 import javax.swing.*;
+import java.io.IOException;
 
 /**
  * Attribute Property node
@@ -53,7 +54,8 @@ public class AttributeNode extends TangoNode {
         TreePanel.ACTION_COPY,
         TreePanel.ACTION_COPY_ATT_SET,
         TreePanel.ACTION_PASTE,
-        TreePanel.ACTION_CREATE_ATTPROP
+        TreePanel.ACTION_CREATE_ATTPROP,
+        TreePanel.ACTION_SAVE_PROP
     };
   }
 
@@ -96,6 +98,16 @@ public class AttributeNode extends TangoNode {
               JiveUtils.the_clipboard.getAttName(i),
               JiveUtils.the_clipboard.getAttPropertyName(i),
               JiveUtils.the_clipboard.getAttPropertyValue(i));
+        }
+        break;
+
+      case TreePanel.ACTION_SAVE_PROP:
+        try {
+          DbFileWriter.SaveDeviceAttributesProperties(devName);
+        } catch (DevFailed e) {
+          JiveUtils.showTangoError(e);
+        } catch (IOException e2) {
+          JiveUtils.showJiveError(e2.getMessage());
         }
         break;
     }

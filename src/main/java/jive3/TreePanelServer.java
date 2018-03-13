@@ -4,14 +4,12 @@ import javax.swing.*;
 import javax.swing.tree.TreePath;
 
 import fr.esrf.Tango.DevFailed;
-import fr.esrf.Tango.DevState;
 import fr.esrf.TangoApi.*;
 
 import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
-import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -600,7 +598,8 @@ public class TreePanelServer extends TreePanel {
         return new int[]{ACTION_RENAME,
                          ACTION_DELETE,
                          ACTION_ADDDEVICE,
-                         ACTION_DEVICESWIZ
+                         ACTION_DEVICESWIZ,
+                         ACTION_SAVE_PROP
         };
     }
 
@@ -673,6 +672,17 @@ public class TreePanelServer extends TreePanel {
           refresh();
           break;
 
+        // ----------------------------------------------------------------------------
+        case ACTION_SAVE_PROP:
+          try {
+            DbFileWriter.SaveAllClassProperties(className);
+          } catch (DevFailed e) {
+            JiveUtils.showTangoError(e);
+          } catch (IOException e2) {
+            JiveUtils.showJiveError(e2.getMessage());
+          }
+          break;
+
       }
 
     }
@@ -702,7 +712,7 @@ public class TreePanelServer extends TreePanel {
     private String server;
     private String instance;
     private String className;
-    private String    devName;
+    private String devName;
 
     DeviceServerNode(String server, String instance, String className, String devName) {
       this.server = server;
@@ -754,7 +764,8 @@ public class TreePanelServer extends TreePanel {
                          ACTION_GOTODEVNODE,
                          ACTION_RESTART,
                          ACTION_DEVICEWIZ,
-                         ACTION_LOG_VIEWER
+                         ACTION_LOG_VIEWER,
+                         ACTION_SAVE_PROP
         };
     }
 
@@ -843,6 +854,17 @@ public class TreePanelServer extends TreePanel {
         // ----------------------------------------------------------------------------
         case ACTION_LOG_VIEWER:
           launchLogViewer(devName);
+          break;
+
+        // ----------------------------------------------------------------------------
+        case ACTION_SAVE_PROP:
+          try {
+            DbFileWriter.SaveAllDeviceProperties(devName);
+          } catch (DevFailed e) {
+            JiveUtils.showTangoError(e);
+          } catch (IOException e2) {
+            JiveUtils.showJiveError(e2.getMessage());
+          }
           break;
 
       }

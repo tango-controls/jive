@@ -17,6 +17,8 @@ abstract public class PropertyNode extends TangoNode {
 
   abstract void viewHistory();
 
+  abstract void saveProperties();
+
   public String getDescription(String name) {
     return "No description available";
   }
@@ -30,7 +32,7 @@ abstract public class PropertyNode extends TangoNode {
     if(JiveUtils.readOnly)
       return new int[0];      
     else
-      return new int[]{TreePanel.ACTION_COPY,TreePanel.ACTION_PASTE,TreePanel.ACTION_VIEW_HISTORY};
+      return new int[]{TreePanel.ACTION_COPY,TreePanel.ACTION_PASTE,TreePanel.ACTION_VIEW_HISTORY,TreePanel.ACTION_SAVE_PROP};
   }
 
   public void defaultPropertyAction(int number) {
@@ -54,6 +56,10 @@ abstract public class PropertyNode extends TangoNode {
 
       case TreePanel.ACTION_VIEW_HISTORY:
         viewHistory();
+        break;
+
+      case TreePanel.ACTION_SAVE_PROP:
+        saveProperties();
         break;
 
     }
