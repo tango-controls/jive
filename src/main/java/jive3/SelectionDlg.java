@@ -1,22 +1,24 @@
 package jive3;
 
 import fr.esrf.Tango.DevFailed;
+import fr.esrf.Tango.DevVarLongStringArray;
 import fr.esrf.TangoApi.Database;
+import fr.esrf.TangoApi.DbAttribute;
 import fr.esrf.TangoApi.DbDatum;
+import fr.esrf.TangoApi.DeviceData;
 import fr.esrf.tangoatk.widget.util.ATKConstant;
 import jive.JiveUtils;
 import jive.MultiLineCellEditor;
 import jive.MultiLineCellRenderer;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Multiple selection dialog
@@ -24,10 +26,11 @@ import java.util.Vector;
 
 class PItem {
 
-  String  devName;
-  String  pName;
-  boolean updated;
-  String[]  value;
+  String   devName;
+  String   attName;
+  String   pName;
+  boolean  updated;
+  String[] value;
 
   public String toString() {
     return JiveUtils.stringArrayToString(value);
@@ -50,7 +53,7 @@ public class SelectionDlg extends JFrame implements ActionListener {
   DefaultTableModel dm;
   JTable theTable;
   String selectText;
-  Vector<PItem> items;
+  ArrayList<PItem> items;
 
   public SelectionDlg() {
     this.db = null;
@@ -168,7 +171,7 @@ public class SelectionDlg extends JFrame implements ActionListener {
       }
     });
 
-    items = new Vector<PItem>();
+    items = new ArrayList<PItem>();
     clear();
 
   }
@@ -179,35 +182,96 @@ public class SelectionDlg extends JFrame implements ActionListener {
 
   private void refresh() {
 
-    String selectText = selectionText.getText();
-    int slashCount = 0;
-    for(int i=0;i<selectText.length();i++)
-      if(selectText.charAt(i)=='/') slashCount++;
+    String selectText = selectionText.getText().trim();
 
-    if (slashCount != 3) {
-      JiveUtils.showJiveError("Invalid selection pattern, 4 slash separated fields expected");
+    String[] fields = selectText.split("/");
+
+    if (fields.length != 4 && fields.length != 5) {
+      JiveUtils.showJiveError("Invalid selection pattern, 4 or 5 slash separated fields expected");
       return;
     }
 
     try {
 
-      int idx = selectText.lastIndexOf('/');
-      String devName = selectText.substring(0, idx);
-      String propName = selectText.substring(idx + 1);
-
       items.clear();
-      String[] devNames = db.get_device_list(devName);
-      for( int i=0;i<devNames.length;i++ ) {
-        String[] pList = db.get_device_property_list(devNames[i], propName);
-        for(int j=0;j<pList.length;j++) {
-          PItem pi = new PItem();
-          pi.devName = devNames[i];
-          pi.pName = pList[j];
-          pi.updated = false;
-          DbDatum dbd = db.get_device_property(pi.devName,pi.pName);
-          pi.value = dbd.extractStringArray();
-          items.add(pi);
+      String devName = fields[0] + "/" + fields[1] + "/" + fields[2];
+
+      if(fields.length==4) {
+
+        // Device properties
+        String propName = fields[3];
+        String[] devNames = db.get_device_list(devName);
+        for( int i=0;i<devNames.length;i++ ) {
+          String[] pList = db.get_device_property_list(devNames[i], propName);
+          for(int j=0;j<pList.length;j++) {
+            PItem pi = new PItem();
+            pi.devName = devNames[i];
+            pi.attName = null;
+            pi.pName = pList[j];
+            pi.updated = false;
+            DbDatum dbd = db.get_device_property(pi.devName,pi.pName);
+            pi.value = dbd.extractStringArray();
+            items.add(pi);
+          }
         }
+
+      } else {
+
+        // Attribute properties
+        devName = devName.replace('*','%');
+        String attName = fields[3].replace('*','%');
+        String propName = fields[4].replace('*','%');
+
+        DeviceData argin = new DeviceData();
+        String request = "select distinct device,attribute,name,count,value from property_attribute_device " +
+                         "where device like '" + devName + "' and attribute like '" + attName + "'" +
+                         "and name like '" + propName + "' " +
+                         "order by device,attribute,name,count asc;";
+        argin.insert(request);
+        DeviceData argout = db.command_inout("DbMySqlSelect",argin);
+
+        DevVarLongStringArray arg = argout.extractLongStringArray();
+        PItem it = null;
+        ArrayList<String> value = new ArrayList<String>();
+
+        for(int i=0;i<arg.svalue.length;i+=5) {
+          if(arg.lvalue[i/5]!=0) {
+
+            String dbDevName = arg.svalue[i+0];
+            String dbAttName = arg.svalue[i+1];
+            String dbPropName = arg.svalue[i+2];
+
+            if( it==null ||
+                !dbDevName.equalsIgnoreCase(it.devName) ||
+                !dbAttName.equalsIgnoreCase(it.attName) ||
+                !dbPropName.equalsIgnoreCase(it.pName) ) {
+
+              // Add to list
+              if(it!=null) {
+                it.value = value.toArray(new String[value.size()]);
+                items.add(it);
+                value.clear();
+              }
+
+              // New item
+              it = new PItem();
+              it.devName = dbDevName;
+              it.attName = dbAttName;
+              it.pName = dbPropName;
+
+            }
+
+            value.add(arg.svalue[i+4]);
+
+          }
+        }
+
+        // Add last item
+        if(it!=null) {
+          it.value = value.toArray(new String[value.size()]);
+          items.add(it);
+        }
+
       }
 
       if(items.size()==0)
@@ -225,13 +289,19 @@ public class SelectionDlg extends JFrame implements ActionListener {
 
   private void refreshTable() {
 
-    String[][] prop = new String[items.size()][2];
-    for (int i = 0; i < items.size(); i++) {
-      prop[i][0] = items.get(i).devName + "/" + items.get(i).pName;
-      prop[i][1] = items.get(i).toString();
-    }
 
+    String[][] prop = new String[items.size()][3];
+    for (int i = 0; i < items.size(); i++) {
+      PItem it = items.get(i);
+      if( it.attName == null ) {
+        prop[i][0] = it.devName + "/" + it.pName;
+      } else {
+        prop[i][0] = it.devName + "/" + it.attName + "/" + it.pName;
+      }
+      prop[i][1] =it.toString();
+    }
     dm.setDataVector(prop, colName);
+
     editor.updateRows();
     theTable.getColumnModel().getColumn(1).setPreferredWidth(250);
     theTable.validate();
@@ -270,11 +340,23 @@ public class SelectionDlg extends JFrame implements ActionListener {
       for (int i = 0; i < items.size(); i++) {
         PItem pi = items.get(i);
         if (pi.updated) {
-          DbDatum[] ds = new DbDatum[1];
-          DbDatum d = new DbDatum(pi.pName);
-          d.insert(pi.value);
-          ds[0] = d;
-          db.put_device_property(pi.devName, ds);
+
+          if( pi.attName==null ) {
+
+            // Device property
+            DbDatum[] ds = new DbDatum[1];
+            ds[0] = new DbDatum(pi.pName,pi.value);
+            db.put_device_property(pi.devName, ds);
+
+          } else {
+
+            // Attribute property
+            DbAttribute da = new DbAttribute(pi.attName);
+            da.add(pi.pName, pi.value);
+            db.put_device_attribute_property(pi.devName,da);
+
+          }
+
         }
         pi.updated = false;
       }
