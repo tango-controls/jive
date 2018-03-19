@@ -1297,7 +1297,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   private void centerWindow() {
     Toolkit toolkit = Toolkit.getDefaultToolkit();
     Dimension scrsize = toolkit.getScreenSize();
-    Dimension appsize = new Dimension(830, 500);
+    Dimension appsize = new Dimension(850, 500);
     int x = (scrsize.width - appsize.width) / 2;
     int y = (scrsize.height - appsize.height) / 2;
     setBounds(x, y, appsize.width, appsize.height);

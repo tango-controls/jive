@@ -127,6 +127,8 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
     tableMenu.add(toHexMenuItem);
     tableMenu.add(toDecMenuItem);
 
+    setMinimumSize(new Dimension(0,0));
+
   }
 
   // Mouse listener -------------------------------------------
