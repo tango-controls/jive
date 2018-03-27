@@ -674,6 +674,7 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
           if(cursorPos>0) {
             modify();
             cursorPos--;
+            lastCursorPos = cursorPos;
             text.remove(cursorPos, 1);
             resetSelection();
             fireUpdate();
@@ -1064,7 +1065,7 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
 
   private void initializeDefault() {
 
-    final String fontName = "Courier New";
+    final String fontName = "MonoSpaced";
     final int fontSize = 12;
 
     plainFont = new Font(fontName, Font.PLAIN, fontSize);

@@ -25,7 +25,7 @@ public class PropertyEditorDlg extends JDialog implements ActionListener {
   private final static String keyword1List[] = {"true","false"};
   private final static Color keyword1Color = new Color(30,120,30);
 
-  private final static String keyword2List[] = {"DevBoolean","DevShort","DevUShort","DevShort","DevULong","DevLong","DevULong64","DevLong64"};
+  private final static String keyword2List[] = {"DevBoolean","DevShort","DevUShort","DevULong","DevLong","DevULong64","DevLong64","DevFloat","DevDouble"};
   private final static Color keyword2Color = new Color(30,120,120);
 
   PropertyEditorDlg(JFrame parent) {

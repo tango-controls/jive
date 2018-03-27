@@ -5,6 +5,7 @@
 
 #Ignore specific script
 install.bat
+install_dbg.bat
 
 #force mave: ignore everything not maven related
 *.iml
