@@ -1306,7 +1306,7 @@ public class JiveUtils {
                 isAlive=true;
               } catch (DevFailed e2) {}
 
-              int ok = JOptionPane.showConfirmDialog(parent, "Do you want to copy propeties of " + node.toString() + " to " + nDevName + " ?", "Confirm propety move", JOptionPane.YES_NO_OPTION);
+              int ok = JOptionPane.showConfirmDialog(parent, "Do you want to copy properties of " + node.toString() + " to " + nDevName + " ?", "Confirm property move", JOptionPane.YES_NO_OPTION);
               if (ok == JOptionPane.YES_OPTION) {
 
                 // Clone device properties
@@ -1316,7 +1316,7 @@ public class JiveUtils {
                   node.getDB().put_device_property(nDevName, data);
                 }
 
-                // Clone attributes propeties
+                // Clone attributes properties
                 if (isAlive) {
                   try {
 

@@ -1443,7 +1443,7 @@ public class TreePanelHostCollection extends TreePanel {
             isAlive=true;
           } catch (DevFailed e2) {}
 
-          int ok = JOptionPane.showConfirmDialog(invoker, "Do you want to copy propeties of " + devName + " to " + nDevName + " ?", "Confirm propety move", JOptionPane.YES_NO_OPTION);
+          int ok = JOptionPane.showConfirmDialog(invoker, "Do you want to copy properties of " + devName + " to " + nDevName + " ?", "Confirm property move", JOptionPane.YES_NO_OPTION);
           if (ok == JOptionPane.YES_OPTION) {
 
             // Clone device properties
@@ -1453,7 +1453,7 @@ public class TreePanelHostCollection extends TreePanel {
               db.put_device_property(nDevName, data);
             }
 
-            // Clone attributes propeties
+            // Clone attributes properties
             try {
 
               String[] attList = db.get_device_attribute_list(devName);
