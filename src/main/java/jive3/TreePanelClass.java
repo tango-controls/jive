@@ -3,6 +3,7 @@ package jive3;
 import fr.esrf.Tango.DevFailed;
 
 import javax.swing.*;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -69,6 +70,18 @@ public class TreePanelClass extends TreePanel {
 
   public String[] getClassList() {
     return classList;
+  }
+
+  public TangoNode selectClass(String className) {
+
+    // Search class
+    TangoNode classNode = searchNode(root,className);
+    if(classNode==null) return null;
+    TreePath selPath = new TreePath(root);
+    selPath = selPath.pathByAddingChild(classNode);
+    tree.setSelectionPath(selPath);
+    return classNode;
+
   }
 
   // ---------------------------------------------------------------

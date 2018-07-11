@@ -1095,6 +1095,19 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   }
 
   // Select a device and show the device tree panel
+  public void goToClassNode(String className) {
+
+    if(isClassPanelVisible()) {
+      TreePanelClass classTreePanel = getClassTreePanel();
+      classTreePanel.selectClass(className);
+      treePane.setSelectedComponent(classTreePanel);
+      // Work around X11 bug
+      treePane.getSelectedComponent().setVisible(true);
+    }
+
+  }
+
+  // Select a device and show the device tree panel
   public void goToDeviceNode(String devName) {
 
     if(isDevicePanelVisible()) {
@@ -1318,6 +1331,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     System.out.println("   -r        Read only mode (No write access to database allowed)");
     System.out.println("   -s server Open jive and show specified server node (server=ServerName/instance)");
     System.out.println("   -d device Open jive and show specified device node (device=domain/family/member)");
+    System.out.println("   -c class Open jive and show specified class node");
     System.out.println("   -fs filter Default server filter");
     System.out.println("   -fd filter Default device filter");
     System.out.println("   -fc filter Default class filter");
@@ -1340,6 +1354,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       int i = 0;
       String server = null;
       String device = null;
+      String className = null;
       String fs = null;
       String fd = null;
       String fc = null;
@@ -1362,6 +1377,11 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
           if(i>=args.length)
             printUsage();
           device = args[i];
+        } else if(args[i].equalsIgnoreCase("-c")) {
+          i++;
+          if(i>=args.length)
+            printUsage();
+          className = args[i];
         } else if(args[i].equalsIgnoreCase("-fs")) {
           i++;
           if(i>=args.length)
@@ -1410,6 +1430,8 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
         p.goToServerFullNode(server);
       if(device!=null)
         p.goToDeviceNode(device);
+      if(className!=null)
+        p.goToClassNode(className);
       if(fs!=null)
         p.filterServer(fs);
       if(fd!=null)

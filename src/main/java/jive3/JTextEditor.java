@@ -16,16 +16,14 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.ArrayList;
-
-
+import java.util.Arrays;
 
 
 /**
  * Text Editor class
  */
 
-public final class JTextEditor extends JComponent implements FocusListener,MouseListener,MouseMotionListener,KeyListener {
-
+public final class JTextEditor extends JComponent implements FocusListener,MouseListener,MouseMotionListener,MouseWheelListener,KeyListener {
 
   /**
    * The editor content
@@ -246,6 +244,8 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
   private Font italicFont = null;
   private Color defaultColor = new Color(80,80,80);
   private Color selBackColor = new Color(220,220,255);
+  private Color countBackColor = new Color(230,230,250);
+  private Color countForeColor = new Color(150,150,150);
   private Color curLineColor = new Color(255,255,200);
 
   private java.awt.datatransfer.Clipboard clipboard;
@@ -258,7 +258,7 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
 
   private EditorContent text;
 
-  private int mX = 5;
+  private int mX;
   private int mY = 2;
   private int textCursorWidth;
   private boolean isDragging = false;
@@ -384,7 +384,7 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
 
 
   /**
-   * Sets the scrollPane parent when the component is used inside a scroolPane
+   * Sets the scrollPane parent when the component is used inside a scrollPane
    * @param parent ScrollPane parent
    */
   public void setScrollPane(JScrollPane parent) {
@@ -405,7 +405,12 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
     parent.getActionMap().put("scrollUp", new AbstractAction(){
       public void actionPerformed(ActionEvent e) {}});
 
+
     parentViewport = parent.getViewport();
+
+    // Handle wheel scrolling
+    parent.setWheelScrollingEnabled(false);
+    addMouseWheelListener(this);
 
   }
 
@@ -459,6 +464,16 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
     int curLine = 0;
     int curCol = 0;
 
+    String lineNb;
+
+    // Line number
+    g.setFont(italicFont);
+    g.setColor(countBackColor);
+    g.fillRect(0, sY - 1, mX - 2, charHeight + 3);
+    g.setColor(countForeColor);
+    lineNb = String.format("%03d",curLine);
+    g.drawString(lineNb,3,sY + charAscent);
+
     for(int i=0;i<text.length();i++) {
 
       if(curLine == p.y && curCol==0 && isEditable && hasFocus()) {
@@ -499,10 +514,20 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
       }
 
       if(c=='\n') {
+
         sX = mX;
         sY += charHeight;
         curLine++;
         curCol = 0;
+
+        // Line number
+        g.setFont(italicFont);
+        g.setColor(countBackColor);
+        g.fillRect(0,sY-1,mX-2,charHeight+3);
+        g.setColor(countForeColor);
+        lineNb = String.format("%03d",curLine);
+        g.drawString(lineNb,3,sY + charAscent);
+
       } else if (c==' ') {
         sX += charWidth;
         curCol ++;
@@ -521,9 +546,73 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
 
   }
 
+  // SeparatorList must be sorted
+  private final static char separatorList[] = {'"','(',')','*','+',',','-','/',':',';','=','{','}'};
+
+  private boolean isSeparator(int idx) {
+
+    /*
+    Arrays.sort(separatorList);
+    System.out.print("{");
+    for(int i=0;i<separatorList.length;i++) {
+      System.out.print("'"+separatorList[i]+"'");
+      if(i<separatorList.length-1)
+        System.out.print(",");
+    }
+    System.out.println("}");
+    */
+
+    char c = (char)text.charAt(idx);
+
+    if( c<=32 )
+      return true;
+
+    return (Arrays.binarySearch(separatorList,c)>=0);
+
+  }
+
+
+  @Override
+  public void mouseWheelMoved(MouseWheelEvent e) {
+
+    if( parentViewport != null ) {
+      final int scroll = e.getWheelRotation() * charHeight;
+      SwingUtilities.invokeLater(new Runnable() {
+        @Override
+        public void run() {
+          Point p = parentViewport.getViewPosition();
+          p.y += scroll;
+          if(p.y<0) p.y=0;
+          Dimension d = parentViewport.getSize();
+          Dimension dv = parentViewport.getViewSize();
+          if(p.y>dv.height-d.height) p.y = dv.height-d.height;
+          parentViewport.setViewPosition(p);
+        }
+      });
+    }
+
+  }
 
   @Override
   public void mouseClicked(MouseEvent e) {
+
+    if( e.getClickCount()==2 ) {
+
+      cursorPos = getCursorPos(e.getX(),e.getY());
+      lastCursorPos = cursorPos;
+      selStart = cursorPos;
+      selEnd = cursorPos;
+
+      while(selStart>=0 && !isSeparator(selStart))
+        selStart--;
+      selStart++;
+
+      while(selEnd<=text.length() && !isSeparator(selEnd))
+        selEnd++;
+
+      repaint();
+
+    }
 
   }
 
@@ -692,7 +781,8 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
         } else {
           if(cursorPos<text.length()) {
             modify();
-            text.remove(cursorPos,1);
+            text.remove(cursorPos, 1);
+            lastCursorPos = cursorPos;
             resetSelection();
             fireUpdate();
           }
@@ -1110,6 +1200,7 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
       charLeading += adjustLeading;
 
     charHeight = charAscent + charDescent + charLeading;
+    mX = charWidth*4 + 4;
 
   }
 
