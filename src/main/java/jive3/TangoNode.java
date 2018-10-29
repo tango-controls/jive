@@ -24,6 +24,12 @@ abstract class TangoNode extends DefaultMutableTreeNode {
     try {
 
       if(!areChildrenDefined) {
+
+        // Attempt to work around XWin32 bug
+        try {
+          Thread.sleep(20);
+        } catch (InterruptedException e) {}
+
         areChildrenDefined = true;
         populateNode();
       }

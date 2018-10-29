@@ -349,6 +349,7 @@ public class TangoFileReader {
     String dbValue = "";
     DbAttribute att = db.get_device_attribute_property(devname,att_name);
     if( !att.isEmpty() ) dbValue = att.get_string_value(prop_name);
+    if(dbValue==null) dbValue = "";
     if( !compareResValue(dbValue,arr) ) {
       diff.add(devname+"/"+att_name+"->"+prop_name);
       diff.add(dbValue);
