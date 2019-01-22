@@ -296,7 +296,8 @@ public class TreePanelHostCollection extends TreePanel {
 
       // Get collection list
       DeviceData argin = new DeviceData();
-      String request = "select distinct value from property_device where device like 'tango/admin/%' and name='HostCollection'";
+      String request = "select distinct value from property_device where device like '" +
+              JiveUtils.getStarterDeviceHeader() + "%' and name='HostCollection'";
       argin.insert(request);
       DeviceData argout = db.command_inout("DbMySqlSelect", argin);
       DevVarLongStringArray arg = argout.extractLongStringArray();
@@ -349,7 +350,8 @@ public class TreePanelHostCollection extends TreePanel {
 
       // Get host collection list
       DeviceData argin = new DeviceData();
-      String request = "select distinct device from property_device where device like 'tango/admin/%' and name='HostCollection' and value='" + collection + "'";
+      String request = "select distinct device from property_device where device like '" +
+              JiveUtils.getStarterDeviceHeader() + "%' and name='HostCollection' and value='" + collection + "'";
       argin.insert(request);
       DeviceData argout = db.command_inout("DbMySqlSelect", argin);
       DevVarLongStringArray arg = argout.extractLongStringArray();
@@ -414,7 +416,7 @@ public class TreePanelHostCollection extends TreePanel {
       this.allHostServers = new String[0];
 
       // Connect to the starter
-      starterName = "tango/admin/" + host;
+      starterName = JiveUtils.getStarterDeviceHeader() + host;
       try {
         starter = new DeviceProxy(starterName);
         hostUsage = db.get_device_property(starterName,"HostUsage").extractString();

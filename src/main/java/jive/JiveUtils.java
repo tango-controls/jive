@@ -2783,4 +2783,20 @@ public class JiveUtils {
     } catch (InterruptedException e) {}
   }
 
+  static private String starterDeviceHeader = null;
+  static public String getStarterDeviceHeader() {
+    if (starterDeviceHeader==null) {
+      try {
+        DbDatum datum = new DbClass("Starter").get_property("Domain");
+        if (datum.is_empty())
+          starterDeviceHeader = "tango/admin/"; // Not define --> default one
+        else
+          starterDeviceHeader = datum.extractString() + "/admin/"; // use specified domain
+      }
+      catch (DevFailed e) {
+        starterDeviceHeader = "tango/admin/"; // Failed --> default one
+      }
+    }
+    return starterDeviceHeader;
+  }
 }
