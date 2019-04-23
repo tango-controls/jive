@@ -136,7 +136,7 @@ class TaskDeviceAttributePropertyNode extends PropertyNode {
 
   }
 
-  public void execAction(int number) {
+  public void execAction(int number,boolean multipleCall) {
     switch(number) {
 
       case TreePanel.ACTION_COPY:

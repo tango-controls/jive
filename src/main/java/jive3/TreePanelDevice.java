@@ -26,9 +26,8 @@ public class TreePanelDevice extends TreePanel {
   String  familyFilterString="*";
   String  memberFilterString="*";
 
-  public TreePanelDevice(MainPanel parent) {
+  public TreePanelDevice() {
 
-    this.invoker = parent;
     this.self = this;
     setLayout(new BorderLayout());
 
@@ -130,7 +129,7 @@ public class TreePanelDevice extends TreePanel {
       return "Device:";
     }
 
-    void execAction(int number) {
+    void execAction(int number,boolean multipleCall) {
     }
 
   }
@@ -182,15 +181,17 @@ public class TreePanelDevice extends TreePanel {
       return domain;
     }
 
-    int[] getAction() {
-      return new int[]{ACTION_SELECT_PROP,
-              ACTION_SELECT_POLLING,
-              ACTION_SELECT_EVENT,
-              ACTION_SELECT_ATTCONF,
-              ACTION_SELECT_LOGGING};
+    Action[] getAction() {
+      return new Action[]{
+          TreePanel.getAction(ACTION_SELECT_PROP),
+          TreePanel.getAction(ACTION_SELECT_POLLING),
+          TreePanel.getAction(ACTION_SELECT_EVENT),
+          TreePanel.getAction(ACTION_SELECT_ATTCONF),
+          TreePanel.getAction(ACTION_SELECT_LOGGING)
+      };
     }
 
-    void execAction(int actionNumber) {
+    void execAction(int actionNumber,boolean multipleCall) {
       switch(actionNumber) {
         case ACTION_SELECT_PROP:
           parentPanel.selectNodesFromDomain(this,"Properties");
@@ -262,15 +263,17 @@ public class TreePanelDevice extends TreePanel {
       return family;
     }
 
-    int[] getAction() {
-      return new int[]{ACTION_SELECT_PROP,
-              ACTION_SELECT_POLLING,
-              ACTION_SELECT_EVENT,
-              ACTION_SELECT_ATTCONF,
-              ACTION_SELECT_LOGGING};
+    Action[] getAction() {
+      return new Action[]{
+          TreePanel.getAction(ACTION_SELECT_PROP),
+          TreePanel.getAction(ACTION_SELECT_POLLING),
+          TreePanel.getAction(ACTION_SELECT_EVENT),
+          TreePanel.getAction(ACTION_SELECT_ATTCONF),
+          TreePanel.getAction(ACTION_SELECT_LOGGING)
+      };
     }
 
-    void execAction(int actionNumber) {
+    void execAction(int actionNumber,boolean multipleCall) {
       switch(actionNumber) {
         case ACTION_SELECT_PROP:
           parentPanel.selectNodesFromFamily(this,"Properties");
@@ -333,30 +336,35 @@ public class TreePanelDevice extends TreePanel {
     String getTitle() {
       return "Device Info";
     }
-    int[] getAction() {
+
+    Action[] getAction() {
+
       if(JiveUtils.readOnly)
-        return new int[]{ACTION_MONITORDEV,
-                         ACTION_TESTDEV,
-                         ACTION_GOTOSERVNODE,
-                         ACTION_GOTOADMINNODE
+        return new Action[]{
+            TreePanel.getAction(ACTION_MONITORDEV),
+            TreePanel.getAction(ACTION_TESTDEV),
+            TreePanel.getAction(ACTION_GOTOSERVNODE),
+            TreePanel.getAction(ACTION_GOTOADMINNODE)
         };
       else
-        return new int[]{ACTION_COPY,
-                         ACTION_PASTE,
-                         ACTION_DELETE,
-                         ACTION_MONITORDEV,
-                         ACTION_TESTDEV,
-                         ACTION_DEFALIAS,
-                         ACTION_GOTOSERVNODE,
-                         ACTION_RESTART,
-                         ACTION_GOTOADMINNODE,
-                         ACTION_LOG_VIEWER,
-                         ACTION_DEVICEWIZ,
-                         ACTION_SAVE_PROP
+        return new Action[]{
+            TreePanel.getAction(ACTION_COPY),
+            TreePanel.getAction(ACTION_PASTE),
+            TreePanel.getAction(ACTION_DELETE),
+            TreePanel.getAction(ACTION_MONITORDEV),
+            TreePanel.getAction(ACTION_TESTDEV),
+            TreePanel.getAction(ACTION_DEFALIAS),
+            TreePanel.getAction(ACTION_GOTOSERVNODE),
+            TreePanel.getAction(ACTION_RESTART),
+            TreePanel.getAction(ACTION_GOTOADMINNODE),
+            TreePanel.getAction(ACTION_LOG_VIEWER),
+            TreePanel.getAction(ACTION_DEVICEWIZ),
+            TreePanel.getAction(ACTION_SAVE_PROP)
         };
+
     }
 
-    void execAction(int actionNumber) {
+    void execAction(int actionNumber,boolean multipleCall) throws IOException {
 
       switch(actionNumber) {
 
@@ -373,14 +381,26 @@ public class TreePanelDevice extends TreePanel {
 
         // ----------------------------------------------------------------------------
         case ACTION_DELETE:
-          int ok = JOptionPane.showConfirmDialog(invoker, "Delete device " + devName + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
-          if (ok == JOptionPane.YES_OPTION) {
+          if(multipleCall) {
+
             try {
               db.delete_device(devName);
             } catch (DevFailed e) {
-              JiveUtils.showTangoError(e);
+              throw new IOException(devName + ":" + e.errors[0].desc);
             }
-            refresh();
+
+          } else {
+
+            int ok = JOptionPane.showConfirmDialog(invoker, "Delete device " + devName + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
+            if (ok == JOptionPane.YES_OPTION) {
+              try {
+                db.delete_device(devName);
+              } catch (DevFailed e) {
+                JiveUtils.showTangoError(e);
+              }
+              refresh();
+            }
+
           }
           break;
 

@@ -25,9 +25,8 @@ public class TreePanelClass extends TreePanel {
   Pattern classPattern=null;
   String[] classList;
 
-  public TreePanelClass(MainPanel parent) {
+  public TreePanelClass() {
 
-    this.invoker = parent;
     this.self = this;
     setLayout(new BorderLayout());
 
@@ -106,7 +105,7 @@ public class TreePanelClass extends TreePanel {
       return "Class:";
     }
 
-    void execAction(int number) {
+    void execAction(int number,boolean multipleCall) {
     }
 
   }
@@ -121,16 +120,16 @@ public class TreePanelClass extends TreePanel {
       this.className = className;
     }
 
-    int[] getAction() {
+    Action[] getAction() {
       if(JiveUtils.readOnly)
-        return new int[]{};
+        return new Action[0];
       else
-        return new int[]{
-            ACTION_SAVE_PROP
+        return new Action[] {
+            TreePanel.getAction(ACTION_SAVE_PROP)
         };
     }
 
-    void execAction(int actionNumber) {
+    void execAction(int actionNumber,boolean multipleCall) {
 
       switch(actionNumber) {
 
@@ -185,14 +184,17 @@ public class TreePanelClass extends TreePanel {
       return TangoNodeRenderer.atticon;
     }
 
-    public int[] getAction() {
+    public Action[] getAction() {
       if(JiveUtils.readOnly)
-        return new int[0];
+        return new Action[0];
       else
-        return new int[] {ACTION_ADDCLASSATT,ACTION_SAVE_PROP};
+        return new Action[] {
+            TreePanel.getAction(ACTION_ADDCLASSATT),
+            TreePanel.getAction(ACTION_SAVE_PROP)
+        };
     }
 
-    public void execAction(int action) {
+    public void execAction(int action,boolean multipleCall) {
       switch(action) {
         case ACTION_ADDCLASSATT:
           String newName = JOptionPane.showInputDialog(null,"Add class attribute","");
@@ -243,11 +245,7 @@ public class TreePanelClass extends TreePanel {
       return "Devices";
     }
 
-    public int[] getAction() {
-      return new int[0];
-    }
-
-    public void execAction(int action) {
+    public void execAction(int action,boolean multipleCall) {
     }
 
   }
@@ -286,27 +284,30 @@ public class TreePanelClass extends TreePanel {
     String getTitle() {
       return "Device Info";
     }
-    int[] getAction() {
+
+    Action[] getAction() {
       if(JiveUtils.readOnly)
-        return new int[]{ACTION_MONITORDEV,
-                         ACTION_TESTDEV,
-                         ACTION_GOTOSERVNODE
+        return new Action[]{
+            TreePanel.getAction(ACTION_MONITORDEV),
+            TreePanel.getAction(ACTION_TESTDEV),
+            TreePanel.getAction(ACTION_GOTOSERVNODE)
         };
       else
-        return new int[]{ACTION_COPY,
-                         ACTION_PASTE,
-                         ACTION_DELETE,
-                         ACTION_MONITORDEV,
-                         ACTION_TESTDEV,
-                         ACTION_DEFALIAS,
-                         ACTION_GOTOSERVNODE,
-                         ACTION_RESTART,
-                         ACTION_LOG_VIEWER,
-                         ACTION_SAVE_PROP
+        return new Action[]{
+            TreePanel.getAction(ACTION_COPY),
+            TreePanel.getAction(ACTION_PASTE),
+            TreePanel.getAction(ACTION_DELETE),
+            TreePanel.getAction(ACTION_MONITORDEV),
+            TreePanel.getAction(ACTION_TESTDEV),
+            TreePanel.getAction(ACTION_DEFALIAS),
+            TreePanel.getAction(ACTION_GOTOSERVNODE),
+            TreePanel.getAction(ACTION_RESTART),
+            TreePanel.getAction(ACTION_LOG_VIEWER),
+            TreePanel.getAction(ACTION_SAVE_PROP)
         };
     }
 
-    void execAction(int actionNumber) {
+    void execAction(int actionNumber,boolean multipleCall) throws IOException {
 
       switch(actionNumber) {
 
@@ -323,14 +324,26 @@ public class TreePanelClass extends TreePanel {
 
         // ----------------------------------------------------------------------------
         case ACTION_DELETE:
-          int ok = JOptionPane.showConfirmDialog(invoker, "Delete device " + devName + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
-          if (ok == JOptionPane.YES_OPTION) {
+          if( multipleCall ) {
+
             try {
               db.delete_device(devName);
             } catch (DevFailed e) {
-              JiveUtils.showTangoError(e);
+              throw new IOException(devName + ":" + e.errors[0].desc);
             }
-            refresh();
+
+          } else {
+
+            int ok = JOptionPane.showConfirmDialog(invoker, "Delete device " + devName + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
+            if (ok == JOptionPane.YES_OPTION) {
+              try {
+                db.delete_device(devName);
+              } catch (DevFailed e) {
+                JiveUtils.showTangoError(e);
+              }
+              refresh();
+            }
+
           }
           break;
 

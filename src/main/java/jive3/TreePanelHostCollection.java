@@ -14,6 +14,7 @@ import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,9 +29,8 @@ public class TreePanelHostCollection extends TreePanel {
 
   public static int NB_LEVELS = 5;
 
-  public TreePanelHostCollection(MainPanel parent) {
+  public TreePanelHostCollection() {
 
-    this.invoker = parent;
     this.self = this;
     setLayout(new BorderLayout());
 
@@ -331,7 +331,7 @@ public class TreePanelHostCollection extends TreePanel {
       return "Collection:";
     }
 
-    void execAction(int number) {
+    void execAction(int number,boolean allowMultiple) {
     }
 
   }
@@ -388,11 +388,7 @@ public class TreePanelHostCollection extends TreePanel {
       return TangoNodeRenderer.hostcollectionicon;
     }
 
-    int[] getAction() {
-      return new int[0];
-    }
-
-    void execAction(int number) {
+    void execAction(int number,boolean multipleCall) {
     }
 
   }
@@ -523,18 +519,18 @@ public class TreePanelHostCollection extends TreePanel {
       return TangoNodeRenderer.hostsmallicon;
     }
 
-    int[] getAction() {
-      return new int[] {
-          ACTION_START_HOST,
-          ACTION_STOP_HOST,
-          ACTION_CH_HOST_USAGE,
-          ACTION_GO_TO_STATER,
-          ACTION_NEW_SERVERS,
-          ACTION_TERMINAL
+    Action[] getAction() {
+      return new Action[] {
+          TreePanel.getAction(ACTION_START_HOST),
+          TreePanel.getAction(ACTION_STOP_HOST),
+          TreePanel.getAction(ACTION_CH_HOST_USAGE),
+          TreePanel.getAction(ACTION_GO_TO_STATER),
+          TreePanel.getAction(ACTION_NEW_SERVERS),
+          TreePanel.getAction(ACTION_TERMINAL)
       };
     }
 
-    void execAction(int actionNumber) {
+    void execAction(int actionNumber,boolean multipleCall) {
 
       int ok;
 
@@ -702,14 +698,14 @@ public class TreePanelHostCollection extends TreePanel {
       return TangoNodeRenderer.levelicon;
     }
 
-    int[] getAction() {
-      return new int[] {
-          ACTION_START_LEVEL,
-          ACTION_STOP_LEVEL
+    Action[] getAction() {
+      return new Action[] {
+          TreePanel.getAction(ACTION_START_LEVEL),
+          TreePanel.getAction(ACTION_STOP_LEVEL)
       };
     }
 
-    void execAction(int actionNumber) {
+    void execAction(int actionNumber,boolean multipleCall) {
 
       int ok;
 
@@ -853,29 +849,33 @@ public class TreePanelHostCollection extends TreePanel {
 
     }
 
-    int[] getAction() {
+    Action[] getAction() {
+
       if (JiveUtils.readOnly)
-        return new int[0];
+
+        return new Action[0];
+
       else
-        return new int[]{
-            ACTION_DELETE,
-            ACTION_ADDCLASS,
-            ACTION_TESTADMIN,
-            ACTION_SAVESERVER,
-            ACTION_CLASSWIZ,
-            ACTION_UNEXPORT,
-            ACTION_DEV_DEPEND,
-            ACTION_THREAD_POLL,
-            ACTION_MOVE_SERVER,
-            ACTION_RESTART_SERVER,
-            ACTION_START_SERVER,
-            ACTION_STOP_SERVER,
-            ACTION_CH_LEVEL,
+
+        return new Action[]{
+            TreePanel.getAction(ACTION_DELETE),
+            TreePanel.getAction(ACTION_ADDCLASS),
+            TreePanel.getAction(ACTION_TESTADMIN),
+            TreePanel.getAction(ACTION_SAVESERVER),
+            TreePanel.getAction(ACTION_CLASSWIZ),
+            TreePanel.getAction(ACTION_UNEXPORT),
+            TreePanel.getAction(ACTION_DEV_DEPEND),
+            TreePanel.getAction(ACTION_THREAD_POLL),
+            TreePanel.getAction(ACTION_MOVE_SERVER),
+            TreePanel.getAction(ACTION_RESTART_SERVER),
+            TreePanel.getAction(ACTION_START_SERVER),
+            TreePanel.getAction(ACTION_STOP_SERVER),
+            TreePanel.getAction(ACTION_CH_LEVEL)
         };
 
     }
 
-    void execAction(int actionNumber) {
+    void execAction(int actionNumber,boolean multipleCall) throws IOException {
 
       int ok;
 
@@ -884,15 +884,26 @@ public class TreePanelHostCollection extends TreePanel {
         // ----------------------------------------------------------------------------
         case ACTION_DELETE:
 
-          ok = JOptionPane.showConfirmDialog(invoker, "Delete server " + server + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
-          if (ok == JOptionPane.YES_OPTION) {
+          if(multipleCall) {
+
             try {
               db.delete_server(server);
             } catch (DevFailed e) {
-              JiveUtils.showTangoError(e);
+              throw new IOException(server + ":" + e.errors[0].desc);
             }
-            refresh();
-            selectHost(collection,host);
+
+          } else {
+
+            ok = JOptionPane.showConfirmDialog(invoker, "Delete server " + server + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
+            if (ok == JOptionPane.YES_OPTION) {
+              try {
+                db.delete_server(server);
+              } catch (DevFailed e) {
+                JiveUtils.showTangoError(e);
+              }
+              refresh();
+              selectHost(collection,host);
+            }
           }
           break;
 
@@ -915,31 +926,28 @@ public class TreePanelHostCollection extends TreePanel {
         // ----------------------------------------------------------------------------
         case ACTION_SAVESERVER:
 
-          FileWriter resFile;
+          if(multipleCall) {
 
-          JFileChooser chooser = new JFileChooser(".");
-          ok = JOptionPane.YES_OPTION;
-          if (lastFile != null)
-            chooser.setSelectedFile(lastFile);
+            saveServerData(TreePanel.globalResFile,server);
 
-          int returnVal = chooser.showSaveDialog(invoker);
+          } else {
 
-          if (returnVal == JFileChooser.APPROVE_OPTION) {
-            lastFile = chooser.getSelectedFile();
-            if (lastFile != null) {
-              if (lastFile.exists()) ok = JOptionPane.showConfirmDialog(invoker, "Do you want to overwrite " + lastFile.getName() + " ?", "Confirm overwrite", JOptionPane.YES_NO_OPTION);
-              if (ok == JOptionPane.YES_OPTION) {
-                try {
-                  resFile = new FileWriter(lastFile.getAbsolutePath());
-                  Date date = new Date(System.currentTimeMillis());
-                  resFile.write("#\n# Resource backup , created " + date + "\n#\n\n");
-                  saveServerData(resFile,server);
-                  resFile.close();
-                } catch (IOException e) {
-                  JiveUtils.showJiveError("Failed to create resource file !\n" + e.getMessage());
-                }
+            FileWriter resFile;
+            File file = TreePanel.getSaveFile(invoker);
+            if( file!=null ) {
+
+              try {
+                resFile = new FileWriter(file.getAbsolutePath());
+                Date date = new Date(System.currentTimeMillis());
+                resFile.write("#\n# Resource backup , created " + date + "\n#\n\n");
+                saveServerData(resFile,server);
+                resFile.close();
+              } catch (IOException e) {
+                JiveUtils.showJiveError("Failed to create resource file !\n" + e.getMessage());
               }
+
             }
+
           }
 
           break;
@@ -1157,18 +1165,19 @@ public class TreePanelHostCollection extends TreePanel {
       return className;
     }
 
-    int[] getAction() {
+    Action[] getAction() {
       if(JiveUtils.readOnly)
-        return new int[0];
+        return new Action[0];
       else
-        return new int[]{ACTION_RENAME,
-            ACTION_DELETE,
-            ACTION_ADDDEVICE,
-            ACTION_DEVICESWIZ
+        return new Action[]{
+            TreePanel.getAction(ACTION_RENAME),
+            TreePanel.getAction(ACTION_DELETE),
+            TreePanel.getAction(ACTION_ADDDEVICE),
+            TreePanel.getAction(ACTION_DEVICESWIZ)
         };
     }
 
-    void execAction(int actionNumber) {
+    void execAction(int actionNumber,boolean multipleCall) throws IOException {
 
       switch(actionNumber) {
 
@@ -1201,8 +1210,7 @@ public class TreePanelHostCollection extends TreePanel {
         // ----------------------------------------------------------------------------
         case ACTION_DELETE:
 
-          int ok = JOptionPane.showConfirmDialog(invoker, "Delete class " + className + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
-          if (ok == JOptionPane.YES_OPTION) {
+          if( multipleCall) {
 
             for(int i=0;i<getChildCount();i++) {
               // Devices
@@ -1210,13 +1218,29 @@ public class TreePanelHostCollection extends TreePanel {
               try {
                 db.delete_device(n0.toString());
               } catch (DevFailed e) {
-                JiveUtils.showTangoError(e);
+                throw new IOException(n0.toString() + ":" + e.errors[0].desc);
               }
             }
 
-            refresh();
-            selectServer(collection, host, level, server);
+          } else {
 
+            int ok = JOptionPane.showConfirmDialog(invoker, "Delete class " + className + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
+            if (ok == JOptionPane.YES_OPTION) {
+
+              for(int i=0;i<getChildCount();i++) {
+                // Devices
+                TangoNode n0 = (TangoNode)getChildAt(i);
+                try {
+                  db.delete_device(n0.toString());
+                } catch (DevFailed e) {
+                  JiveUtils.showTangoError(e);
+                }
+              }
+
+              refresh();
+              selectServer(collection, host, level, server);
+
+            }
           }
           break;
 
@@ -1305,28 +1329,30 @@ public class TreePanelHostCollection extends TreePanel {
       return "Device Info";
     }
 
-    int[] getAction() {
+    Action[] getAction() {
       if(JiveUtils.readOnly)
-        return new int[]{ACTION_MONITORDEV,
-            ACTION_TESTDEV,
-            ACTION_GOTODEVNODE
+        return new Action[]{
+            TreePanel.getAction(ACTION_MONITORDEV),
+            TreePanel.getAction(ACTION_TESTDEV),
+            TreePanel.getAction(ACTION_GOTODEVNODE)
         };
       else
-        return new int[]{ACTION_COPY,
-            ACTION_PASTE,
-            ACTION_RENAME,
-            ACTION_DELETE,
-            ACTION_MONITORDEV,
-            ACTION_TESTDEV,
-            ACTION_DEFALIAS,
-            ACTION_GOTODEVNODE,
-            ACTION_RESTART,
-            ACTION_DEVICEWIZ,
-            ACTION_LOG_VIEWER
+        return new Action[]{
+            TreePanel.getAction(ACTION_COPY),
+            TreePanel.getAction(ACTION_PASTE),
+            TreePanel.getAction(ACTION_RENAME),
+            TreePanel.getAction(ACTION_DELETE),
+            TreePanel.getAction(ACTION_MONITORDEV),
+            TreePanel.getAction(ACTION_TESTDEV),
+            TreePanel.getAction(ACTION_DEFALIAS),
+            TreePanel.getAction(ACTION_GOTODEVNODE),
+            TreePanel.getAction(ACTION_RESTART),
+            TreePanel.getAction(ACTION_DEVICEWIZ),
+            TreePanel.getAction(ACTION_LOG_VIEWER)
         };
     }
 
-    void execAction(int actionNumber) {
+    void execAction(int actionNumber,boolean multipleCall) throws IOException {
 
       switch(actionNumber) {
 
@@ -1353,14 +1379,26 @@ public class TreePanelHostCollection extends TreePanel {
 
         // ----------------------------------------------------------------------------
         case ACTION_DELETE:
-          int ok = JOptionPane.showConfirmDialog(invoker, "Delete device " + devName + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
-          if (ok == JOptionPane.YES_OPTION) {
+          if( multipleCall ) {
+
             try {
               db.delete_device(devName);
             } catch (DevFailed e) {
-              JiveUtils.showTangoError(e);
+              throw new IOException(devName + ":" + e.errors[0].desc);
             }
-            refresh();
+
+          } else {
+
+            int ok = JOptionPane.showConfirmDialog(invoker, "Delete device " + devName + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
+            if (ok == JOptionPane.YES_OPTION) {
+              try {
+                db.delete_device(devName);
+              } catch (DevFailed e) {
+                JiveUtils.showTangoError(e);
+              }
+              refresh();
+            }
+
           }
           break;
 

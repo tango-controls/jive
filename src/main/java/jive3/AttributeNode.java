@@ -49,17 +49,17 @@ public class AttributeNode extends TangoNode {
 
   }
 
-  public int[] getAction() {
-    return new int[]{
-        TreePanel.ACTION_COPY,
-        TreePanel.ACTION_COPY_ATT_SET,
-        TreePanel.ACTION_PASTE,
-        TreePanel.ACTION_CREATE_ATTPROP,
-        TreePanel.ACTION_SAVE_PROP
+  public Action[] getAction() {
+    return new Action[]{
+        TreePanel.getAction(TreePanel.ACTION_COPY),
+        TreePanel.getAction(TreePanel.ACTION_COPY_ATT_SET),
+        TreePanel.getAction(TreePanel.ACTION_PASTE),
+        TreePanel.getAction(TreePanel.ACTION_CREATE_ATTPROP),
+        TreePanel.getAction(TreePanel.ACTION_SAVE_PROP)
     };
   }
 
-  public void execAction(int actionNumber) {
+  public void execAction(int actionNumber,boolean multipleCall) {
     switch(actionNumber) {
       case TreePanel.ACTION_CREATE_ATTPROP:
         self.createEmptyAttributeProperty(devName);

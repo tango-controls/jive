@@ -19,9 +19,8 @@ public class TreePanelFreeProperty extends TreePanel {
   String  propertyFilterString="*";
   Pattern propertyPattern=null;
 
-  public TreePanelFreeProperty(MainPanel parent) {
+  public TreePanelFreeProperty() {
 
-    this.invoker = parent;
     this.self = this;
     setLayout(new BorderLayout());
 
@@ -91,7 +90,7 @@ public class TreePanelFreeProperty extends TreePanel {
       return "FreeProperty:";
     }
 
-    void execAction(int number) {
+    void execAction(int number,boolean multipleCall) {
     }
 
   }

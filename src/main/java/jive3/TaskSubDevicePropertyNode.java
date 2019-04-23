@@ -56,7 +56,7 @@ class TaskSubDevicePropertyNode extends PropertyNode {
     return true;
   }
 
-  void execAction(int number) {
+  void execAction(int number,boolean multipleCall) {
     defaultPropertyAction(number);
   }
 

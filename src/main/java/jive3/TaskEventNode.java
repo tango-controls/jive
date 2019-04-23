@@ -34,7 +34,7 @@ public class TaskEventNode extends TangoNode {
   void populateNode() throws DevFailed {
   }
 
-  void execAction(int number) {
+  void execAction(int number,boolean multipleCall) {
   }
 
   ImageIcon getIcon() {

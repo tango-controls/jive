@@ -7,6 +7,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.*;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.io.IOException;
 
 import jive.JiveUtils;
 
@@ -73,12 +74,12 @@ abstract class TangoNode extends DefaultMutableTreeNode {
   }
 
   // Returns the list of supported action
-  int[] getAction() {
-    return new int[0];
+  Action[] getAction() {
+    return new Action[0];
   }
 
   // Execute the given action
-  abstract void execAction(int actionNumber);
+  abstract void execAction(int action,boolean multipleCall) throws IOException;
 
   // Return the complete path of the node
   public TreePath getCompletePath() {

@@ -28,11 +28,16 @@ abstract public class PropertyNode extends TangoNode {
     setProperty(newName,value);
   }
 
-  public int[] getAction() {
+  public Action[] getAction() {
     if(JiveUtils.readOnly)
-      return new int[0];      
+      return new Action[0];
     else
-      return new int[]{TreePanel.ACTION_COPY,TreePanel.ACTION_PASTE,TreePanel.ACTION_VIEW_HISTORY,TreePanel.ACTION_SAVE_PROP};
+      return new Action[]{
+          TreePanel.getAction(TreePanel.ACTION_COPY),
+          TreePanel.getAction(TreePanel.ACTION_PASTE),
+          TreePanel.getAction(TreePanel.ACTION_VIEW_HISTORY),
+          TreePanel.getAction(TreePanel.ACTION_SAVE_PROP)
+      };
   }
 
   public void defaultPropertyAction(int number) {

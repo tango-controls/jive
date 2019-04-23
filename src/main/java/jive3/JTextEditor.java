@@ -812,6 +812,7 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
             deleteSelection();
             text.insert(c,cursorPos);
             cursorPos++;
+            lastCursorPos++;
             resetSelection();
             fireUpdate();
             scrollToVisible();

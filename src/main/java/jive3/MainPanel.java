@@ -176,21 +176,22 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 
     treePanels = new ArrayList<TreePanelRecord>();
+    TreePanel.invoker = this;
 
     if(isCollectionPanelVisible())
-      treePanels.add( new TreePanelRecord(new TreePanelHostCollection(this),db,"Collection","Collection:","COLLECTION") );
+      treePanels.add( new TreePanelRecord(new TreePanelHostCollection(),db,"Collection","Collection:","COLLECTION") );
     if(isServerPanelVisible())
-      treePanels.add( new TreePanelRecord(new TreePanelServer(this),db,"Server","Server:","SERVER") );
+      treePanels.add( new TreePanelRecord(new TreePanelServer(),db,"Server","Server:","SERVER") );
     if(isDevicePanelVisible())
-      treePanels.add( new TreePanelRecord(new TreePanelDevice(this),db,"Device","Device:","DEVICE") );
+      treePanels.add( new TreePanelRecord(new TreePanelDevice(),db,"Device","Device:","DEVICE") );
     if(isClassPanelVisible())
-      treePanels.add( new TreePanelRecord(new TreePanelClass(this),db,"Class","Class:","CLASS") );
+      treePanels.add( new TreePanelRecord(new TreePanelClass(),db,"Class","Class:","CLASS") );
     if(isDevAliasPanelVisible())
-      treePanels.add( new TreePanelRecord(new TreePanelAlias(this),db,"Alias","Alias:","DEV-ALIAS") );
+      treePanels.add( new TreePanelRecord(new TreePanelAlias(),db,"Alias","Alias:","DEV-ALIAS") );
     if(isAttAliasPanelVisible())
-      treePanels.add( new TreePanelRecord(new TreePanelAttributeAlias(this),db,"Att. Alias","AttAlias:","ATT-ALIAS") );
+      treePanels.add( new TreePanelRecord(new TreePanelAttributeAlias(),db,"Att. Alias","AttAlias:","ATT-ALIAS") );
     if(isFreePropertyPanelVisible())
-      treePanels.add( new TreePanelRecord(new TreePanelFreeProperty(this),db,"Property","FreeProperty:","PROPERTY") );
+      treePanels.add( new TreePanelRecord(new TreePanelFreeProperty(),db,"Property","FreeProperty:","PROPERTY") );
 
     treePane = new JTabbedPane();
     treePane.setFont(ATKConstant.labelFont);

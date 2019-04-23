@@ -1,7 +1,6 @@
 package jive3;
 
 import jive.JiveUtils;
-import jive.TangoTreeNode;
 import jive.ThreadDlg;
 
 import javax.swing.*;

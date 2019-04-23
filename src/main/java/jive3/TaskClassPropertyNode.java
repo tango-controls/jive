@@ -33,7 +33,7 @@ class TaskClassPropertyNode extends PropertyNode {
     return "Properties";
   }
 
-  void execAction(int number) {
+  void execAction(int number,boolean multipleCall) {
     defaultPropertyAction(number);
   }
 

@@ -5,6 +5,7 @@ import fr.esrf.TangoApi.DeviceProxy;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -21,9 +22,8 @@ public class TreePanelAttributeAlias extends TreePanel {
   String  aliasFilterString="*";
   Pattern aliasPattern=null;
 
-  public TreePanelAttributeAlias(MainPanel parent) {
+  public TreePanelAttributeAlias() {
 
-    this.invoker = parent;
     this.self = this;
     setLayout(new BorderLayout());
 
@@ -79,7 +79,7 @@ public class TreePanelAttributeAlias extends TreePanel {
       return "AttAlias:";
     }
 
-    void execAction(int number) {
+    void execAction(int number,boolean multipleCall) {
     }
 
   }
@@ -117,8 +117,17 @@ public class TreePanelAttributeAlias extends TreePanel {
       return TangoNodeRenderer.atticon;
     }
 
-    public int[] getAction() {
-      return new int[]{TreePanel.ACTION_GOTODEVNODE,TreePanel.ACTION_DELETE};
+    public Action[] getAction() {
+      if(JiveUtils.readOnly) {
+        return new Action[]{
+            TreePanel.getAction(ACTION_GOTODEVNODE)
+        };
+      } else {
+        return new Action[]{
+            TreePanel.getAction(ACTION_GOTODEVNODE),
+            TreePanel.getAction(ACTION_DELETE)
+        };
+      }
     }
 
     public void goToDeviceNode() {
@@ -134,23 +143,36 @@ public class TreePanelAttributeAlias extends TreePanel {
 
     }
 
-    public void execAction(int actionNumber) {
+    public void execAction(int actionNumber,boolean multipleCall) throws IOException {
+
       switch(actionNumber) {
+
         case TreePanel.ACTION_DELETE:
-          int ok = JOptionPane.showConfirmDialog(invoker, "Delete attribute alias " + aliasName + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
-          if (ok == JOptionPane.YES_OPTION) {
+          if(multipleCall) {
             try {
               db.delete_attribute_alias(aliasName);
             } catch (DevFailed e) {
-              JiveUtils.showTangoError(e);
+              throw new IOException(aliasName + ":" + e.errors[0].desc);
             }
-            refresh();
+          } else {
+            int ok = JOptionPane.showConfirmDialog(invoker, "Delete attribute alias " + aliasName + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
+            if (ok == JOptionPane.YES_OPTION) {
+              try {
+                db.delete_attribute_alias(aliasName);
+              } catch (DevFailed e) {
+                JiveUtils.showTangoError(e);
+              }
+              refresh();
+            }
           }
           break;
+
         case TreePanel.ACTION_GOTODEVNODE:
           goToDeviceNode();
           break;
+
       }
+
     }
 
     public String getValue() {

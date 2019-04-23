@@ -6,6 +6,7 @@ import fr.esrf.TangoApi.DeviceProxy;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -22,9 +23,8 @@ public class TreePanelAlias extends TreePanel {
   String  aliasFilterString="*";
   Pattern aliasPattern=null;
 
-  public TreePanelAlias(MainPanel parent) {
+  public TreePanelAlias() {
 
-    this.invoker = parent;
     this.self = this;
     setLayout(new BorderLayout());
 
@@ -80,7 +80,7 @@ public class TreePanelAlias extends TreePanel {
       return "Alias:";
     }
 
-    void execAction(int number) {
+    void execAction(int number,boolean multipleCall) {
     }
 
   }
@@ -116,8 +116,19 @@ public class TreePanelAlias extends TreePanel {
       return TangoNodeRenderer.devicon;
     }
 
-    public int[] getAction() {
-      return new int[]{TreePanel.ACTION_TESTDEV,TreePanel.ACTION_GOTODEVNODE,TreePanel.ACTION_DELETE};
+    public Action[] getAction() {
+      if( JiveUtils.readOnly ) {
+        return new Action[]{
+            TreePanel.getAction(ACTION_TESTDEV),
+            TreePanel.getAction(ACTION_GOTODEVNODE)
+        };
+      } else {
+        return new Action[]{
+            TreePanel.getAction(ACTION_TESTDEV),
+            TreePanel.getAction(ACTION_GOTODEVNODE),
+            TreePanel.getAction(ACTION_DELETE)
+        };
+      }
     }
 
     public void goToDeviceNode() {
@@ -129,25 +140,38 @@ public class TreePanelAlias extends TreePanel {
       }
     }
 
-    public void execAction(int actionNumber) {
+    public void execAction(int actionNumber,boolean multipleCall) throws IOException {
+
       switch(actionNumber) {
+
         case TreePanel.ACTION_DELETE:
-          int ok = JOptionPane.showConfirmDialog(invoker, "Delete alias " + aliasName + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
-          if (ok == JOptionPane.YES_OPTION) {
+          if(multipleCall) {
             try {
               db.delete_device_alias(aliasName);
             } catch (DevFailed e) {
-              JiveUtils.showTangoError(e);
+              throw new IOException(aliasName + ":" + e.errors[0].desc);
             }
-            refresh();
+          } else {
+            int ok = JOptionPane.showConfirmDialog(invoker, "Delete alias " + aliasName + " ?", "Confirm delete", JOptionPane.YES_NO_OPTION);
+            if (ok == JOptionPane.YES_OPTION) {
+              try {
+                db.delete_device_alias(aliasName);
+              } catch (DevFailed e) {
+                JiveUtils.showTangoError(e);
+              }
+              refresh();
+            }
           }
           break;
+
         case TreePanel.ACTION_TESTDEV:
           testDevice(aliasName);
           break;
+
         case TreePanel.ACTION_GOTODEVNODE:
           goToDeviceNode();
           break;
+
       }
     }
 

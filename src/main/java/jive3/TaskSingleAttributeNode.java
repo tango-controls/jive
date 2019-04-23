@@ -78,7 +78,7 @@ public class TaskSingleAttributeNode extends TangoNode {
     return true;
   }
 
-  void execAction(int number) {
+  void execAction(int number,boolean multipleCall) {
   }
 
   public boolean isPolled() {

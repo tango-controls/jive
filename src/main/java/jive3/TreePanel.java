@@ -14,36 +14,137 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import javax.swing.tree.TreeNode;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Vector;
 
 import jive.JiveUtils;
 import jive.ExecDev;
 
+class Action {
+
+  static TangoNode[] selectedNodes = null;
+
+  Action(int a,boolean aM,String n) {
+
+    action = a;
+    allowMultiple = aM;
+    name = n;
+    menuItem = new JMenuItem(name);
+
+    menuItem.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        execAction();
+      }
+    });
+
+  }
+
+  void execAction() {
+
+    if(selectedNodes!=null) {
+
+      if(allowMultiple && selectedNodes.length>1) {
+
+        Vector<String> errors = new Vector<String>();
+
+        switch(action) {
+
+          case TreePanel.ACTION_DELETE:
+
+            int ok = JOptionPane.showConfirmDialog(TreePanel.invoker, "Delete " + selectedNodes.length + " items ?",
+                "Confirm delete", JOptionPane.YES_NO_OPTION);
+
+            if (ok == JOptionPane.YES_OPTION) {
+
+              for(int i=0;i<selectedNodes.length;i++) {
+                try {
+                  selectedNodes[i].execAction(action,true);
+                } catch (IOException e) {
+                  errors.add(e.getMessage());
+                }
+              }
+              if(errors.size()>0)
+                JiveUtils.showJiveErrors(errors);
+
+            }
+
+            TreePanel.panelInvoker.refresh();
+            break;
+
+          case TreePanel.ACTION_SAVESERVER:
+
+            File file = TreePanel.getSaveFile(TreePanel.invoker);
+            if( file!=null ) {
+
+              try {
+
+                TreePanel.globalResFile = new FileWriter(file.getAbsolutePath());
+                Date date = new Date(System.currentTimeMillis());
+                TreePanel.globalResFile.write("#\n# Resource backup , created " + date + "\n#\n\n");
+                for(int i=0;i<selectedNodes.length;i++)
+                  selectedNodes[i].execAction(action,true);
+                TreePanel.globalResFile.close();
+
+              } catch (IOException e) {
+                JiveUtils.showJiveError(e.getMessage());
+              }
+
+            }
+
+            break;
+
+          default:
+
+            try {
+              for(int i=0;i<selectedNodes.length;i++)
+                selectedNodes[i].execAction(action,true);
+            } catch (IOException e) {
+              JiveUtils.showJiveError("Error while performing " + name + " !\n");
+            }
+
+        }
+
+
+      } else {
+
+        try {
+          if(selectedNodes.length>0)
+            selectedNodes[0].execAction(action,false);
+        } catch (IOException e) {
+          JiveUtils.showJiveError("Error while performing " + name + " !\n");
+        }
+
+      }
+    }
+
+  }
+
+  String name;
+  int action;
+  boolean allowMultiple;
+  JMenuItem menuItem;
+
+}
+
 /**
  * An abstract class for tree panel.
  */
-public abstract class TreePanel extends JPanel implements TreeSelectionListener,MouseListener,TreeExpansionListener {
+public abstract class TreePanel extends JPanel implements TreeSelectionListener,MouseListener,TreeExpansionListener,KeyListener {
 
   protected JTree            tree;
   protected JScrollPane      treeView = null;
   protected DefaultTreeModel treeModel;
   protected TangoNode        root;
   protected Database         db;
-  MainPanel                  invoker;
   TreePanel                  self;
   private   boolean          updateOnChange;
 
-  // Static action menu
-  public final static int ACTION_NUMBER       = 45;
-
+  // Actions
   public final static int ACTION_COPY          = 0;
   public final static int ACTION_PASTE         = 1;
   public final static int ACTION_RENAME        = 2;
@@ -90,376 +191,65 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   public final static int ACTION_COPY_ATT_SET   = 43;
   public final static int ACTION_SAVE_PROP      = 44;
 
-  private static TangoNode[] selectedNodes = null;
-  static         File       lastFile = null;
+  public final static Action[] actions = {
+    new Action(ACTION_COPY,false,"Copy"),
+    new Action(ACTION_PASTE,false,"Paste"),
+    new Action(ACTION_RENAME,false,"Rename"),
+    new Action(ACTION_DELETE,true,"Delete"),
+    new Action(ACTION_ADDCLASS,false,"Add class"),
+    new Action(ACTION_TESTADMIN,false,"Test admin server"),
+    new Action(ACTION_SAVESERVER,true,"Save server data"),
+    new Action(ACTION_CLASSWIZ,false,"Class(es) wizard"),
+    new Action(ACTION_ADDDEVICE,false,"Add device"),
+    new Action(ACTION_DEVICESWIZ,false,"Device(s) wizard"),
+    new Action(ACTION_MONITORDEV,true,"Monitor device"),
+    new Action(ACTION_TESTDEV,true,"Test device"),
+    new Action(ACTION_DEFALIAS,false,"Define device alias"),
+    new Action(ACTION_GOTODEVNODE,false,"Go to device node"),
+    new Action(ACTION_RESTART,false,"Restart device"),
+    new Action(ACTION_DEVICEWIZ,false,"Device wizard"),
+    new Action(ACTION_GOTOSERVNODE,false,"Go to server node"),
+    new Action(ACTION_GOTOADMINNODE,false,"Go to device admin node"),
+    new Action(ACTION_ADDCLASSATT,false,"Add attribute"),
+    new Action(ACTION_UNEXPORT,false,"Unexport devices"),
+    new Action(ACTION_SELECT_PROP,false,"Select 'property node'"),
+    new Action(ACTION_SELECT_POLLING,false,"Select 'polling' nodes"),
+    new Action(ACTION_SELECT_EVENT,false,"Select 'event' nodes"),
+    new Action(ACTION_SELECT_ATTCONF,false,"Select 'attribute config' nodes"),
+    new Action(ACTION_SELECT_LOGGING,false,"Select 'logging' nodes"),
+    new Action(ACTION_LOG_VIEWER,false,"Log Viewer"),
+    new Action(ACTION_DEV_DEPEND,false,"Devices dependencies"),
+    new Action(ACTION_THREAD_POLL,false,"Polling threads manager"),
+    new Action(ACTION_VIEW_HISTORY,false,"View history"),
+    new Action(ACTION_MOVE_SERVER,false,"Move server"),
+    new Action(ACTION_CREATE_ATTPROP,false,"Create attribute property"),
+    new Action(ACTION_START_SERVER,false,"Start Server"),
+    new Action(ACTION_STOP_SERVER,false,"Stop Server"),
+    new Action(ACTION_RESTART_SERVER,false,"Restart Server"),
+    new Action(ACTION_START_LEVEL,false,"Start all servers (Level)"),
+    new Action(ACTION_STOP_LEVEL,false,"Stop all servers (Level)"),
+    new Action(ACTION_START_HOST,false,"Start all servers (Host)"),
+    new Action(ACTION_STOP_HOST,false,"Stop all servers (Host)"),
+    new Action(ACTION_CH_HOST_USAGE,false,"Edit Host Usage"),
+    new Action(ACTION_GO_TO_STATER,false,"Go to Starter Node"),
+    new Action(ACTION_CH_LEVEL,false,"Change Level"),
+    new Action(ACTION_TERMINAL,false,"Open terminal"),
+    new Action(ACTION_NEW_SERVERS,false,"Start new servers"),
+    new Action(ACTION_COPY_ATT_SET,false,"Copy Setpoints"),
+    new Action(ACTION_SAVE_PROP,false,"Save properties")
+  };
+
+  static File       lastFile = null;
+  static FileWriter globalResFile;
+  static MainPanel  invoker;
+  static TreePanel  panelInvoker;
+
   private static JPopupMenu actionMenu;
-  private static JMenuItem  copyMenu;
-  private static JMenuItem  pasteMenu;
-  private static JMenuItem  renameMenu;
-  private static JMenuItem  deleteMenu;
-  private static JMenuItem  addClassMenu;
-  private static JMenuItem  testAdminMenu;
-  private static JMenuItem  saveServerMenu;
-  private static JMenuItem  classWizMenu;
-  private static JMenuItem  addDeviceMenu;
-  private static JMenuItem  devicesWizMenu;
-  private static JMenuItem  monitorMenu;
-  private static JMenuItem  testMenu;
-  private static JMenuItem  aliasMenu;
-  private static JMenuItem  goToDevMenu;
-  private static JMenuItem  restartMenu;
-  private static JMenuItem  deviceWizMenu;
-  private static JMenuItem  goToServMenu;
-  private static JMenuItem  goToAdminMenu;
-  private static JMenuItem  addClassAttMenu;
-  private static JMenuItem  unexportDevices;
-  private static JMenuItem  selectPropNodeMenu;
-  private static JMenuItem  selectPollingNodeMenu;
-  private static JMenuItem  selectEventNodeMenu;
-  private static JMenuItem  selectAttConfNodeMenu;
-  private static JMenuItem  selectLoggingNodeMenu;
-  private static JMenuItem  logviewerMenu;
-  private static JMenuItem  devDependMenu;
-  private static JMenuItem  threadPollMenu;
-  private static JMenuItem  viewHistoryMenu;
-  private static JMenuItem  moveServerMenu;
-  private static JMenuItem  createAttPropMenu;
-  private static JMenuItem  startServerMenu;
-  private static JMenuItem  stopServerMenu;
-  private static JMenuItem  restartServerMenu;
-  private static JMenuItem  startLevelMenu;
-  private static JMenuItem  stopLevelMenu;
-  private static JMenuItem  startHostMenu;
-  private static JMenuItem  stopHostMenu;
-  private static JMenuItem  chHostUsageMenu;
-  private static JMenuItem  goToStarterMenu;
-  private static JMenuItem  chLevelMenu;
-  private static JMenuItem  terminalMenu;
-  private static JMenuItem  newServersMenu;
-  private static JMenuItem  copyAttSetMenu;
-  private static JMenuItem  savePropMenu;
 
   static {
     actionMenu = new JPopupMenu();
-
-    copyMenu = new JMenuItem("Copy");
-    actionMenu.add(copyMenu);
-    copyMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_COPY);
-      }
-    });
-    pasteMenu = new JMenuItem("Paste");
-    actionMenu.add(pasteMenu);
-    pasteMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_PASTE);
-      }
-    });
-    renameMenu = new JMenuItem("Rename");
-    actionMenu.add(renameMenu);
-    renameMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_RENAME);
-      }
-    });
-    deleteMenu = new JMenuItem("Delete");
-    actionMenu.add(deleteMenu);
-    deleteMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_DELETE);
-      }
-    });
-    addClassMenu = new JMenuItem("Add class");
-    actionMenu.add(addClassMenu);
-    addClassMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_ADDCLASS);
-      }
-    });
-    testAdminMenu = new JMenuItem("Test admin server");
-    actionMenu.add(testAdminMenu);
-    testAdminMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_TESTADMIN);
-      }
-    });
-    saveServerMenu = new JMenuItem("Save server data");
-    actionMenu.add(saveServerMenu);
-    saveServerMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_SAVESERVER);
-      }
-    });
-    classWizMenu = new JMenuItem("Classes wizard");
-    actionMenu.add(classWizMenu);
-    classWizMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_CLASSWIZ);
-      }
-    });
-    addDeviceMenu = new JMenuItem("Add device");
-    actionMenu.add(addDeviceMenu);
-    addDeviceMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_ADDDEVICE);
-      }
-    });
-    devicesWizMenu = new JMenuItem("Devices wizard");
-    actionMenu.add(devicesWizMenu);
-    devicesWizMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_DEVICESWIZ);
-      }
-    });
-    monitorMenu = new JMenuItem("Monitor device");
-    actionMenu.add(monitorMenu);
-    monitorMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        for(int i=0;i<selectedNodes.length;i++)
-          selectedNodes[i].execAction(ACTION_MONITORDEV);
-      }
-    });
-    testMenu = new JMenuItem("Test device");
-    actionMenu.add(testMenu);
-    testMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        for(int i=0;i<selectedNodes.length;i++)
-          selectedNodes[i].execAction(ACTION_TESTDEV);
-      }
-    });
-    aliasMenu = new JMenuItem("Define device alias");
-    actionMenu.add(aliasMenu);
-    aliasMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_DEFALIAS);
-      }
-    });
-    goToDevMenu = new JMenuItem("Go to device node");
-    actionMenu.add(goToDevMenu);
-    goToDevMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_GOTODEVNODE);
-      }
-    });
-    restartMenu = new JMenuItem("Restart device");
-    actionMenu.add(restartMenu);
-    restartMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_RESTART);
-      }
-    });
-    deviceWizMenu = new JMenuItem("Device wizard");
-    actionMenu.add(deviceWizMenu);
-    deviceWizMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_DEVICEWIZ);
-      }
-    });
-    goToServMenu = new JMenuItem("Go to server node");
-    actionMenu.add(goToServMenu);
-    goToServMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_GOTOSERVNODE);
-      }
-    });
-    goToAdminMenu = new JMenuItem("Go to device admin node");
-    actionMenu.add(goToAdminMenu);
-    goToAdminMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_GOTOADMINNODE);
-      }
-    });
-    addClassAttMenu = new JMenuItem("Add attribute");
-    actionMenu.add(addClassAttMenu);
-    addClassAttMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_ADDCLASSATT);
-      }
-    });
-    unexportDevices = new JMenuItem("Unexport devices");
-    actionMenu.add(unexportDevices);
-    unexportDevices.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_UNEXPORT);
-      }
-    });
-    selectPropNodeMenu = new JMenuItem("Select 'property' nodes");
-    actionMenu.add(selectPropNodeMenu);
-    selectPropNodeMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_SELECT_PROP);
-      }
-    });
-    selectPollingNodeMenu = new JMenuItem("Select 'polling' nodes");
-    actionMenu.add(selectPollingNodeMenu);
-    selectPollingNodeMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_SELECT_POLLING);
-      }
-    });
-    selectEventNodeMenu = new JMenuItem("Select 'event' nodes");
-    actionMenu.add(selectEventNodeMenu);
-    selectEventNodeMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_SELECT_EVENT);
-      }
-    });
-    selectAttConfNodeMenu = new JMenuItem("Select 'attribute config' nodes");
-    actionMenu.add(selectAttConfNodeMenu);
-    selectAttConfNodeMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_SELECT_ATTCONF);
-      }
-    });
-    selectLoggingNodeMenu = new JMenuItem("Select 'logging' nodes");
-    actionMenu.add(selectLoggingNodeMenu);
-    selectLoggingNodeMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_SELECT_LOGGING);
-      }
-    });
-    logviewerMenu = new JMenuItem("Log Viewer");
-    actionMenu.add(logviewerMenu);
-    logviewerMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_LOG_VIEWER);
-      }
-    });
-    devDependMenu = new JMenuItem("Devices dependencies");
-    actionMenu.add(devDependMenu);
-    devDependMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_DEV_DEPEND);
-      }
-    });
-    threadPollMenu = new JMenuItem("Polling threads manager");
-    actionMenu.add(threadPollMenu);
-    threadPollMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_THREAD_POLL);
-      }
-    });
-    viewHistoryMenu = new JMenuItem("View history");
-    actionMenu.add(viewHistoryMenu);
-    viewHistoryMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_VIEW_HISTORY);
-      }
-    });
-    moveServerMenu = new JMenuItem("Move server");
-    actionMenu.add(moveServerMenu);
-    moveServerMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_MOVE_SERVER);
-      }
-    });
-    createAttPropMenu = new JMenuItem("Create attribute property");
-    actionMenu.add(createAttPropMenu);
-    createAttPropMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_CREATE_ATTPROP);
-      }
-    });
-    startServerMenu = new JMenuItem("Start Server");
-    actionMenu.add(startServerMenu);
-    startServerMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_START_SERVER);
-      }
-    });
-    stopServerMenu = new JMenuItem("Stop Server");
-    actionMenu.add(stopServerMenu);
-    stopServerMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_STOP_SERVER);
-      }
-    });
-    restartServerMenu = new JMenuItem("Restart Server");
-    actionMenu.add(restartServerMenu);
-    restartServerMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_RESTART_SERVER);
-      }
-    });
-    startLevelMenu = new JMenuItem("Start all servers (Level)");
-    actionMenu.add(startLevelMenu);
-    startLevelMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_START_LEVEL);
-      }
-    });
-    stopLevelMenu = new JMenuItem("Stop all servers (Level)");
-    actionMenu.add(stopLevelMenu);
-    stopLevelMenu.addActionListener(new ActionListener(){
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_STOP_LEVEL);
-      }
-    });
-    startHostMenu = new JMenuItem("Start all servers (Host)");
-    actionMenu.add(startHostMenu);
-    startHostMenu.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_START_HOST);
-      }
-    });
-    stopHostMenu = new JMenuItem("Stop all servers (Host)");
-    actionMenu.add(stopHostMenu);
-    stopHostMenu.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_STOP_HOST);
-      }
-    });
-    chHostUsageMenu = new JMenuItem("Edit Host Usage");
-    actionMenu.add(chHostUsageMenu);
-    chHostUsageMenu.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_CH_HOST_USAGE);
-      }
-    });
-    goToStarterMenu = new JMenuItem("Go to Starter Node");
-    actionMenu.add(goToStarterMenu);
-    goToStarterMenu.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_GO_TO_STATER);
-      }
-    });
-    chLevelMenu = new JMenuItem("Change Level");
-    actionMenu.add(chLevelMenu);
-    chLevelMenu.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_CH_LEVEL);
-      }
-    });
-    terminalMenu = new JMenuItem("Open terminal");
-    actionMenu.add(terminalMenu);
-    terminalMenu.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_TERMINAL);
-      }
-    });
-    newServersMenu = new JMenuItem("Start new servers");
-    actionMenu.add(newServersMenu);
-    newServersMenu.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_NEW_SERVERS);
-      }
-    });
-    copyAttSetMenu = new JMenuItem("Copy Setpoints");
-    actionMenu.add(copyAttSetMenu);
-    copyAttSetMenu.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_COPY_ATT_SET);
-      }
-    });
-    savePropMenu = new JMenuItem("Save properties");
-    actionMenu.add(savePropMenu);
-    savePropMenu.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        selectedNodes[0].execAction(ACTION_SAVE_PROP);
-      }
-    });
-
+    for(int i=0;i<actions.length;i++)
+      actionMenu.add(actions[i].menuItem);
   }
 
   // Initialise tree root
@@ -480,11 +270,72 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
     tree.setBorder(BorderFactory.createLoweredBevelBorder());
     tree.addMouseListener(this);
     tree.addTreeSelectionListener(this);
+    tree.addKeyListener(this);
     tree.setToggleClickCount(0);
     treeView = new JScrollPane(tree);
     add(treeView, BorderLayout.CENTER);
     updateOnChange = true;
     tree.addTreeExpansionListener(this);
+
+  }
+
+  static Action getAction(int action) {
+
+    boolean found = false;
+    int i = 0;
+
+    while(!found && i<actions.length) {
+      found = actions[i].action == action;
+      if(!found) i++;
+    }
+
+    if(!found)
+      throw new IllegalStateException("Action.getAction() unexpected action code");
+
+    return actions[i];
+
+  }
+
+  static Action nodeAction(TangoNode node,int action) {
+
+    boolean found = false;
+    int i=0;
+    Action[] nodeActions = node.getAction();
+    while(!found && i<nodeActions.length) {
+      found = nodeActions[i].action == action;
+      if(!found) i++;
+    }
+
+    if(!found)
+      return null;
+    else
+      return nodeActions[i];
+
+  }
+
+  static File getSaveFile(MainPanel invoker) {
+
+    JFileChooser chooser = new JFileChooser(".");
+    int ok = JOptionPane.YES_OPTION;
+    if (lastFile != null)
+      chooser.setSelectedFile(lastFile);
+
+    int returnVal = chooser.showSaveDialog(invoker);
+
+    if (returnVal == JFileChooser.APPROVE_OPTION) {
+      lastFile = chooser.getSelectedFile();
+      if (lastFile != null) {
+        if (lastFile.exists()) ok = JOptionPane.showConfirmDialog(invoker, "Do you want to overwrite " +
+            lastFile.getName() + " ?", "Confirm overwrite", JOptionPane.YES_NO_OPTION);
+        if (ok == JOptionPane.YES_OPTION) {
+          return lastFile;
+        } else {
+          return null;
+        }
+      }
+    }
+
+    return null;
 
   }
 
@@ -571,7 +422,7 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
 
     } else {
 
-      invoker.updatePanel(null);    
+      invoker.updatePanel(null);
 
     }
 
@@ -773,15 +624,11 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   }
 
   // ---------------------------------------------------------------
-  private void createSelectedNodes(int desriedLength) {
+  private void createSelectedNodes(TreePath[] paths) {
 
-    if(selectedNodes==null) {
-      selectedNodes = new TangoNode[desriedLength];
-    } else {
-      if( selectedNodes.length!=desriedLength ) {
-        selectedNodes = new TangoNode[desriedLength];
-      }
-    }
+    Action.selectedNodes = new TangoNode[paths.length];
+    for(int i=0;i<paths.length;i++)
+      Action.selectedNodes[i] = (TangoNode)(paths[i].getLastPathComponent());
 
   }
 
@@ -1122,6 +969,46 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
   }
 
   // ---------------------------------------------------------------
+
+  public void keyTyped(KeyEvent e) {}
+  public void keyPressed(KeyEvent e) {
+
+    if( tree.isSelectionEmpty() )
+      return;
+
+    TreePath[] paths = tree.getSelectionPaths();
+    createSelectedNodes(paths);
+
+    if( e.getKeyCode() == KeyEvent.VK_F2 ) {
+
+      // Rename
+      if(paths.length==1) {
+        Action a = nodeAction(Action.selectedNodes[0], ACTION_RENAME);
+        if(a!=null) a.execAction();
+      }
+
+    }
+
+    if( e.getKeyCode() == KeyEvent.VK_DELETE ) {
+
+      Action a = nodeAction(Action.selectedNodes[0],ACTION_DELETE);
+      boolean allOk = a!=null;
+      int i = 1;
+      while(allOk && i<Action.selectedNodes.length) {
+        allOk = nodeAction(Action.selectedNodes[i],ACTION_DELETE)!=null;
+        i++;
+      }
+      TreePanel.panelInvoker = this;
+      if(allOk)
+        a.execAction();
+
+    }
+
+
+  }
+  public void keyReleased(KeyEvent e) {}
+
+  // ---------------------------------------------------------------
   public void mousePressed(MouseEvent e) {
 
     TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
@@ -1130,37 +1017,46 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
       if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON3) {
 
         // Multiple selection
-
-        if( !tree.isSelectionEmpty() && (e.isControlDown() || e.isShiftDown()) ) {
+        if (!tree.isSelectionEmpty()) {
 
           // Check that the node is not already selected
           // If not, add it to the path
           if( !tree.isPathSelected(selPath) )
             tree.addSelectionPath(selPath);
 
-          // Check that if Test Device and Monitor device are available
-          // for all selected nodes
           TreePath[] paths = tree.getSelectionPaths();
-          if (paths.length>1) {
 
-            boolean ok = true;
-            int i = 0;
-            createSelectedNodes(paths.length);
-            while (ok && i < paths.length) {
-              selectedNodes[i] = (TangoNode) paths[i].getLastPathComponent();
-              int[] actions = selectedNodes[i].getAction();
-              ok = (JiveUtils.contains(actions, ACTION_MONITORDEV) ||
-                      JiveUtils.contains(actions, ACTION_TESTDEV));
-              i++;
+          if(paths.length>1) {
+
+            int hasMultiple[] = new int[actions.length];
+            for(int i=0;i<paths.length;i++) {
+              Action[] nodeActions = ((TangoNode)paths[i].getLastPathComponent()).getAction();
+              for(int j=0;j<nodeActions.length;j++) {
+                if(nodeActions[j].allowMultiple)
+                  hasMultiple[nodeActions[j].action]++;
+              }
             }
-            if (ok) {
-              // Popup ACTION_MONITORDEV + ACTION_TESTDEV menu
-              for (i = 0; i < ACTION_NUMBER; i++)
+
+            boolean popupMultiple = false;
+            for(int i=0;i<hasMultiple.length;i++) {
+              if( hasMultiple[i]==paths.length ) {
+                popupMultiple = true;
+              }
+            }
+
+            if( popupMultiple ) {
+
+              createSelectedNodes(paths);
+              for (int i = 0; i < actions.length; i++) {
+                if(hasMultiple[i]==paths.length)
+                  actionMenu.getComponent(i).setVisible(true);
+                else
                   actionMenu.getComponent(i).setVisible(false);
-              actionMenu.getComponent(ACTION_MONITORDEV).setVisible(true);
-              actionMenu.getComponent(ACTION_TESTDEV).setVisible(true);
+              }
               actionMenu.show(tree, e.getX(), e.getY());
+              TreePanel.panelInvoker = this;
               return;
+
             }
 
           }
@@ -1168,20 +1064,15 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
         }
 
         // Single selection only
-        createSelectedNodes(1);
+        createSelectedNodes(new TreePath[]{selPath});
         tree.setSelectionPath(selPath);
-        selectedNodes[0] = (TangoNode)selPath.getLastPathComponent();
-        int[] actions = selectedNodes[0].getAction();
+        Action[] actionsNode = Action.selectedNodes[0].getAction();
         if (actions.length > 0) {
-
-          for (int i = 0; i < ACTION_NUMBER; i++) {
-            if (JiveUtils.contains(actions, i))
-              actionMenu.getComponent(i).setVisible(true);
-            else
-              actionMenu.getComponent(i).setVisible(false);
-          }
+          for(int i = 0; i < actions.length; i++)
+            actionMenu.getComponent(i).setVisible(false);
+          for(int i = 0; i < actionsNode.length;i ++)
+            actionsNode[i].menuItem.setVisible(true);
           actionMenu.show(tree, e.getX(), e.getY());
-
         }
 
       }
@@ -1189,16 +1080,11 @@ public abstract class TreePanel extends JPanel implements TreeSelectionListener,
       // Launch ATK panel on double click (when possible)
       if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1 ) {
 
-        // Force single selection on right click
-        createSelectedNodes(1);
+        // Force single selection on double click
+        createSelectedNodes(new TreePath[]{selPath});
         tree.setSelectionPath(selPath);
-        selectedNodes[0] = (TangoNode)selPath.getLastPathComponent();
-        int[] actions = selectedNodes[0].getAction();
-        if (actions.length > 0) {
-          if (JiveUtils.contains(actions, ACTION_MONITORDEV)) {
-            selectedNodes[0].execAction(ACTION_MONITORDEV);
-          }
-        }
+        Action a = nodeAction(Action.selectedNodes[0],ACTION_MONITORDEV);
+        if(a!=null) a.execAction();
 
       }
 
