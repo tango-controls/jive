@@ -273,6 +273,7 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
   private ArrayList<ActionListener> docListeners;
   private Dimension lastSize = null;
   private JViewport parentViewport = null;
+  private String lastSearch = null;
 
   /**
    * Construct a JTextEditor
@@ -338,7 +339,7 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
    * @param lgth Area length
    */
   public void setStyle(int style,int start,int lgth) {
-    text.setStyle(style,start,lgth);
+    text.setStyle(style, start, lgth);
   }
 
   /**
@@ -382,6 +383,52 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
     text.clearStyleAndColor();
   }
 
+  /**
+   * Search text
+   * @param toSearch String to search
+   */
+  public void searchText(String toSearch,boolean matchCase) {
+    searchText(toSearch, matchCase, cursorPos);
+  }
+
+  private void searchText(String toSearch,boolean matchCase,int from) {
+
+    String text = getText();
+
+    if(!matchCase) {
+      toSearch = toSearch.toLowerCase();
+      text = text.toLowerCase();
+    }
+
+    int i = text.indexOf(toSearch,from);
+
+    if(i!=-1) {
+      lastSearch = toSearch;
+      selStart = i;
+      selEnd = i+toSearch.length();
+      cursorPos = i;
+      lastCursorPos = i;
+      fireUpdate();
+      repaint();
+      scrollToVisible();
+    } else {
+      lastSearch = null;
+      int ok = JOptionPane.showConfirmDialog(this,"End of document reached, restart from beginning ?","Search",JOptionPane.YES_NO_OPTION);
+      if(ok == JOptionPane.YES_OPTION) {
+        searchText(toSearch,matchCase,0);
+      }
+    }
+
+  }
+
+  /**
+   * Search next
+   */
+  public void searchNext(boolean matchCase) {
+    if(lastSearch!=null) {
+      searchText(lastSearch,matchCase,cursorPos+1);
+    }
+  }
 
   /**
    * Sets the scrollPane parent when the component is used inside a scrollPane
@@ -887,6 +934,14 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
                   }
                   break;
 
+                case KeyEvent.VK_F:
+                  // Search
+                  String toSearch = JOptionPane.showInputDialog(this,"Search","");
+                  if(toSearch!=null) {
+                    searchText(toSearch,false);
+                  }
+                  break;
+
               }
 
             }
@@ -1077,7 +1132,7 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
 
     int s = getStartLine(cursorPos);
     if(s!=0) {
-      int c = getColumn(lastCursorPos);
+      int c = getColumn(cursorPos);
       int cp = s-1;
       int nc = getColumn(cp);
       while(nc>c) {
@@ -1094,7 +1149,7 @@ public final class JTextEditor extends JComponent implements FocusListener,Mouse
   private int getDownPos() {
 
     int cp = getNextLine(cursorPos);
-    int c = getColumn(lastCursorPos);
+    int c = getColumn(cursorPos);
     int nc = 0;
     while(nc<c && cp<text.length() && !text.isNewLine(cp)) {
       nc++;

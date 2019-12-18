@@ -12,6 +12,10 @@ public class PropertyEditorDlg extends JDialog implements ActionListener {
   private PropertyNode source;
   private String propName;
 
+  private JTextField searchText;
+  private JButton searchButton;
+  private JButton searchNextButton;
+  private JCheckBox searchMathCase;
   private JButton applyButton;
   private JButton dismissButton;
   private JPanel innerPanel;
@@ -45,8 +49,32 @@ public class PropertyEditorDlg extends JDialog implements ActionListener {
     innerPanel.add(scrollPane,BorderLayout.CENTER);
 
     buttonPanel = new JPanel();
-    buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+    buttonPanel.setLayout(new GridBagLayout());
     innerPanel.add(buttonPanel,BorderLayout.SOUTH);
+
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets.left = 3;
+    gbc.insets.right = 3;
+
+    searchText = new JTextField();
+    searchText.setEditable(true);
+    searchText.setPreferredSize(new Dimension(150,25));
+    buttonPanel.add(searchText,gbc);
+    searchMathCase = new JCheckBox("Match case");
+    searchMathCase.setSelected(false);
+    buttonPanel.add(searchMathCase,gbc);
+    searchButton = new JButton("Search");
+    searchButton.addActionListener(this);
+    buttonPanel.add(searchButton,gbc);
+    searchNextButton = new JButton("Search Next");
+    searchNextButton.addActionListener(this);
+    buttonPanel.add(searchNextButton,gbc);
+
+    JPanel dummyPanel = new JPanel();
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.weightx = 1.0;
+    buttonPanel.add(dummyPanel,gbc);
+    gbc.fill = GridBagConstraints.NONE;
 
     applyButton = new JButton("Apply");
     applyButton.addActionListener(this);
@@ -84,6 +112,10 @@ public class PropertyEditorDlg extends JDialog implements ActionListener {
       setVisible(false);
     } else if (src==textArea) {
       parse();
+    } else if (src==searchButton) {
+      textArea.searchText(searchText.getText(),searchMathCase.isSelected());
+    } else if (src==searchNextButton) {
+      textArea.searchNext(searchMathCase.isSelected());
     }
 
   }
