@@ -41,7 +41,8 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       this.treePanel = t;
       this.tabName = tabName;
       this.name = name;
-      this.treePanel.tree.setName(treeName);
+      if(this.treePanel.tree!=null)
+        this.treePanel.tree.setName(treeName);
       this.display = true;
     }
 

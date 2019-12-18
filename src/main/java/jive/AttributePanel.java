@@ -532,7 +532,7 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
     switch (ai.data_type) {
 
       case Tango_DEV_STATE:
-        ret_string += "0 (16bits value)";
+        ret_string += "ON,OFF,...";
         break;
       case Tango_DEV_UCHAR:
         ret_string += "10 or 0xa (unsigned 8bits)";
@@ -653,6 +653,20 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
     ArgParser arg = new ArgParser(argin);
 
     switch (ai.data_type) {
+
+      case Tango_DEV_STATE:
+        switch (ai.data_format.value()) {
+          case AttrDataFormat._SCALAR:
+            send.insert(arg.parse_state());
+            break;
+          case AttrDataFormat._SPECTRUM:
+            send.insert(arg.parse_state_array());
+            break;
+          case AttrDataFormat._IMAGE:
+            send.insert(arg.parse_state_image(),arg.get_image_width(),arg.get_image_height());
+            break;
+        }
+        break;
 
       case Tango_DEV_UCHAR:
         switch (ai.data_format.value()) {

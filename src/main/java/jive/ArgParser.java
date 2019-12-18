@@ -723,6 +723,53 @@ public class ArgParser {
 
   }
 
+
+  /**
+   * Parse state
+   * @return State
+   * @throws NumberFormatException
+   */
+  public DevState parse_state() throws NumberFormatException {
+
+    String w = read_word();
+    if(w!=null) {
+      return get_state(w);
+    } else {
+      throw new NumberFormatException("State expected.");
+    }
+
+  }
+
+  /**
+   * Parse a state array.
+   * @return The state array.
+   * @throws NumberFormatException In case of failure
+   */
+  public DevState[] parse_state_array() throws NumberFormatException {
+
+    Vector tmp = parse_array();
+    DevState[] ret = new DevState[tmp.size()];
+    for(int l=0;l<ret.length;l++) ret[l]=get_state((String) tmp.get(l));
+    return ret;
+
+  }
+
+  /**
+   * Parse a state image.
+   * @return The state image.
+   * @throws NumberFormatException In case of failure
+   * @see #get_image_width
+   * @see #get_image_height
+   */
+  public DevState[] parse_state_image() throws NumberFormatException {
+
+    Vector tmp = parse_image();
+    DevState[] ret = new DevState[width*height];
+    for(int l=0;l<ret.length;l++) ret[l]=get_state((String) tmp.get(l));
+    return ret;
+
+  }
+
   /**
    * Parse a string array.
    * @return The string array.
