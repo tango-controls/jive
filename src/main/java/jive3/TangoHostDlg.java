@@ -43,7 +43,7 @@ public class TangoHostDlg extends JDialog implements ActionListener,KeyListener 
       hostCombo.addItem(knowHost[i]);
     hostCombo.setEditable(true);
     Dimension preferredSize = hostCombo.getPreferredSize();
-    preferredSize.height = 35;
+    preferredSize.height = 25;
     hostCombo.setPreferredSize(preferredSize);
     hostCombo.setSelectedItem("");
     comboPanel.add(hostCombo,BorderLayout.CENTER);
