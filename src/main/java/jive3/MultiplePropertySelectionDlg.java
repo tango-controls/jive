@@ -38,7 +38,7 @@ class PItem {
 
 };
 
-public class SelectionDlg extends JFrame implements ActionListener {
+public class MultiplePropertySelectionDlg extends JFrame implements ActionListener {
 
   Database db;
   String colName[] = {"Name" , "Value"};
@@ -55,7 +55,7 @@ public class SelectionDlg extends JFrame implements ActionListener {
   String selectText;
   ArrayList<PItem> items;
 
-  public SelectionDlg() {
+  public MultiplePropertySelectionDlg() {
     this.db = null;
     initComponents();
   }
@@ -160,7 +160,7 @@ public class SelectionDlg extends JFrame implements ActionListener {
     theTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     JScrollPane textView = new JScrollPane(theTable);
     getContentPane().add(textView, BorderLayout.CENTER);
-    setTitle("Multiple selection");
+    setTitle("Multiple property selection");
     setPreferredSize(new Dimension(800,600));
 
     addWindowListener(new WindowAdapter() {

@@ -64,8 +64,11 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   // History panel
   PropertyHistoryDlg   historyDlg;
 
-  // Multiple selecection panel
-  SelectionDlg   selectionDlg;
+  // Multiple property selection panel
+  MultiplePropertySelectionDlg propertySelectionDlg;
+
+  // Multiple device selection panel
+  MultipleDeviceSelectionDlg deviceSelectionDlg;
 
   // Filter dialog
   FilterDlg filterDlg=null;
@@ -212,8 +215,10 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
     historyDlg = new PropertyHistoryDlg();
     historyDlg.setDatabase(db, tangoHost);
-    selectionDlg = new SelectionDlg();
-    selectionDlg.setDatabase(db);
+    propertySelectionDlg = new MultiplePropertySelectionDlg();
+    propertySelectionDlg.setDatabase(db);
+    deviceSelectionDlg = new MultipleDeviceSelectionDlg();
+    deviceSelectionDlg.setDatabase(db);
     innerPanel.add(splitPane, BorderLayout.CENTER);
     splitPane.setRightComponent(defaultPanel);
 
@@ -376,13 +381,20 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       }
     });
     serverMenu.add(dbHistMenu);
-    JMenuItem selectionMenu = new JMenuItem("Multiple selection");
-    selectionMenu.addActionListener(new ActionListener(){
+    JMenuItem propertySelectionMenu = new JMenuItem("Multiple property selection");
+    propertySelectionMenu.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
-        showMultipleSelection();
+        showMultiplePropertySelection();
       }
     });
-    serverMenu.add(selectionMenu);
+    serverMenu.add(propertySelectionMenu);
+    JMenuItem deviceSelectionMenu = new JMenuItem("Multiple device selection");
+    deviceSelectionMenu.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e) {
+        showMultipleDeviceSelection();
+      }
+    });
+    serverMenu.add(deviceSelectionMenu);
 
     JMenu filterMenu = new JMenu("Filter");
     JMenuItem filterServer = new JMenuItem("Server");
@@ -929,7 +941,8 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       ProgressFrame.hideProgress();
 
       historyDlg.setDatabase(db, th);
-      selectionDlg.setDatabase(db);
+      propertySelectionDlg.setDatabase(db);
+      deviceSelectionDlg.setDatabase(db);
       updateTitle(th);
       defaultPanel.setSource(null, 0);
       splitPane.setRightComponent(defaultPanel);
@@ -1077,13 +1090,23 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
 
   }
   
-  // Show Multiple selection dialog
-  private void showMultipleSelection() {
+  // Show Multiple property selection dialog
+  private void showMultiplePropertySelection() {
 
-    if(!selectionDlg.isVisible())
-      ATKGraphicsUtils.centerFrameOnScreen(selectionDlg);
-    selectionDlg.clear();
-    selectionDlg.setVisible(true);
+    if(!propertySelectionDlg.isVisible())
+      ATKGraphicsUtils.centerFrameOnScreen(propertySelectionDlg);
+    propertySelectionDlg.clear();
+    propertySelectionDlg.setVisible(true);
+
+  }
+
+  // Show Multiple device selection dialog
+  private void showMultipleDeviceSelection() {
+
+    if(!deviceSelectionDlg.isVisible())
+      ATKGraphicsUtils.centerFrameOnScreen(deviceSelectionDlg);
+    deviceSelectionDlg.clear();
+    deviceSelectionDlg.setVisible(true);
 
   }
 
