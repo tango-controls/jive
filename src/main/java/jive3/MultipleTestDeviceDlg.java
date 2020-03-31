@@ -3,7 +3,6 @@ package jive3;
 import fr.esrf.Tango.*;
 import fr.esrf.TangoApi.*;
 import fr.esrf.tangoatk.widget.util.ATKConstant;
-import fr.esrf.tangoatk.widget.util.ErrorPane;
 import jive.ArgParser;
 import jive.JiveUtils;
 import jive.MultiLineCellEditor;
@@ -21,7 +20,7 @@ import java.util.Vector;
 
 import static fr.esrf.TangoDs.TangoConst.*;
 
-public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener {
+public class MultipleTestDeviceDlg extends JFrame implements ActionListener {
 
   class DItem {
     String devName;
@@ -43,9 +42,11 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
 
   class CItem {
     String name;
+    int in_type;
+    int out_type;
     int count;
     public String toString() {
-      return name;
+      return name + " (" + Tango_CmdArgTypeName[in_type] +"," + Tango_CmdArgTypeName[out_type] + ")";
     }
   };
 
@@ -59,15 +60,20 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
   JLabel infoLabel;
   DefaultTableModel dm;
   JTable theTable;
+  JButton removeButton;
   JList attList;
   JTextField attValueText;
   JButton writeAttBtn;
   JButton readAttBtn;
+  JList cmdList;
+  JTextField cmdValueText;
+  JButton execCmdBtn;
 
   ArrayList<DItem> items;
   ArrayList<AItem> attItems;
+  ArrayList<CItem> cmdItems;
 
-  public MultipleDeviceSelectionDlg() {
+  public MultipleTestDeviceDlg() {
     this.db = null;
     initComponents();
   }
@@ -111,6 +117,7 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
 
     JTabbedPane tabPane = new JTabbedPane();
 
+    // Attribute Panel
     JPanel attributePanel = new JPanel();
     attributePanel.setLayout(new BorderLayout());
     attributePanel.setBorder(BorderFactory.createEtchedBorder());
@@ -122,7 +129,7 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
     gbc.fill = GridBagConstraints.BOTH;
     gbc.weightx = 0;
 
-    JLabel arginLabel = new JLabel("Argin");
+    JLabel arginLabel = new JLabel("Argin ");
     valuePanel.add(arginLabel,gbc);
     gbc.weightx = 1.0;
     attValueText = new JTextField();
@@ -144,6 +151,41 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
     attributePanel.add(attListScrool,BorderLayout.CENTER);
 
     tabPane.add(attributePanel,"Attribute");
+
+    // Command Panel
+    JPanel commandPanel = new JPanel();
+    commandPanel.setLayout(new BorderLayout());
+    commandPanel.setBorder(BorderFactory.createEtchedBorder());
+
+    JPanel cmdValuePanel = new JPanel();
+    cmdValuePanel.setLayout(new GridBagLayout());
+    gbc.gridx = GridBagConstraints.RELATIVE;
+    gbc.gridy = 0;
+    gbc.fill = GridBagConstraints.BOTH;
+    gbc.weightx = 0;
+
+    JLabel cmdArginLabel = new JLabel("Argin ");
+    cmdValuePanel.add(cmdArginLabel,gbc);
+    gbc.weightx = 1.0;
+    cmdValueText = new JTextField();
+    cmdValueText.setEditable(true);
+    cmdValuePanel.add(cmdValueText,gbc);
+
+    gbc.weightx = 0.0;
+    execCmdBtn = new JButton("Execute");
+    execCmdBtn.addActionListener(this);
+    cmdValuePanel.add(execCmdBtn,gbc);
+
+    commandPanel.add(cmdValuePanel,BorderLayout.NORTH);
+
+    cmdList = new JList();
+    JScrollPane cmdListScrool = new JScrollPane(cmdList);
+    commandPanel.add(cmdListScrool,BorderLayout.CENTER);
+
+    tabPane.add(commandPanel,"Command");
+
+
+    // Bottom Panel
 
     JPanel bottomBtnPanel = new JPanel();
     bottomBtnPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -169,7 +211,7 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
       }
 
       public boolean isCellEditable(int row, int column) {
-        return column == 1;
+        return false;
       }
 
       public void setValueAt(Object aValue, int row, int column) {
@@ -177,15 +219,28 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
 
     };
 
+    JPanel tablePanel = new JPanel();
+    tablePanel.setLayout(new BorderLayout());
+
     theTable = new JTable(dm);
     editor = new MultiLineCellEditor(theTable);
     theTable.setDefaultEditor(String.class, editor);
-    MultiLineCellRenderer renderer = new MultiLineCellRenderer(false, false, false);
+    MultiLineCellRenderer renderer = new MultiLineCellRenderer(false, true, false);
     theTable.setDefaultRenderer(String.class, renderer);
-    theTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    theTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     JScrollPane textView = new JScrollPane(theTable);
-    getContentPane().add(textView, BorderLayout.CENTER);
 
+    tablePanel.add(textView,BorderLayout.CENTER);
+
+    JPanel tableButtonPanel = new JPanel();
+    tableButtonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+    removeButton = new JButton("Remove items");
+    removeButton.addActionListener(this);
+    tableButtonPanel.add(removeButton);
+
+    tablePanel.add(tableButtonPanel, BorderLayout.SOUTH);
+
+    getContentPane().add(tablePanel, BorderLayout.CENTER);
 
     setTitle("Multiple device selection");
     setPreferredSize(new Dimension(800, 600));
@@ -200,6 +255,7 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
 
     items = new ArrayList<DItem>();
     attItems = new ArrayList<AItem>();
+    cmdItems = new ArrayList<CItem>();
     clear();
 
   }
@@ -274,8 +330,6 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
       DevVarLongStringArray arg = argout.extractLongStringArray();
 
       items.clear();
-      int totalCount = 0;
-      Vector<String> errStr = new Vector<String>();
       for (int i = 0; i < arg.svalue.length; i += 2) {
 
         DItem pi = new DItem();
@@ -284,52 +338,79 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
         pi.value = "";
         items.add(pi);
 
-        // Build attribute config
-        try {
-
-          DeviceProxy ds = new DeviceProxy(pi.devName);
-          AttributeInfoEx[] conf = ds.get_attribute_info_ex();
-          for (int j = 0; j < conf.length; j++)
-            addAttribute(conf[j]);
-
-        } catch (DevFailed e) {
-
-          errStr.add(pi.devName+":"+e.errors[0].desc);
-
-        }
-
-        totalCount++;
-
       }
-
-      if(errStr.size()>0) {
-        JiveUtils.showJiveErrors(errStr);
-      }
-
-      // Remove non common item
-      for (int i = 0; i < attItems.size(); ) {
-        if (attItems.get(i).count != totalCount)
-          attItems.remove(i);
-        else
-          i++;
-      }
-
-      // Populate list
-      DefaultListModel ml = new DefaultListModel();
-      for (int i = 0; i < attItems.size(); i++)
-        ml.add(i, attItems.get(i));
-      attList.setModel(ml);
 
       if (items.size() == 0)
         JOptionPane.showMessageDialog(this, "No device found");
 
       infoLabel.setText(items.size() + " item(s)");
 
+      refreshCommandAndAttribute();
       refreshTable();
 
     } catch (DevFailed e) {
       JiveUtils.showTangoError(e);
     }
+
+  }
+
+  private void refreshCommandAndAttribute() {
+
+    Vector<String> errStr = new Vector<String>();
+
+    for(int i=0;i<items.size();i++) {
+
+      DItem pi = items.get(i);
+
+      // Build attribute config
+      try {
+
+        DeviceProxy ds = new DeviceProxy(pi.devName);
+        AttributeInfoEx[] conf = ds.get_attribute_info_ex();
+        for (int j = 0; j < conf.length; j++)
+          addAttribute(conf[j]);
+
+        CommandInfo[] cmdInfo = ds.command_list_query();
+        for (int j = 0; j < cmdInfo.length; j++)
+          addCommand(cmdInfo[j]);
+
+      } catch (DevFailed e) {
+
+        errStr.add(pi.devName+":"+e.errors[0].desc);
+
+      }
+
+    }
+
+    if(errStr.size()>0) {
+      JiveUtils.showJiveErrors(errStr);
+    }
+
+    // Remove non common item
+    for (int i = 0; i < attItems.size(); ) {
+      if (attItems.get(i).count != items.size())
+        attItems.remove(i);
+      else
+        i++;
+    }
+
+    for (int i = 0; i < cmdItems.size(); ) {
+      if (cmdItems.get(i).count != items.size())
+        cmdItems.remove(i);
+      else
+        i++;
+    }
+
+    // Populate list
+    DefaultListModel ml = new DefaultListModel();
+    for (int i = 0; i < attItems.size(); i++)
+      ml.add(i, attItems.get(i));
+    attList.setModel(ml);
+
+    ml = new DefaultListModel();
+    for (int i = 0; i < cmdItems.size(); i++)
+      ml.add(i, cmdItems.get(i));
+    cmdList.setModel(ml);
 
   }
 
@@ -359,6 +440,30 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
 
   }
 
+  private void addCommand(CommandInfo e) {
+
+    boolean found = false;
+    int i = 0;
+    while( !found && i<cmdItems.size() )  {
+      found = cmdItems.get(i).name.equalsIgnoreCase(e.cmd_name) &&
+              cmdItems.get(i).in_type == e.in_type &&
+              cmdItems.get(i).out_type == e.out_type;
+      if(!found) i++;
+    }
+
+    if(!found) {
+      CItem it = new CItem();
+      it.name = e.cmd_name;
+      it.in_type = e.in_type;
+      it.out_type = e.out_type;
+      it.count = 1;
+      cmdItems.add(it);
+    } else {
+      cmdItems.get(i).count += 1;
+    }
+
+  }
+
   private void refreshTable() {
 
     String[][] prop = new String[items.size()][3];
@@ -374,6 +479,8 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
     theTable.getColumnModel().getColumn(1).setPreferredWidth(250);
     theTable.validate();
     ((JPanel) getContentPane()).revalidate();
+
+    infoLabel.setText(items.size() + " item(s)");
 
   }
 
@@ -414,6 +521,28 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
 
       }
 
+    } else if(src==execCmdBtn) {
+
+      int cmdId = cmdList.getSelectedIndex();
+      if(cmdId>=0) {
+        CItem ci = cmdItems.get(cmdId);
+        try {
+          execCommand(ci);
+        } catch (NumberFormatException e) {
+          JiveUtils.showJiveError(e.getMessage());
+        }
+
+      }
+
+    } else if(src==removeButton) {
+
+      int[] sel = theTable.getSelectedRows();
+      for(int i=sel.length-1;i>=0;i--) {
+        items.remove(sel[i]);
+      }
+      refreshCommandAndAttribute();
+      refreshTable();
+
     }
 
   }
@@ -422,6 +551,15 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
 
     DeviceAttribute send = new DeviceAttribute(att.name);
     ArgParser arg = new ArgParser(attValueText.getText());
+
+    if (items.size() > 1) {
+      Vector propChange = new Vector();
+      propChange.add(att.name);
+      propChange.add(attValueText.getText());
+      if (!MultiChangeConfirmDlg.confirmChange(propChange, items.size(),"", "Attribute")) {
+        return;
+      }
+    }
 
     switch (att.type) {
 
@@ -835,5 +973,345 @@ public class MultipleDeviceSelectionDlg extends JFrame implements ActionListener
     return ret_string.toString();
 
   }
+
+  private void execCommand(CItem ci) throws NumberFormatException {
+
+    ArgParser arg=null;
+    DeviceData send = null;
+
+    if(ci.in_type != Tango_DEV_VOID) {
+      arg = new ArgParser(cmdValueText.getText());
+      try {
+        send = new DeviceData();
+      } catch (DevFailed e) {
+        JiveUtils.showTangoError(e);
+        return;
+      }
+    }
+
+    if (items.size() > 1) {
+      Vector propChange = new Vector();
+      propChange.add(ci.name);
+      if(arg==null) {
+        propChange.add("None");
+      } else {
+        propChange.add(cmdValueText.getText());
+      }
+      if (!MultiChangeConfirmDlg.confirmChange(propChange, items.size(),"", "Command")) {
+        return;
+      }
+    }
+
+    if(send!=null) {
+
+      switch (ci.in_type) {
+        case Tango_DEV_BOOLEAN:
+          send.insert(arg.parse_boolean());
+          break;
+        case Tango_DEV_USHORT:
+          send.insert_us(arg.parse_ushort());
+          break;
+        case Tango_DEV_SHORT:
+          send.insert(arg.parse_short());
+          break;
+        case Tango_DEV_ULONG:
+          send.insert_ul(arg.parse_ulong());
+          break;
+        case Tango_DEV_LONG:
+          send.insert(arg.parse_long());
+          break;
+        case Tango_DEV_LONG64:
+          send.insert(arg.parse_long64());
+          break;
+        case Tango_DEV_ULONG64:
+          send.insert_u64(arg.parse_long64());
+          break;
+        case Tango_DEV_FLOAT:
+          send.insert(arg.parse_float());
+          break;
+        case Tango_DEV_DOUBLE:
+          send.insert(arg.parse_double());
+          break;
+        case Tango_DEV_STRING:
+          send.insert(arg.parse_string());
+          break;
+        case Tango_DEVVAR_CHARARRAY:
+          send.insert(arg.parse_char_array());
+          break;
+        case Tango_DEVVAR_USHORTARRAY:
+          send.insert_us(arg.parse_ushort_array());
+          break;
+        case Tango_DEVVAR_SHORTARRAY:
+          send.insert(arg.parse_short_array());
+          break;
+        case Tango_DEVVAR_ULONGARRAY:
+          send.insert_ul(arg.parse_ulong_array());
+          break;
+        case Tango_DEVVAR_LONGARRAY:
+          send.insert(arg.parse_long_array());
+          break;
+        case Tango_DEVVAR_LONG64ARRAY:
+          send.insert(arg.parse_long64_array());
+          break;
+        case Tango_DEVVAR_ULONG64ARRAY:
+          send.insert_u64(arg.parse_long64_array());
+          break;
+        case Tango_DEVVAR_FLOATARRAY:
+          send.insert(arg.parse_float_array());
+          break;
+        case Tango_DEVVAR_DOUBLEARRAY:
+          send.insert(arg.parse_double_array());
+          break;
+        case Tango_DEVVAR_STRINGARRAY:
+          send.insert(arg.parse_string_array());
+          break;
+        case Tango_DEVVAR_LONGSTRINGARRAY:
+          send.insert(new DevVarLongStringArray(arg.parse_long_array(), arg.parse_string_array()));
+          break;
+        case Tango_DEVVAR_DOUBLESTRINGARRAY:
+          send.insert(new DevVarDoubleStringArray(arg.parse_double_array(), arg.parse_string_array()));
+          break;
+        case Tango_DEV_STATE:
+          send.insert(DevState.from_int(arg.parse_ushort()));
+          break;
+
+        default:
+          throw new NumberFormatException("Command type not supported code=" + ci.in_type);
+
+      }
+
+    }
+
+    Vector<String> errList = new Vector<String>();
+
+    for(int i=0;i<items.size();i++) {
+
+      DItem di = items.get(i);
+
+      try {
+
+        DeviceProxy ds = new DeviceProxy(di.devName);
+        DeviceData data;
+        if(send==null) {
+          data = ds.command_inout(ci.name);
+        } else {
+          data = ds.command_inout(ci.name, send);
+        }
+
+        switch (ci.out_type) {
+
+          case Tango_DEV_VOID:
+            break;
+          case Tango_DEV_BOOLEAN:
+            items.get(i).value = Boolean.toString(data.extractBoolean());
+            break;
+          case Tango_DEV_USHORT:
+            items.get(i).value = Integer.toString(data.extractUShort());
+            break;
+          case Tango_DEV_SHORT:
+            items.get(i).value = Short.toString(data.extractShort());
+            break;
+          case Tango_DEV_ULONG:
+            items.get(i).value = Long.toString(data.extractULong());
+            break;
+          case Tango_DEV_ULONG64:
+            items.get(i).value = Long.toString(data.extractULong64());
+            break;
+          case Tango_DEV_LONG:
+            items.get(i).value = Integer.toString(data.extractLong());
+            break;
+          case Tango_DEV_LONG64:
+            items.get(i).value = Long.toString(data.extractLong64());
+            break;
+          case Tango_DEV_FLOAT:
+            items.get(i).value = Float.toString(data.extractFloat());
+            break;
+          case Tango_DEV_DOUBLE:
+            items.get(i).value = Double.toString(data.extractDouble());
+            break;
+          case Tango_CONST_DEV_STRING:
+          case Tango_DEV_STRING:
+            items.get(i).value = data.extractString();
+            break;
+          case Tango_DEVVAR_CHARARRAY:
+          {
+            byte[] dummy = data.extractByteArray();
+            StringBuffer ret_string = new StringBuffer();
+            for (int j = 0; j < dummy.length; j++) {
+              ret_string.append(Integer.toString(dummy[j]));
+              if(i<dummy.length-1)
+                ret_string.append("\n");
+            }
+            items.get(i).value = ret_string.toString();
+          }
+          break;
+          case Tango_DEVVAR_USHORTARRAY:
+          {
+            int[] dummy = data.extractUShortArray();
+            StringBuffer ret_string = new StringBuffer();
+            for (int j = 0; j < dummy.length; j++) {
+              ret_string.append(Integer.toString(dummy[j]));
+              if(i<dummy.length-1)
+                ret_string.append("\n");
+            }
+            items.get(i).value = ret_string.toString();
+          }
+          break;
+          case Tango_DEVVAR_SHORTARRAY:
+          {
+            short[] dummy = data.extractShortArray();
+            StringBuffer ret_string = new StringBuffer();
+            for (int j = 0; j < dummy.length; j++) {
+              ret_string.append(Integer.toString(dummy[j]));
+              if(i<dummy.length-1)
+                ret_string.append("\n");
+            }
+            items.get(i).value = ret_string.toString();
+          }
+          break;
+          case Tango_DEVVAR_ULONGARRAY:
+          {
+            long[] dummy = data.extractULongArray();
+            StringBuffer ret_string = new StringBuffer();
+            for (int j = 0; j < dummy.length; j++) {
+              ret_string.append(Long.toString(dummy[j]));
+              if(i<dummy.length-1)
+                ret_string.append("\n");
+            }
+            items.get(i).value = ret_string.toString();
+          }
+          break;
+          case Tango_DEVVAR_ULONG64ARRAY:
+          {
+            long[] dummy = data.extractULong64Array();
+            StringBuffer ret_string = new StringBuffer();
+            for (int j = 0; j < dummy.length; j++) {
+              ret_string.append(Long.toString(dummy[j]));
+              if(i<dummy.length-1)
+                ret_string.append("\n");
+            }
+            items.get(i).value = ret_string.toString();
+          }
+          break;
+          case Tango_DEVVAR_LONGARRAY:
+          {
+            int[] dummy = data.extractLongArray();
+            StringBuffer ret_string = new StringBuffer();
+            for (int j = 0; j < dummy.length; j++) {
+              ret_string.append(Integer.toString(dummy[j]));
+              if(i<dummy.length-1)
+                ret_string.append("\n");
+            }
+            items.get(i).value = ret_string.toString();
+          }
+          break;
+          case Tango_DEVVAR_LONG64ARRAY:
+          {
+            long[] dummy = data.extractULong64Array();
+            StringBuffer ret_string = new StringBuffer();
+            for (int j = 0; j < dummy.length; j++) {
+              ret_string.append(Long.toString(dummy[j]));
+              if(i<dummy.length-1)
+                ret_string.append("\n");
+            }
+            items.get(i).value = ret_string.toString();
+          }
+          break;
+          case Tango_DEVVAR_FLOATARRAY:
+          {
+            float[] dummy = data.extractFloatArray();
+            StringBuffer ret_string = new StringBuffer();
+            for (int j = 0; j < dummy.length; j++) {
+              ret_string.append(Float.toString(dummy[j]));
+              if(i<dummy.length-1)
+                ret_string.append("\n");
+            }
+            items.get(i).value = ret_string.toString();
+          }
+          break;
+          case Tango_DEVVAR_DOUBLEARRAY:
+          {
+            double[] dummy = data.extractDoubleArray();
+            StringBuffer ret_string = new StringBuffer();
+            for (int j = 0; j < dummy.length; j++) {
+              ret_string.append(Double.toString(dummy[j]));
+              if(i<dummy.length-1)
+                ret_string.append("\n");
+            }
+            items.get(i).value = ret_string.toString();
+          }
+          break;
+          case Tango_DEVVAR_STRINGARRAY:
+          {
+            String[] dummy = data.extractStringArray();
+            StringBuffer ret_string = new StringBuffer();
+            for (int j = 0; j < dummy.length; j++) {
+              ret_string.append(dummy[j]);
+              if(i<dummy.length-1)
+                ret_string.append("\n");
+            }
+            items.get(i).value = ret_string.toString();
+          }
+          break;
+          case Tango_DEVVAR_LONGSTRINGARRAY:
+          {
+            DevVarLongStringArray dummy = data.extractLongStringArray();
+            StringBuffer ret_string = new StringBuffer();
+            ret_string.append("svalue:\n");
+            for (int j = 0; j < dummy.svalue.length; j++) {
+              ret_string.append(dummy.svalue[j]);
+            }
+            ret_string.append("lvalue:\n");
+            for (int j = 0; j < dummy.lvalue.length; j++) {
+              ret_string.append(dummy.lvalue[j]);
+              if(i<dummy.lvalue.length-1)
+                ret_string.append("\n");
+            }
+            items.get(i).value = ret_string.toString();
+          }
+          break;
+          case Tango_DEVVAR_DOUBLESTRINGARRAY:
+          {
+            DevVarDoubleStringArray dummy = data.extractDoubleStringArray();
+            StringBuffer ret_string = new StringBuffer();
+            ret_string.append("svalue:\n");
+            for (int j = 0; j < dummy.svalue.length; j++) {
+              ret_string.append(dummy.svalue[j]);
+            }
+            ret_string.append("dvalue:\n");
+            for (int j = 0; j < dummy.dvalue.length; j++) {
+              ret_string.append(dummy.dvalue[j]);
+              if(i<dummy.dvalue.length-1)
+                ret_string.append("\n");
+            }
+            items.get(i).value = ret_string.toString();
+          }
+          break;
+
+          case Tango_DEV_STATE:
+            items.get(i).value = Tango_DevStateName[data.extractDevState().value()];
+            break;
+
+          default:
+            errList.add("Unsupported command type code="+ci.out_type);
+            break;
+        }
+
+      } catch (DevFailed e) {
+        errList.add(di.devName+":"+e.errors[0].desc);
+      }
+
+    }
+
+    if(errList.size()>0) {
+      JiveUtils.showJiveErrors(errList);
+    }
+
+    if(ci.out_type!=Tango_DEV_VOID)
+      refreshTable();
+
+  }
+
+
 
 }

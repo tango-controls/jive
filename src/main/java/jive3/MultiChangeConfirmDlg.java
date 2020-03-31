@@ -30,7 +30,7 @@ public class MultiChangeConfirmDlg extends JDialog implements ActionListener {
 
   private boolean goFlag;
 
-  public MultiChangeConfirmDlg(Vector propValues,int nbDevice,String extraInfo) {
+  public MultiChangeConfirmDlg(Vector propValues,int nbDevice,String extraInfo,String itemName) {
 
     super((JFrame)null,true);
     innerPanel = new JPanel();
@@ -54,9 +54,20 @@ public class MultiChangeConfirmDlg extends JDialog implements ActionListener {
 
     int nbProp = propValues.size()/2;
     String nbPropStr = "";
-    if( nbProp==1 )  nbPropStr = nbProp + " property";
-    else             nbPropStr = nbProp + " properties";
-    warningText.setText("You are going to modify " + nbPropStr + " on " + nbDevice + " devices" + extraInfo + ".\nDo you want to proceed ?");
+    if( nbProp==1 )  nbPropStr = nbProp + itemName;
+    else             nbPropStr = nbProp + getPluriel(itemName);
+
+    String verb = "modify";
+    String arginName = "New value";
+    if(itemName.equalsIgnoreCase("attribute"))
+      verb = "write";
+    else if(itemName.equalsIgnoreCase("command")) {
+      arginName = "Input parameters";
+      verb = "execute";
+    }
+
+    warningText.setText("You are going to "+verb+" " + nbPropStr + " on " + nbDevice + " devices" + extraInfo +
+            ".\nDo you want to proceed ?");
 
     // Table model
     dm = new DefaultTableModel() {
@@ -90,7 +101,7 @@ public class MultiChangeConfirmDlg extends JDialog implements ActionListener {
     innerPanel.add(textView, BorderLayout.CENTER);
 
     // Fill table
-    String colName[] = {"Property", "New value"};
+    String colName[] = {itemName, arginName};
 
     String[][] prop = new String[propValues.size() / 2][2];
     for (int i = 0; i < propValues.size(); i += 2) {
@@ -123,9 +134,16 @@ public class MultiChangeConfirmDlg extends JDialog implements ActionListener {
 
   }
 
+  private String getPluriel(String name) {
+    if(name.endsWith("y"))
+      return name.substring(0,name.length()-1) + "ies";
+    else
+      return name + "s";
+  }
+
   static public boolean confirmChange(Vector propValues,int nbDevice) {
 
-    MultiChangeConfirmDlg dlg = new MultiChangeConfirmDlg(propValues,nbDevice,"");
+    MultiChangeConfirmDlg dlg = new MultiChangeConfirmDlg(propValues,nbDevice,"", "Property");
     ATKGraphicsUtils.centerDialog(dlg);
     dlg.setVisible(true);
     return dlg.isOK();
@@ -135,7 +153,16 @@ public class MultiChangeConfirmDlg extends JDialog implements ActionListener {
   
   static public boolean confirmChange(Vector propValues,int nbDevice,String extra) {
 
-    MultiChangeConfirmDlg dlg = new MultiChangeConfirmDlg(propValues,nbDevice,extra);
+    MultiChangeConfirmDlg dlg = new MultiChangeConfirmDlg(propValues,nbDevice,extra,"Property");
+    ATKGraphicsUtils.centerDialog(dlg);
+    dlg.setVisible(true);
+    return dlg.isOK();
+
+  }
+
+  static public boolean confirmChange(Vector propValues,int nbDevice,String extra,String itemName) {
+
+    MultiChangeConfirmDlg dlg = new MultiChangeConfirmDlg(propValues,nbDevice,extra,itemName);
     ATKGraphicsUtils.centerDialog(dlg);
     dlg.setVisible(true);
     return dlg.isOK();

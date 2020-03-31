@@ -103,7 +103,7 @@ public class MultiLineCellRenderer extends JTextArea implements TableCellRendere
       else
         setBackground(Color.WHITE);
 
-      if (isSelected && column == 1) {
+      if (isSelected && column >= 1) {
         setBorder(selBorder);
       } else {
         setBorder(null);

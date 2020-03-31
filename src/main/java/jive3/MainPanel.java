@@ -68,7 +68,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
   MultiplePropertySelectionDlg propertySelectionDlg;
 
   // Multiple device selection panel
-  MultipleDeviceSelectionDlg deviceSelectionDlg;
+  MultipleTestDeviceDlg deviceSelectionDlg;
 
   // Filter dialog
   FilterDlg filterDlg=null;
@@ -217,7 +217,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
     historyDlg.setDatabase(db, tangoHost);
     propertySelectionDlg = new MultiplePropertySelectionDlg();
     propertySelectionDlg.setDatabase(db);
-    deviceSelectionDlg = new MultipleDeviceSelectionDlg();
+    deviceSelectionDlg = new MultipleTestDeviceDlg();
     deviceSelectionDlg.setDatabase(db);
     innerPanel.add(splitPane, BorderLayout.CENTER);
     splitPane.setRightComponent(defaultPanel);
@@ -388,7 +388,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       }
     });
     serverMenu.add(propertySelectionMenu);
-    JMenuItem deviceSelectionMenu = new JMenuItem("Multiple device selection");
+    JMenuItem deviceSelectionMenu = new JMenuItem("Multiple Test Device");
     deviceSelectionMenu.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e) {
         showMultipleDeviceSelection();
