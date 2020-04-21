@@ -149,6 +149,24 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
 
   }
 
+  public String indentString(String in,String space) {
+
+    String[] s = in.trim().split("\n");
+
+    if(s.length>1) {
+
+      String r = s[0] + "\n";
+      for(int i=1;i<s.length;i++) {
+        r += space + s[i];
+        if(i<s.length-1) r += "\n";
+      }
+      return r;
+
+    } else {
+      return in;
+    }
+
+  }
   // -----------------------------------------------------
 
   public void valueChanged(ListSelectionEvent e) {
@@ -172,6 +190,7 @@ class AttributePanel extends JPanel implements ActionListener,ListSelectionListe
       String descText =
           "Name         " + ai.name + "\n" +
           "Label        " + ai.label + "\n" +
+          "Desc         " + indentString(ai.description,"             ") + "\n" +
           "Writable     " + getWriteString(ai) + "\n" +
           "Data format  " + getFormatString(ai) + "\n" +
           "Data type    " + Tango_CmdArgTypeName[ai.data_type] + "\n" +
