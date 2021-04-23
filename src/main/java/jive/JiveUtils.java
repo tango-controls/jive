@@ -937,6 +937,15 @@ public class JiveUtils {
       }
       str = qStr.toString();
 
+      // backslash backslash
+      qStr = new StringBuffer(str);
+      qIdx = qStr.indexOf("\\");
+      while(qIdx!=-1) {
+        qStr.insert(qIdx,"\\");
+        qIdx = qStr.indexOf("\\",qIdx+2);
+      }
+      str = qStr.toString();
+
       // Quote resource with space or special char
       if (str.indexOf(' ') != -1 || str.indexOf('/') != -1 || str.indexOf(',') != -1 || str.indexOf('"') != -1)
         value[j] = new String("\"" + str + "\"");

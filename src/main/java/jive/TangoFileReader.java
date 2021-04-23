@@ -14,6 +14,7 @@ import fr.esrf.TangoApi.DbAttribute;
 import fr.esrf.TangoApi.DbDatum;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Vector;
 
 public class TangoFileReader {
@@ -47,6 +48,11 @@ public class TangoFileReader {
   private Database db;
   private boolean DELETE_ENTRY;
   private String word;
+
+  class FullWordInfo {
+    String word;
+    int lex;
+  }
 
   // ****************************************************
   //  Constructor
@@ -168,17 +174,22 @@ public class TangoFileReader {
   // ****************************************************
   // Read the next word in the file
   // And allow / inside
+  // Allow " as \" in string
+  // Allow \ as \\ in string
   // ****************************************************
-  private String read_full_word(Reader f) throws IOException {
+  private FullWordInfo read_full_word(Reader f) throws IOException {
 
-    String ret_word = "";
+    FullWordInfo ret_word = new FullWordInfo();
+    ret_word.word = "";
+    ret_word.lex = 0;
 
     StartLine = CrtLine;
     jump_space(f);
 
     /* Treat special character */
     if (CurrentChar == ',' || CurrentChar == '\\') {
-      ret_word += CurrentChar;
+      ret_word.word += CurrentChar;
+      ret_word.lex = class_lex(ret_word.word);
       read_char(f);
       return ret_word;
     }
@@ -192,11 +203,15 @@ public class TangoFileReader {
 
         // Detect backslashed quote
         if( CurrentChar=='\\' && NextChar=='"' ) {
-          ret_word += '"';
+          ret_word.word += '"';
+          read_char(f);
+          read_char(f);
+        } else if( CurrentChar=='\\' && NextChar=='\\' ) {
+          ret_word.word += '\\';
           read_char(f);
           read_char(f);
         } else {
-          ret_word += CurrentChar;
+          ret_word.word += CurrentChar;
           read_char(f);
         }
 
@@ -209,19 +224,21 @@ public class TangoFileReader {
         throw e;
       }
       read_char(f);
+      ret_word.lex = STRING;
       return ret_word;
     }
 
     /* Treat other word */
     while (CurrentChar > 32 && CurrentChar != '\\' && CurrentChar != ',') {
-      ret_word += CurrentChar;
+      ret_word.word += CurrentChar;
       read_char(f);
     }
 
-    if (ret_word.length() == 0) {
+    if (ret_word.word.length() == 0) {
       return null;
     }
 
+    ret_word.lex = class_lex(ret_word.word);
     return ret_word;
   }
 
@@ -578,37 +595,28 @@ public class TangoFileReader {
   private String[] parse_resource_value(Reader f) throws IOException {
 
     int i,lex;
-    String[] ret = new String[1024];
-    int nbr;
+    Vector<String> values = new Vector<String>();
 
     /* Resource value */
     lex = COMA;
-    nbr = 0;
 
     while ((lex == COMA || lex == ASLASH) && word != null) {
 
-      word = read_full_word(f);
-      lex = class_lex(word);
+      FullWordInfo wi = read_full_word(f);
 
       /* allow ... ,\ syntax */
-      if (lex == ASLASH) {
-        word = read_full_word(f);
-        lex = class_lex(word);
-      }
+      if (wi.lex == ASLASH)
+        wi = read_full_word(f);
 
-      CHECK_LEX(lex, STRING);
-
-      ret[nbr] = word;
-      nbr++;
+      CHECK_LEX(wi.lex, STRING);
+      values.add(wi.word);
 
       word = read_word(f);
       lex = class_lex(word);
 
     }
 
-    String[] r = new String[nbr];
-    for (i = 0; i < nbr; i++) r[i] = ret[i];
-    return r;
+    return Arrays.copyOf(values.toArray(),values.size(),String[].class);
 
   }
 
