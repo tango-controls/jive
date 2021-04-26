@@ -933,6 +933,7 @@ public class MainPanel extends JFrame implements ChangeListener,NavigationListen
       }
 
       // Change database on trees
+      JiveUtils.refreshStarterDeviceHeader();
       ProgressFrame.displayProgress("Refresh in progress");
       for(int i=0;i<nbPanels;i++) {
         treePanels.get(i).treePanel.setDatabase(db);

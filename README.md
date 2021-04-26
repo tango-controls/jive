@@ -7,7 +7,10 @@ Jive is a standalone JAVA application designed to browse and edit the static TAN
 
 # Change Log
 
+* V 7.27
+    * Fix: Collection not displayed when change TangoHost.
+
 * V 7.26
-    * Fixed bug when resource value contains '\\'
-    * Fixed bug when resource value contains string equal to a special char [',' , '/' , '\' , ':' , '-\>' ]
+    * Fix: Wrong escape sequence when resource value contains '\\'
+    * Fix: Wrong parsing when resource value contains an item equal to a special char [',' , '/' , '\\' , ':' , '-\>' ]
     

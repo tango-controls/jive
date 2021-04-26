@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.StringTokenizer;
 
 /**
- * A panel for selecting host coolection (Astor display)
+ * A panel for selecting host collection (Astor display)
  */
 public class TreePanelHostCollection extends TreePanel {
 

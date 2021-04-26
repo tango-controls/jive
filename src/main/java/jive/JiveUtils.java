@@ -1226,4 +1226,8 @@ public class JiveUtils {
     }
     return starterDeviceHeader;
   }
+  static public void refreshStarterDeviceHeader() {
+    starterDeviceHeader = null;
+  }
+
 }
