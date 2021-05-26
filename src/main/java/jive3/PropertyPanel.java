@@ -339,7 +339,7 @@ public class PropertyPanel extends JPanel implements ActionListener,MouseListene
       int row = theTable.getSelectedRow();
       String pName = (String)dm.getValueAt(row,0);
       String desc = source[0].getDescription(pName);
-      JOptionPane.showMessageDialog(this,desc,"Descrition",JOptionPane.INFORMATION_MESSAGE);
+      JOptionPane.showMessageDialog(this,desc,"Description",JOptionPane.INFORMATION_MESSAGE);
 
     } else if (src == historyMenuItem) {
 
